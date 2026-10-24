@@ -20,7 +20,7 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var
 h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.02em}
 .row{display:flex;gap:8px;align-items:center;margin-top:8px}
 #sb .row{flex-wrap:wrap}
-button,select,.btn,input[type=time],input[type=email],input[type=password]{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;min-height:40px;padding:0 12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+button,select,.btn,input[type=time],input[type=email],input[type=password],input[type=text]{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;min-height:40px;padding:0 12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px}
 select{padding-right:6px}
 .ib{width:40px;padding:0}
 .pri,.seg button.on{background:var(--acc);color:var(--accf);border-color:var(--acc)}
@@ -60,7 +60,7 @@ svg{flex:none}
 .sw{width:32px;height:32px;min-height:0;border-radius:50%;padding:0;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line)}
 .sw.on{box-shadow:0 0 0 2px var(--ink)}
 #lcs input[type=color]{width:44px;height:36px;padding:2px;border:1px solid var(--line);border-radius:8px;background:none}
-#sheet{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--panel);border-top:1px solid var(--rule);border-radius:14px 14px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.2);max-height:72vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--panel);border-top:1px solid var(--rule);border-radius:14px 14px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.2);max-height:80vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
 #sh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid var(--rule)}
 #sb{overflow:auto;padding:4px 14px 16px}
 table{border-collapse:collapse;width:100%}
@@ -72,6 +72,29 @@ tr.past{opacity:.4}tr.now{background:var(--band);font-weight:700}tr.next{box-sha
 h3{margin:14px 0 4px;font-size:14px}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 
+
+:root{--hd:#4b5866}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hd:#1b262c}}
+:root[data-theme="dark"]{--hd:#1b262c}
+header{background:var(--hd);color:#fff;border-bottom:0}
+header h1{color:#fff}
+header button,header .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+header .seg button{color:var(--ink)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 14px}
+#rt{overflow:auto;padding:0 14px 28px}
+table.ro{border-collapse:separate;border-spacing:0;width:max-content}
+.ro td{padding:2px;border:0;vertical-align:middle}
+.ro td.lf{position:sticky;left:0;z-index:2;background:var(--bg);padding:2px 8px 2px 0}
+.lb{display:flex;align-items:center;gap:10px;width:236px;min-height:56px;background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:6px 10px;cursor:pointer}
+.fm{min-width:2.4em;text-align:center;font-size:24px;font-weight:700;color:var(--acc);font-variant-numeric:tabular-nums}
+.fm.none{color:var(--line);font-weight:400}
+.un{display:inline-block;background:var(--hd);color:#fff;border-radius:99px;padding:1px 10px;font-size:15px;font-weight:700}
+.io{font-size:12px;color:var(--mute);line-height:1.35}
+.c{flex-direction:column;justify-content:center;width:98px;min-height:54px;border:0;border-radius:6px;padding:5px 4px;line-height:1.2;font-variant-numeric:tabular-nums}
+.c b{font-size:19px}.c small{font-size:11px;max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp{padding:8px 0 10px;border-bottom:1px solid var(--rule);margin-bottom:6px}
+.po{display:flex;gap:8px;align-items:center;padding:4px 0;border-top:1px solid var(--rule)}
+.po b{font-size:18px;min-width:2.2em}.po span{flex:1;min-width:0}
 </style>
 </head>
 <body>
@@ -81,6 +104,7 @@ h3{margin:14px 0 4px;font-size:14px}
       <h1 id="ttl">列車位置表示</h1>
       <span class="acts"><button class="ib" id="gear" aria-label="設定" title="設定"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.6"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M18.6 5.4l-1.5 1.5M6.9 17.1l-1.5 1.5"/></g></svg></button><button class="ib" id="thm" aria-label="ライト/ダークを切り替え" title="ライト/ダーク"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button><button id="lst" title="路線を選ぶ">路線</button><button id="out" title="ログアウト">ログアウト</button></span>
     </div>
+    <div id="nav" class="hide"><div class="seg" style="max-width:260px"><button id="nr" class="on">運用一覧</button><button id="nm">位置</button></div></div>
     <div id="ctl" class="hide">
       <div class="row"><select id="dia" aria-label="ダイヤ" style="flex:1;min-width:0"></select><input id="tin" type="time" step="1" aria-label="時刻(直接入力)"></div>
       <div class="row"><button id="play" class="ib pri" aria-label="再生・停止"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z" fill="currentColor"/></svg></button>
@@ -92,6 +116,8 @@ h3{margin:14px 0 4px;font-size:14px}
 <div id="auth" class="wrap" style="padding:48px 14px"><h1>ログイン</h1>
 <form id="lf" style="display:flex;flex-direction:column;gap:10px;margin-top:14px"><input id="em" type="email" autocomplete="username" required placeholder="メールアドレス"><input id="pw" type="password" autocomplete="current-password" required placeholder="パスワード"><button class="pri" type="submit">ログイン</button><div id="aerr" class="mute" role="alert"></div></form></div>
 <div id="drop" class="hide"><b>路線を選んでください</b><div id="lines" class="tabs" style="justify-content:center;margin:12px 0"></div><div id="lmsg"></div></div>
+<section id="rs" class="hide"><div class="bar"><select id="rdia" aria-label="ダイヤ"></select><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span></div><div id="rt"></div></section>
+<section id="ov" class="hide"></section>
 <main class="hide" id="mn"><div class="wrap"><svg id="map" role="img" aria-label="路線図"><g id="base"></g><g id="stp" style="pointer-events:none"></g><g id="trains"></g></svg></div></main>
 <div id="sheet" class="hide"><div id="sh"></div><div id="sb"></div></div>
 <div id="info" class="hide"><div class="wrap"><div id="inf"></div><div id="note">時刻表に基づく計算上の位置です。実際の運行とは異なる場合があります</div></div></div>
@@ -173,9 +199,9 @@ function setup(root,name){
   $('#ttl').textContent=M.name||'列車位置表示';
   $('#dia').innerHTML=M.dias.map((d,i)=>`<option value="${i}">${esc(d.name)}</option>`).join('');
   hidden.clear();hideTT.clear();selIds=new Set();
-  for(const el of ['#drop'])$(el).classList.add('hide');
-  for(const el of ['#ctl','#mn','#info'])$(el).classList.remove('hide');
-  useDia(0,true);
+  show('#drop',false);
+  const di=Math.max(0,M.dias.findIndex(d=>/平日/.test(d.name)));$('#dia').value=di;
+  useDia(di,true);showView('roster');loadPosts().then(refresh);
 }
 
 function build(d){
@@ -193,10 +219,31 @@ function build(d){
     const stp=si.filter(i=>!route[i].ps);if(stp.length<2)continue;
     let off=0,prev=-1;
     for(const i of si){const x=route[i];let a=x.a+off;if(a<prev){off+=86400;a+=86400}let dd=x.d+off;if(dd<a){off+=86400;dd+=86400}x.a=a;x.d=dd;prev=dd}
-    out.push({dir,ty:+r.Syubetsu||0,name:[r.Ressyabangou,r.Ressyamei].filter(Boolean).join(' '),route,si,fs:stp[0],ls:stp[stp.length-1],t0:route[si[0]].a,t1:route[si[si.length-1]].d,id:out.length});
+    out.push({dir,ty:+r.Syubetsu||0,name:[r.Ressyabangou,r.Ressyamei].filter(Boolean).join(' '),route,si,fs:stp[0],ls:stp[stp.length-1],t0:route[si[0]].a,t1:route[si[si.length-1]].d,id:out.length,bikou:r.Bikou||'',opk:Object.fromEntries(Object.entries(r).filter(([k])=>/^Operation\d+[AB]$/.test(k)))});
   }
-  return out;
+  linkOps(out);return out;
 }
+
+// 運用の連なり: OperationNB=始発側 / OperationNA=終着側。値の先頭 5=前後の列車と接続、3=出庫(名前つき)・入庫。
+// 同じ駅で、到着した列車と、直近に出発する接続列車を組み合わせる(直近優先)
+function linkOps(out){
+  const kd=v=>{const k=v.split(',').map(x=>x.split('/')[0]);return k.includes('5')?5:k.includes('3')?3:0};
+  const ev=new Map();let any=false;
+  for(const t of out){t.sk=t.ek=0;t.nm='';t.op=null;
+    for(const k in t.opk){any=true;const v=t.opk[k],c=kd(v);
+      if(k.endsWith('B')){t.sk=c;if(c===3){const m=v.match(/^3\/[^$]*\$[^/]*\/([^,]*)/);t.nm=m?m[1]:''}}else t.ek=c}
+    const a=t.route[t.fs],b=t.route[t.ls],put=(s,x)=>{if(!ev.has(s))ev.set(s,[]);ev.get(s).push(x)};
+    put(a.s,[a.d,1,t]);put(b.s,[b.a,0,t])}
+  out.ops=[];if(!any)return;
+  for(const evs of ev.values()){evs.sort((p,q)=>p[0]-q[0]||p[1]-q[1]);const stack=[];
+    for(const [,ty,t] of evs){if(ty===0){if(t.ek===5)stack.push(t)}else if(t.sk===5&&stack.length){const p=stack.pop();p.nx=t;t.pv=p}}}
+  let un=0;
+  for(const t of out){if(t.pv)continue;const tr=[t];while(tr[tr.length-1].nx)tr.push(tr[tr.length-1].nx);
+    out.ops.push({name:t.nm||'運用'+(++un),named:!!t.nm,trains:tr})}
+  out.ops.sort((a,b)=>(a.named?0:1)-(b.named?0:1)||a.name.localeCompare(b.name,'ja',{numeric:true}));
+  out.ops.forEach((o,i)=>{o.i=i;o.trains.forEach((t,k)=>{t.op=o;t.oi=k})});
+}
+
 
 function useDia(i,first){
   const d=M.dias[i];M.cur=i;if(!d.trains)d.trains=build(d);cur=d.trains;selIds=new Set();
@@ -285,8 +332,8 @@ function renderSheet(){
     const trs=sh.ids.map(i=>cur[i]),tr=trs[sh.act],R=tr.route,ty=M.types[tr.ty]||{name:'',col:'var(--ink)'},a=R[tr.fs],b=R[tr.ls];
     const rows=[];tr.si.forEach((i,k)=>{const x=R[i],l=rows[rows.length-1];if(l&&!l.ps&&!x.ps&&pk(l.s)===pk(x.s)){l.d=x.d;l.b=k}else rows.push({s:x.s,a:x.a,d:x.d,ps:x.ps,ka:k,b:k})});
     $('#sh').innerHTML=`<div><div><b style="color:${ty.col}">${esc(ty.name)}</b> ${esc(tr.name)} ${tr.dir?'上り':'下り'}</div><div class="mute">${S(a.s)} ${fmt(a.d)} → ${S(b.s)} ${fmt(b.a)}</div><div id="sst"></div>${trs.length>1?'<div class="tabs">'+trs.map((t,i)=>`<button data-act="${i}" ${i===sh.act?'style="border-color:var(--acc)"':''}>${esc((M.types[t.ty]||{}).name)} ${esc(t.name)||fmt(t.t0)}</button>`).join('')+'</div>':''}</div><button id="cls">閉じる</button>`;
-    $('#sb').innerHTML=`<table><tr><th>駅</th><th>着</th><th>発</th></tr>${rows.map((r,i)=>r.ps?`<tr data-a="${r.ka}" data-b="${r.b}"><td class="mute">${S(r.s)}</td><td class="mute" colspan="2">通過 ${fmt(r.a)}</td></tr>`:`<tr data-a="${r.ka}" data-b="${r.b}"><td>${S(r.s)}</td><td>${i?fmt(r.a):''}</td><td>${i<rows.length-1?fmt(r.d):''}</td></tr>`).join('')}</table>`;
-    markRows();
+    $('#sb').innerHTML=`<div id="pst"></div><table><tr><th>駅</th><th>着</th><th>発</th></tr>${rows.map((r,i)=>r.ps?`<tr data-a="${r.ka}" data-b="${r.b}"><td class="mute">${S(r.s)}</td><td class="mute" colspan="2">通過 ${fmt(r.a)}</td></tr>`:`<tr data-a="${r.ka}" data-b="${r.b}"><td>${S(r.s)}</td><td>${i?fmt(r.a):''}</td><td>${i<rows.length-1?fmt(r.d):''}</td></tr>`).join('')}</table>`;
+    markRows();renderPost(tr);
   }else{
     const i=sh.i,key=pk(i),L=[];
     for(const tr of cur){if(hideTT.has(tr.ty)||tr.dir!==ttDir)continue;const R=tr.route,ks=tr.si.filter(j=>!R[j].ps&&pk(R[j].s)===key);if(!ks.length)continue;const last=ks[ks.length-1]===tr.ls;
@@ -350,6 +397,77 @@ $('#map').addEventListener('pointerup',e=>{if(!pd)return;const mv=Math.hypot(e.c
   const q=t&&t.closest('[data-st]');if(q){selIds=new Set();lastHtml=null;openSheet({type:'st',i:+q.dataset.st});draw()}});
 setInterval(()=>{if(M&&playing){T+=.25*speed;if(T>M.hi)T=M.lo;draw()}},250);
 
+// ---- 運用一覧・運用の一覧・編成の投稿 ----
+const VIEWS=['#ctl','#mn','#info','#rs','#ov','#nav','#sheet'];
+let posts=[],postErr=false,me=null,lineFile='',curOp=0;
+const svcDate=()=>new Date(Date.now()+6*3600e3).toISOString().slice(0,10); // 日本時間の午前3時で日付が変わる
+const postsOf=u=>posts.filter(p=>p.unit===u&&p.dia===M.dias[M.cur].name);
+async function loadPosts(){
+  if(!M||!lineFile)return;
+  const {data,error}=await sb.from('formation_posts').select('*').eq('file',lineFile).eq('service_date',svcDate()).order('created_at',{ascending:false});
+  postErr=!!error;posts=error?[]:data;
+}
+function refresh(){
+  if(!M)return;
+  if(!$('#rs').classList.contains('hide'))renderRoster();
+  if(!$('#ov').classList.contains('hide'))renderOp();
+  if(sh&&sh.type==='tr')renderPh(cur[sh.ids[sh.act]]);
+}
+const ccol=t=>{const c=tcol(t);return c==='var(--ink)'?'var(--car)':c}; // 種別の色が黒(未設定)のときは落ち着いたスレート色
+const cell=t=>{const c=ccol(t),a=t.route[t.fs],b=t.route[t.ls];
+  return `<td><button class="c" data-t="${t.id}" style="background:${c};color:${ink(c)}"><b>${esc(t.name||fmt(a.d))}</b><small>${t.name?S(a.s)+' '+fmt(a.d):S(a.s)+'→'+S(b.s)}</small></button></td>`};
+function renderRoster(){
+  const o=cur.ops||[];
+  $('#rdia').innerHTML=M.dias.map((d,i)=>`<option value="${i}"${i===M.cur?' selected':''}>${esc(d.name)}</option>`).join('');
+  $('#rmsg').textContent=postErr?'編成の投稿を読み込めませんでした':'運用の行をタップで運用の一覧、列車のマスをタップで時刻';
+  $('#rt').innerHTML=o.length?`<table class="ro">${o.map(x=>{const f=x.trains[0],l=x.trains[x.trains.length-1],p=postsOf(x.name)[0];
+    return `<tr><td class="lf"><div class="lb" data-op="${x.i}"><span class="fm${p?'':' none'}">${p?esc(p.formation):'―'}</span><div><span class="un">${esc(x.name)}</span><div class="io">${S(f.route[f.fs].s)} 出庫 / ${S(l.route[l.ls].s)} 入庫</div>${p&&p.remark?`<div class="io">${esc(p.remark)}</div>`:''}</div></div></td>${x.trains.map(cell).join('')}</tr>`}).join('')}</table>`:'<div class="mute" style="padding:20px 0">このダイヤには運用の情報が入っていません。別のダイヤを選んでください</div>';
+}
+function renderOp(){
+  const o=(cur.ops||[])[curOp];if(!o){showView('roster');return}
+  const f=o.trains[0],l=o.trains[o.trains.length-1],p=postsOf(o.name)[0];
+  $('#ov').innerHTML=`<div class="wrap" style="padding:10px 14px"><div class="row" style="margin:0"><button id="bk">運用一覧へ</button><span class="un" style="font-size:18px">${esc(o.name)}</span><span class="fm${p?'':' none'}" style="font-size:20px">${p?esc(p.formation):'編成未投稿'}</span></div>
+  <div class="mute" style="margin:8px 0">${S(f.route[f.fs].s)} 出庫、${S(l.route[l.ls].s)} 入庫、${o.trains.length}本${p&&p.remark?'。'+esc(p.remark):''}</div>
+  <table><tr><th>発</th><th>列車</th><th>着</th><th>備考</th></tr>${o.trains.map(t=>{const a=t.route[t.fs],b=t.route[t.ls],c=ccol(t),ty=M.types[t.ty]||{ini:''};
+    return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td></tr>`}).join('')}</table></div>`;
+}
+function showView(v,i){
+  for(const el of VIEWS)show(el,false);sh=null;selIds=new Set();show('#nav',true);
+  if(v==='map'){for(const el of ['#ctl','#mn','#info'])show(el,true);lastHtml=null;draw()}
+  else if(v==='op'){curOp=i;show('#ov',true);renderOp();scrollTo(0,0)}
+  else{show('#rs',true);renderRoster()}
+  $('#nr').classList.toggle('on',v!=='map');$('#nm').classList.toggle('on',v==='map');
+}
+function renderPost(tr){
+  const e=$('#pst');if(!e)return;const o=tr.op,bk=tr.bikou?`<div class="mute">備考 ${esc(tr.bikou)}</div>`:'';
+  if(!o){e.innerHTML=`<div class="pp">${bk}<div class="mute">この列車は運用に入っていないため、編成を投稿できません</div></div>`;return}
+  e.innerHTML=`<div class="pp">${bk}<div class="row" style="margin:0 0 8px"><span class="un">${esc(o.name)}</span><button data-goop="${o.i}">この運用の列車一覧</button></div>
+  <div class="row"><input id="pf" type="text" maxlength="20" placeholder="編成 例 06" aria-label="編成番号" style="width:7.5em"><input id="pr" type="text" maxlength="100" placeholder="備考(任意)" aria-label="備考" style="flex:1;min-width:0"><button id="pb" class="pri">投稿</button></div>
+  <div id="pm" class="mute" role="status"></div><div id="ph"></div></div>`;
+  renderPh(tr);
+}
+function renderPh(tr){
+  const e=$('#ph');if(!e||!tr||!tr.op)return;const L=postsOf(tr.op.name);
+  e.innerHTML=L.length?L.map(p=>`<div class="po"><b>${esc(p.formation)}</b><span>${esc(p.remark)}<div class="io">${new Date(p.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})} ${esc(p.train)}</div></span>${p.user_id===me?`<button data-del="${esc(p.id)}">取消</button>`:''}</div>`).join(''):'<div class="mute">今日の投稿はまだありません</div>';
+}
+$('#sheet').addEventListener('click',async e=>{
+  const g=e.target.closest('[data-goop]');if(g){const i=+g.dataset.goop;closeSheet();showView('op',i);return}
+  if(!sh||sh.type!=='tr')return;const tr=cur[sh.ids[sh.act]],b=e.target.closest('#pb'),x=e.target.closest('[data-del]');
+  if(b&&tr.op){const pf=$('#pf'),pr=$('#pr'),m=$('#pm'),f=pf.value.trim();
+    if(!f){m.textContent='編成番号を入力してください';return}
+    b.disabled=true;const a=tr.route[tr.fs];
+    const {error}=await sb.from('formation_posts').insert({file:lineFile,dia:M.dias[M.cur].name,unit:tr.op.name,train:M.st[a.s].name+' '+fmt(a.d)+'発',formation:f,remark:pr.value.trim(),service_date:svcDate()});
+    b.disabled=false;if(error){m.textContent='投稿できませんでした。時間をおいてもう一度試してください';return}
+    pf.value='';pr.value='';m.textContent='';await loadPosts();refresh()}
+  if(x){x.disabled=true;await sb.from('formation_posts').delete().eq('id',x.dataset.del);await loadPosts();refresh()}
+});
+const nav=e=>{const t=e.target.closest('[data-t]'),o=e.target.closest('[data-op]');
+  if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o)showView('op',+o.dataset.op);else if(e.target.closest('#bk'))showView('roster')};
+$('#rs').addEventListener('click',nav);$('#ov').addEventListener('click',nav);
+$('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');
+$('#rdia').onchange=e=>{useDia(+e.target.value);$('#dia').value=e.target.value;renderRoster()};
+setInterval(async()=>{if(authed&&M&&!document.hidden){await loadPosts();refresh()}},60000);
+
 // ---- 認証と時刻表の取得 ----
 // ここに書く2つの値は公開されても問題ない値です(Project URL と Publishable key = sb_publishable_...)。Secret key(sb_secret_...)や service_role は絶対に入れないこと
 const SB_URL='https://mukmgauweucsppjmpxha.supabase.co',SB_KEY='sb_publishable_qmr5joxyFkAe2ILfEdLlpg_NqVrPlgr';
@@ -357,11 +475,11 @@ const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefr
 const show=(el,on)=>$(el).classList.toggle('hide',!on);
 let authed=false;
 function gate(s){
-  const ok=!!s;if(ok===authed)return;authed=ok;
+  me=s&&s.user?s.user.id:null;const ok=!!s;if(ok===authed)return;authed=ok;
   show('#auth',!ok);show('#hd',ok);
   if(ok){setTimeout(showList,0)}
-  else{for(const el of ['#drop','#ctl','#mn','#info','#sheet'])show(el,false);
-    M=null;cur=[];sh=null;selIds=new Set();lastHtml='';for(const el of ['#base','#stp','#trains','#lines'])$(el).textContent='';}
+  else{for(const el of ['#drop',...VIEWS])show(el,false);
+    M=null;cur=[];posts=[];lineFile='';sh=null;selIds=new Set();lastHtml='';for(const el of ['#base','#stp','#trains','#lines'])$(el).textContent='';}
 }
 async function api(q){
   const {data:{session}}=await sb.auth.getSession();
@@ -372,7 +490,7 @@ async function api(q){
   return r;
 }
 async function showList(){
-  for(const el of ['#ctl','#mn','#info','#sheet'])show(el,false);show('#drop',true);
+  for(const el of VIEWS)show(el,false);show('#drop',true);
   const box=$('#lines'),msg=$('#lmsg');box.textContent='';msg.textContent='読み込み中…';
   try{const {files}=await(await api('action=list')).json();
     msg.textContent=files.length?'':'閲覧できる路線がありません。管理者に権限を依頼してください';
@@ -381,7 +499,7 @@ async function showList(){
 }
 async function openLine(n){
   $('#lmsg').textContent='読み込み中…';
-  try{const b=await(await api('action=file&name='+encodeURIComponent(n))).blob();$('#lmsg').textContent='';loadFile(new File([b],n))}
+  try{const b=await(await api('action=file&name='+encodeURIComponent(n))).blob();$('#lmsg').textContent='';lineFile=n;loadFile(new File([b],n))}
   catch(e){if(e.message!=='auth')$('#lmsg').textContent='読み込めませんでした('+e.message+')'}
 }
 $('#lf').onsubmit=async e=>{e.preventDefault();$('#aerr').textContent='';
