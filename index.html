@@ -5,13 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data:; connect-src https://*.supabase.co; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
-<title>列車位置表示</title>
+<meta name="theme-color" content="#16427f">
+<title>運用・列車位置</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
-:root{--bg:#f9fbfa;--panel:#fff;--band:#ecf0f3;--ink:#2b3840;--mute:#6c7b83;--car:#627d8c;--line:#b8c4c9;--rule:#dde4e7;--acc:#3f7f22;--accf:#fff;--lc:#5a9e35;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11191d;--panel:#1a252a;--band:#202e34;--ink:#e4edf0;--mute:#8da0a6;--car:#8aa5b3;--line:#52666d;--rule:#2a3a40;--acc:#8fd16a;--accf:#10200a;--lc:#78b552}}
-:root[data-theme="dark"]{--bg:#11191d;--panel:#1a252a;--band:#202e34;--ink:#e4edf0;--mute:#8da0a6;--car:#8aa5b3;--line:#52666d;--rule:#2a3a40;--acc:#8fd16a;--accf:#10200a;--lc:#78b552}
+:root{--bg:#f3f7fd;--panel:#fff;--band:#e4edf9;--ink:#14263d;--mute:#5b6f87;--car:#2f7fd0;--line:#b2c4da;--rule:#d6e2f1;--acc:#1d64c8;--accf:#fff;--lc:#2a78d6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1522;--panel:#142132;--band:#1a2b42;--ink:#e2ecf8;--mute:#8aa0ba;--car:#4f93e0;--line:#3a5272;--rule:#233750;--acc:#6cacf5;--accf:#06203f;--lc:#4f93e0}}
+:root[data-theme="dark"]{--bg:#0c1522;--panel:#142132;--band:#1a2b42;--ink:#e2ecf8;--mute:#8aa0ba;--car:#4f93e0;--line:#3a5272;--rule:#233750;--acc:#6cacf5;--accf:#06203f;--lc:#4f93e0}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Zen Kaku Gothic New",system-ui,sans-serif}
@@ -35,10 +36,12 @@ input[type=range]{flex:1;min-width:140px;accent-color:var(--acc)}
 .chip{display:inline-flex;gap:6px;align-items:center;padding:3px 10px;border-radius:99px;border:1px solid var(--line);background:var(--bg)}
 .chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
 .chip.off{opacity:.4}
-#drop{margin:40px 14px;padding:48px 20px;border:2px dashed var(--line);border-radius:10px;text-align:center;color:var(--mute)}
-#drop.over{border-color:var(--acc);color:var(--ink)}
-#drop b{display:block;font-size:17px;color:var(--ink);margin-bottom:6px}
-main{padding:0 0 110px}
+#drop{max-width:760px;margin:0 auto;padding:22px 14px}
+#drop h2{margin:0 0 14px;font-size:18px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.tile{flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:0;min-height:92px;padding:12px 14px;text-align:left;font-size:17px;font-weight:700;line-height:1.3;border-radius:10px;background:var(--panel);border:1px solid var(--rule);border-left:6px solid var(--acc)}
+.tile:hover{background:var(--band)}
+main{padding:0 0 160px}
 #mn .wrap{max-width:none;overflow-x:auto}
 input[type=time]{font-size:20px;font-weight:700;width:7.8em;font-variant-numeric:tabular-nums;cursor:text}
 .ic{display:inline-block;width:20px;height:20px;border-radius:5px;text-align:center;font-size:12px;font-weight:700;line-height:20px;vertical-align:-3px}
@@ -50,7 +53,7 @@ svg{flex:none}
 #shp svg{width:26px;height:30px;display:block}
 .nm{font-size:17px;font-weight:700;fill:var(--ink)}
 .nm.sub{font-size:15px}
-#info{position:fixed;left:0;right:0;bottom:0;background:var(--band);border-top:1px solid var(--rule);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));z-index:5}
+#info{position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom,0px));background:var(--band);border-top:1px solid var(--rule);padding:8px 14px;z-index:5}
 #info .wrap{min-height:30px}
 #note{font-size:12px;color:var(--mute);display:flex;gap:6px;align-items:center}
 #note:before{content:"";width:10px;height:10px;border-radius:50%;background:var(--mute)}
@@ -73,15 +76,16 @@ h3{margin:14px 0 4px;font-size:14px}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 
 
-:root{--hd:#4b5866}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hd:#1b262c}}
-:root[data-theme="dark"]{--hd:#1b262c}
+:root{--hd:#16427f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hd:#0f2a4f}}
+:root[data-theme="dark"]{--hd:#0f2a4f}
 header{background:var(--hd);color:#fff;border-bottom:0}
 header h1{color:#fff}
 header button,header .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
 header .seg button{color:var(--ink)}
 .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 14px}
-#rt{overflow:auto;padding:0 14px 28px}
+#rt{overflow:auto;padding:0 14px 100px}
+#ov{padding-bottom:90px}
 table.ro{border-collapse:separate;border-spacing:0;width:max-content}
 .ro td{padding:2px;border:0;vertical-align:middle}
 .ro td.lf{position:sticky;left:0;z-index:2;background:var(--bg);padding:2px 8px 2px 0}
@@ -95,19 +99,28 @@ table.ro{border-collapse:separate;border-spacing:0;width:max-content}
 .pp{padding:8px 0 10px;border-bottom:1px solid var(--rule);margin-bottom:6px}
 .po{display:flex;gap:8px;align-items:center;padding:4px 0;border-top:1px solid var(--rule)}
 .po b{font-size:18px;min-width:2.2em}.po span{flex:1;min-width:0}
+.opt{display:flex;align-items:center;gap:10px;padding:10px 0;font-size:15px}
+#bnav{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:1fr 1fr;background:var(--panel);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom,0px)}
+#bnav button{flex-direction:column;gap:2px;border:0;border-radius:0;background:transparent;min-height:56px;font-size:12px;color:var(--mute);position:relative}
+#bnav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#bnav button.on{color:var(--acc);font-weight:700}
+#bnav button.on:before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--acc);border-radius:0 0 3px 3px}
+header .pri{background:#fff;color:var(--hd);border-color:#fff}
+#ctl.fold #dia,#ctl.fold .r2{display:none}
+#ctl.fold #tin{flex:1}
+#ctl.fold #fold svg{transform:rotate(180deg)}
 </style>
 </head>
 <body>
 <header id="hd" class="hide">
   <div class="wrap">
     <div class="top">
-      <h1 id="ttl">列車位置表示</h1>
+      <h1 id="ttl">運用・列車位置</h1>
       <span class="acts"><button class="ib" id="gear" aria-label="設定" title="設定"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.6"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M18.6 5.4l-1.5 1.5M6.9 17.1l-1.5 1.5"/></g></svg></button><button class="ib" id="thm" aria-label="ライト/ダークを切り替え" title="ライト/ダーク"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button><button id="lst" title="路線を選ぶ">路線</button><button id="out" title="ログアウト">ログアウト</button></span>
     </div>
-    <div id="nav" class="hide"><div class="seg" style="max-width:260px"><button id="nr" class="on">運用一覧</button><button id="nm">位置</button></div></div>
     <div id="ctl" class="hide">
-      <div class="row"><select id="dia" aria-label="ダイヤ" style="flex:1;min-width:0"></select><input id="tin" type="time" step="1" aria-label="時刻(直接入力)"></div>
-      <div class="row"><button id="play" class="ib pri" aria-label="再生・停止"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z" fill="currentColor"/></svg></button>
+      <div class="row"><select id="dia" aria-label="ダイヤ" style="flex:1;min-width:0"></select><input id="tin" type="time" step="1" aria-label="時刻(直接入力)"><button id="fold" class="ib" aria-expanded="true" title="折りたたむ" aria-label="操作パネルの折りたたみ"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      <div class="row r2"><button id="play" class="ib pri" aria-label="再生・停止"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z" fill="currentColor"/></svg></button>
         <div class="seg" id="spd" role="group" aria-label="進む速さ"><button data-v="1">×1</button><button data-v="10">×10</button><button data-v="30">×30</button><button data-v="60" class="on">×60</button><button data-v="300">×300</button></div>
         <button id="now">いま</button></div>
     </div>
@@ -115,11 +128,12 @@ table.ro{border-collapse:separate;border-spacing:0;width:max-content}
 </header>
 <div id="auth" class="wrap" style="padding:48px 14px"><h1>ログイン</h1>
 <form id="lf" style="display:flex;flex-direction:column;gap:10px;margin-top:14px"><input id="em" type="email" autocomplete="username" required placeholder="メールアドレス"><input id="pw" type="password" autocomplete="current-password" required placeholder="パスワード"><button class="pri" type="submit">ログイン</button><div id="aerr" class="mute" role="alert"></div></form></div>
-<div id="drop" class="hide"><b>路線を選んでください</b><div id="lines" class="tabs" style="justify-content:center;margin:12px 0"></div><div id="lmsg"></div></div>
+<div id="drop" class="hide"><h2>路線を選んでください</h2><div id="lines" class="tiles"></div><div id="lmsg" class="mute" style="margin-top:12px"></div></div>
 <section id="rs" class="hide"><div class="bar"><select id="rdia" aria-label="ダイヤ"></select><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span></div><div id="rt"></div></section>
 <section id="ov" class="hide"></section>
 <main class="hide" id="mn"><div class="wrap"><svg id="map" role="img" aria-label="路線図"><g id="base"></g><g id="stp" style="pointer-events:none"></g><g id="trains"></g></svg></div></main>
 <div id="sheet" class="hide"><div id="sh"></div><div id="sb"></div></div>
+<nav id="bnav" class="hide" aria-label="表示の切り替え"><button id="nr" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>運用一覧</button><button id="nm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>在線位置</button></nav>
 <div id="info" class="hide"><div class="wrap"><div id="inf"></div><div id="note">時刻表に基づく計算上の位置です。実際の運行とは異なる場合があります</div></div></div>
 <script>
 const $=s=>document.querySelector(s);
@@ -285,7 +299,7 @@ function drawStops(){let h='';const m=stops();
   $('#stp').innerHTML=h}
 const tcol=tr=>(M.types[tr.ty]||{col:'var(--mute)'}).col;
 const SHAPES=[['std','標準'],['pan','形A'],['rnd','形B']];
-let shape='std';try{const v=localStorage.getItem('shape');if(SHAPES.some(x=>x[0]===v))shape=v}catch(e){}
+let shape='std';
 // 列車アイコンの形。pan=パンタグラフ付き、rnd=丸みのある四角+足
 function shapeSvg(k,c,tc,ini){
   const t=y=>ini?`<text y="${y}" text-anchor="middle" font-size="14" font-weight="700" fill="${tc}">${ini}</text>`:'';
@@ -297,7 +311,9 @@ function icon(g){
   const tr=g.trs[0],c=tcol(tr),up=g.side<0,sel=g.trs.some(t=>selIds.has(t.id)),n=g.trs.length;
   const tri=up?'M0-25L7-16H-7Z':'M0 25L7 16H-7Z';
   const lab=n>1?`+${n-1}`:'',ini=(M.types[tr.ty]||{}).ini||'';
-  return `<g data-ids="${g.trs.map(t=>t.id)}" transform="translate(${g.x} ${g.y})" style="cursor:pointer"><rect x="-18" y="-28" width="36" height="${lab?64:56}" fill="transparent"/>${sel?`<rect x="-15" y="-18" width="30" height="36" rx="11" fill="none" stroke="${c}" stroke-width="2.5"/>`:''}${shapeSvg(shape,c,ink(c),ini)}<path d="${tri}" fill="${c}"/>${lab?`<text y="${up?31:42}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">${lab}</text>`:''}</g>`;
+  const lines=[showNo&&tr.name?tr.name:'',showDest?[...M.st[tr.route[tr.ls].s].name].slice(0,4).join(''):''].filter(Boolean),
+    inf=lines.map((x,i)=>`<text y="${up?(lab?46:36)+i*11:-21-(lines.length-1-i)*11}" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink)" stroke="var(--bg)" stroke-width="3" paint-order="stroke">${esc(x)}</text>`).join('');
+  return `<g data-ids="${g.trs.map(t=>t.id)}" transform="translate(${g.x} ${g.y})" style="cursor:pointer"><rect x="-18" y="-28" width="36" height="${lab?64:56}" fill="transparent"/>${sel?`<rect x="-15" y="-18" width="30" height="36" rx="11" fill="none" stroke="${c}" stroke-width="2.5"/>`:''}${shapeSvg(shape,c,ink(c),ini)}<path d="${tri}" fill="${c}"/>${lab?`<text y="${up?31:42}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">${lab}</text>`:''}${inf}</g>`;
 }
 function draw(){
   if(!M)return;
@@ -353,22 +369,11 @@ function markRows(){
 }
 function info(){markRows()}
 $('#sheet').addEventListener('click',e=>{if(e.target.closest('#cls'))closeSheet();const dd=e.target.closest('[data-dir]');if(dd&&sh&&sh.type==='st'){ttDir=+dd.dataset.dir;renderSheet();$('#sb').scrollTop=0}const t=e.target.closest('[data-act]');if(t){sh.act=+t.dataset.act;selIds=new Set([sh.ids[sh.act]]);renderSheet();draw()}});
-const LCS=['#5a9e35','#d98c00','#2f8fd0','#a14fb8','#d6453d','#14919b'];
-let lcCur='';try{lcCur=localStorage.getItem('lc')||''}catch(e){}
-function applyLc(){const r=document.documentElement;lcCur?r.style.setProperty('--lc',lcCur):r.style.removeProperty('--lc')}
-function setLc(c){lcCur=c;applyLc();try{c?localStorage.setItem('lc',c):localStorage.removeItem('lc')}catch(e){}}
-applyLc();
 function renderSet(){
   $('#sh').innerHTML='<div><b style="font-size:17px">設定</b></div><button id="cls">閉じる</button>';
-  const ty=M?M.types:[];
-  $('#sb').innerHTML=`<h3>路線の色</h3><div class="row" id="lcs">${['',...LCS].map(c=>`<button class="sw${c===lcCur?' on':''}" data-c="${c}" style="background:${c||'conic-gradient(#5a9e35 50%,#78b552 0)'}" aria-label="${c||'標準'}"></button>`).join('')}<input type="color" id="lcc" value="${/^#[0-9a-f]{6}$/i.test(lcCur)?lcCur:'#5a9e35'}" aria-label="好きな色"></div>
-  <h3>列車の形</h3><div class="seg" id="shp" role="group" aria-label="列車の形">${SHAPES.map(([k,n])=>`<button data-shape="${k}" class="${k===shape?'on':''}"><svg viewBox="-15 -19 30 38">${shapeSvg(k,'currentColor','var(--accf)','')}</svg>${n}</button>`).join('')}</div>
-  <h3>種別(凡例)</h3>`+(ty.length?`<table><tr><th>種別</th><th>在線</th><th>時刻表</th></tr>${ty.map((t,i)=>`<tr><td><span class="ic" style="background:${t.col};color:${ink(t.col)}">${esc(t.ini)}</span> ${esc(t.name)}</td><td><input type="checkbox" data-k="map" data-t="${i}" aria-label="${esc(t.name)}を在線に表示" ${hidden.has(i)?'':'checked'}></td><td><input type="checkbox" data-k="tt" data-t="${i}" aria-label="${esc(t.name)}を時刻表に表示" ${hideTT.has(i)?'':'checked'}></td></tr>`).join('')}</table><div class="mute" style="margin-top:8px;font-size:12px">在線: 路線図の列車と、駅名の下の停車種別 / 時刻表: 駅をタップしたときの時刻表</div>`:'<div class="mute">ファイルを読み込むと種別が表示されます</div>');
+  $('#sb').innerHTML=`<h3>列車の表示</h3><label class="opt"><input type="checkbox" data-o="no" ${showNo?'checked':''}>列車番号</label><label class="opt"><input type="checkbox" data-o="dest" ${showDest?'checked':''}>行先</label><div class="mute" style="font-size:12px;margin-top:6px">運用一覧のマスと、在線位置の列車アイコンに表示します</div>`;
 }
 $('#gear').onclick=()=>openSheet({type:'set'});
-$('#sheet').addEventListener('click',e=>{const sp=e.target.closest('[data-shape]');if(sp&&sh&&sh.type==='set'){shape=sp.dataset.shape;try{localStorage.setItem('shape',shape)}catch(e){}document.querySelectorAll('#sb [data-shape]').forEach(x=>x.classList.toggle('on',x===sp));lastHtml=null;draw()}const b=e.target.closest('.sw');if(b&&sh&&sh.type==='set'){setLc(b.dataset.c);document.querySelectorAll('#sb .sw').forEach(x=>x.classList.toggle('on',x===b))}});
-$('#sheet').addEventListener('input',e=>{if(e.target.id==='lcc'){setLc(e.target.value);document.querySelectorAll('#sb .sw').forEach(x=>x.classList.remove('on'))}});
-$('#sheet').addEventListener('change',e=>{const c=e.target.closest('[data-k]');if(!c)return;const t=+c.dataset.t,set=c.dataset.k==='map'?hidden:hideTT;c.checked?set.delete(t):set.add(t);if(c.dataset.k==='map'){drawStops();lastHtml=null;draw()}});
 $('#thm').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('thm',r.dataset.theme)}catch(e){}};
 try{const t=localStorage.getItem('thm');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}
 
@@ -398,7 +403,7 @@ $('#map').addEventListener('pointerup',e=>{if(!pd)return;const mv=Math.hypot(e.c
 setInterval(()=>{if(M&&playing){T+=.25*speed;if(T>M.hi)T=M.lo;draw()}},250);
 
 // ---- 運用一覧・運用の一覧・編成の投稿 ----
-const VIEWS=['#ctl','#mn','#info','#rs','#ov','#nav','#sheet'];
+const VIEWS=['#ctl','#mn','#info','#rs','#ov','#bnav','#sheet'];
 let posts=[],postErr=false,me=null,lineFile='',curOp=0;
 const svcDate=()=>new Date(Date.now()+6*3600e3).toISOString().slice(0,10); // 日本時間の午前3時で日付が変わる
 const postsOf=u=>posts.filter(p=>p.unit===u&&p.dia===M.dias[M.cur].name);
@@ -414,8 +419,13 @@ function refresh(){
   if(sh&&sh.type==='tr')renderPh(cur[sh.ids[sh.act]]);
 }
 const ccol=t=>{const c=tcol(t);return c==='var(--ink)'?'var(--car)':c}; // 種別の色が黒(未設定)のときは落ち着いたスレート色
-const cell=t=>{const c=ccol(t),a=t.route[t.fs],b=t.route[t.ls];
-  return `<td><button class="c" data-t="${t.id}" style="background:${c};color:${ink(c)}"><b>${esc(t.name||fmt(a.d))}</b><small>${t.name?S(a.s)+' '+fmt(a.d):S(a.s)+'→'+S(b.s)}</small></button></td>`};
+let showNo=true,showDest=false;try{showNo=localStorage.getItem('sNo')!=='0';showDest=localStorage.getItem('sDest')==='1'}catch(e){}
+const cell=t=>{const c=ccol(t),a=t.route[t.fs],b=t.route[t.ls],tm=fmt(a.d),no=showNo&&t.name;
+  return `<td><button class="c" data-t="${t.id}" style="background:${c};color:${ink(c)}"><b>${esc(no?t.name:tm)}</b><small>${showDest?S(b.s)+'行':S(a.s)+(no?' '+tm:'')}</small></button></td>`};
+$('#sheet').addEventListener('change',e=>{const o=e.target.closest('[data-o]');if(!o)return;
+  if(o.dataset.o==='no')showNo=o.checked;else showDest=o.checked;
+  try{localStorage.setItem('sNo',showNo?'1':'0');localStorage.setItem('sDest',showDest?'1':'0')}catch(err){}
+  lastHtml=null;draw();refresh()});
 function renderRoster(){
   const o=cur.ops||[];
   $('#rdia').innerHTML=M.dias.map((d,i)=>`<option value="${i}"${i===M.cur?' selected':''}>${esc(d.name)}</option>`).join('');
@@ -432,7 +442,7 @@ function renderOp(){
     return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td></tr>`}).join('')}</table></div>`;
 }
 function showView(v,i){
-  for(const el of VIEWS)show(el,false);sh=null;selIds=new Set();show('#nav',true);
+  for(const el of VIEWS)show(el,false);sh=null;selIds=new Set();show('#bnav',true);
   if(v==='map'){for(const el of ['#ctl','#mn','#info'])show(el,true);lastHtml=null;draw()}
   else if(v==='op'){curOp=i;show('#ov',true);renderOp();scrollTo(0,0)}
   else{show('#rs',true);renderRoster()}
@@ -468,6 +478,10 @@ $('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');
 $('#rdia').onchange=e=>{useDia(+e.target.value);$('#dia').value=e.target.value;renderRoster()};
 setInterval(async()=>{if(authed&&M&&!document.hidden){await loadPosts();refresh()}},60000);
 
+let fold=false;try{fold=localStorage.getItem('fold')==='1'}catch(e){}
+const applyFold=()=>{$('#ctl').classList.toggle('fold',fold);$('#fold').setAttribute('aria-expanded',String(!fold));$('#fold').title=fold?'広げる':'折りたたむ'};
+$('#fold').onclick=()=>{fold=!fold;applyFold();try{localStorage.setItem('fold',fold?'1':'0')}catch(e){}};applyFold();
+
 // ---- 認証と時刻表の取得 ----
 // ここに書く2つの値は公開されても問題ない値です(Project URL と Publishable key = sb_publishable_...)。Secret key(sb_secret_...)や service_role は絶対に入れないこと
 const SB_URL='https://mukmgauweucsppjmpxha.supabase.co',SB_KEY='sb_publishable_qmr5joxyFkAe2ILfEdLlpg_NqVrPlgr';
@@ -490,11 +504,11 @@ async function api(q){
   return r;
 }
 async function showList(){
-  for(const el of VIEWS)show(el,false);show('#drop',true);
+  for(const el of VIEWS)show(el,false);show('#drop',true);$('#ttl').textContent='運用・列車位置';
   const box=$('#lines'),msg=$('#lmsg');box.textContent='';msg.textContent='読み込み中…';
   try{const {files}=await(await api('action=list')).json();
     msg.textContent=files.length?'':'閲覧できる路線がありません。管理者に権限を依頼してください';
-    for(const n of files){const b=document.createElement('button');b.textContent=n.replace(/\.[^.]+$/,'');b.onclick=()=>openLine(n);box.append(b)}
+    for(const n of files){const b=document.createElement('button');b.className='tile';b.textContent=n.replace(/\.[^.]+$/,'');b.onclick=()=>openLine(n);box.append(b)}
   }catch(e){if(e.message!=='auth')msg.textContent='一覧を取得できませんでした('+e.message+')'}
 }
 async function openLine(n){
