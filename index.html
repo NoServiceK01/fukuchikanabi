@@ -368,7 +368,7 @@ async function api(q){
   if(!session)throw new Error('auth');
   const r=await fetch(SB_URL+'/functions/v1/timetable?'+q,{headers:{Authorization:'Bearer '+session.access_token,apikey:SB_KEY}});
   if(r.status===401||r.status===403){await sb.auth.signOut();throw new Error('auth')}
-  if(!r.ok)throw new Error('http');
+  if(!r.ok){let d='';try{d=(await r.json()).error||''}catch(e){}throw new Error('HTTP '+r.status+(d?' '+d:''))}
   return r;
 }
 async function showList(){
@@ -377,12 +377,12 @@ async function showList(){
   try{const {files}=await(await api('action=list')).json();
     msg.textContent=files.length?'':'閲覧できる路線がありません。管理者に権限を依頼してください';
     for(const n of files){const b=document.createElement('button');b.textContent=n.replace(/\.[^.]+$/,'');b.onclick=()=>openLine(n);box.append(b)}
-  }catch(e){if(e.message!=='auth')msg.textContent='一覧を取得できませんでした'}
+  }catch(e){if(e.message!=='auth')msg.textContent='一覧を取得できませんでした('+e.message+')'}
 }
 async function openLine(n){
   $('#lmsg').textContent='読み込み中…';
   try{const b=await(await api('action=file&name='+encodeURIComponent(n))).blob();$('#lmsg').textContent='';loadFile(new File([b],n))}
-  catch(e){if(e.message!=='auth')$('#lmsg').textContent='読み込めませんでした'}
+  catch(e){if(e.message!=='auth')$('#lmsg').textContent='読み込めませんでした('+e.message+')'}
 }
 $('#lf').onsubmit=async e=>{e.preventDefault();$('#aerr').textContent='';
   const {error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});
