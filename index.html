@@ -21,7 +21,7 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var
 h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.02em}
 .row{display:flex;gap:8px;align-items:center;margin-top:8px}
 #sb .row{flex-wrap:wrap}
-button,select,.btn,input[type=time],input[type=email],input[type=password],input[type=text]{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;min-height:40px;padding:0 12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+button,select,.btn,input[type=time],input[type=email],input[type=password],input[type=text],input[type=date]{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;min-height:40px;padding:0 12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px}
 select{padding-right:6px}
 .ib{width:40px;padding:0}
 .pri,.seg button.on{background:var(--acc);color:var(--accf);border-color:var(--acc)}
@@ -107,7 +107,7 @@ table.ro{border-collapse:separate;border-spacing:0;width:max-content}
 #bnav button.on{color:var(--acc);font-weight:700}
 #bnav button.on:before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--acc);border-radius:0 0 3px 3px}
 header .pri{background:#fff;color:var(--hd);border-color:#fff}
-#ctl.fold #dia,#ctl.fold .r2{display:none}
+#ctl.fold .r2,#ctl.fold #mdia{display:none}
 #ctl.fold #tin{flex:1}
 #ctl.fold #fold svg{transform:rotate(180deg)}
 #sbody{padding:0 14px 100px}
@@ -115,6 +115,11 @@ header .pri{background:#fff;color:var(--hd);border-color:#fff}
 .stt th{font-size:11px;color:var(--mute);text-align:left;font-weight:400;padding:4px 6px}
 .stt td{padding:5px 6px;white-space:nowrap;vertical-align:top}.stt tr.hh td{border-top:2px solid var(--rule)}
 .stt td b{font-size:19px;font-variant-numeric:tabular-nums}.stt small{display:block;font-size:10px;color:var(--mute)}
+.ab{display:inline-block;min-width:2.4em;padding:0 5px;height:20px;border-radius:5px;text-align:center;font-size:11px;font-weight:700;line-height:20px;vertical-align:-3px;margin-right:4px;white-space:nowrap}
+#dbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}
+#dbar button{min-height:36px;min-width:36px;font-size:18px}#dbar #dtoday{font-size:14px}
+#dinfo{flex-basis:100%;font-size:13px;color:#fff;opacity:.92}
+#mdia{flex:1;min-width:0;color:#fff;font-size:13px;opacity:.92;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -124,8 +129,9 @@ header .pri{background:#fff;color:var(--hd);border-color:#fff}
       <h1 id="ttl">運用・列車位置</h1>
       <span class="acts"><button class="ib" id="gear" aria-label="設定" title="設定"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="6.6"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.5 1.5M17.1 17.1l1.5 1.5M18.6 5.4l-1.5 1.5M6.9 17.1l-1.5 1.5"/></g></svg></button><button class="ib" id="thm" aria-label="ライト/ダークを切り替え" title="ライト/ダーク"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button><button id="lst" title="路線を選ぶ">路線</button><button id="out" title="ログアウト">ログアウト</button></span>
     </div>
+    <div id="dbar" class="hide"><button id="dprev" aria-label="前の日">‹</button><input id="dsel" type="date" aria-label="日付"><button id="dnext" aria-label="次の日">›</button><button id="dtoday">今日</button><select id="ddia" class="hide" aria-label="ダイヤ"></select><span id="dinfo"></span></div>
     <div id="ctl" class="hide">
-      <div class="row"><select id="dia" aria-label="ダイヤ" style="flex:1;min-width:0"></select><input id="tin" type="time" step="1" aria-label="時刻(直接入力)"><button id="fold" class="ib" aria-expanded="true" title="折りたたむ" aria-label="操作パネルの折りたたみ"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      <div class="row"><input id="tin" type="time" step="1" aria-label="時刻(直接入力)"><span id="mdia"></span><button id="fold" class="ib" aria-expanded="true" title="折りたたむ" aria-label="操作パネルの折りたたみ"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 15l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
       <div class="row r2"><button id="play" class="ib pri" aria-label="再生・停止"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z" fill="currentColor"/></svg></button>
         <div class="seg" id="spd" role="group" aria-label="進む速さ"><button data-v="1">×1</button><button data-v="10">×10</button><button data-v="30">×30</button><button data-v="60" class="on">×60</button><button data-v="300">×300</button></div>
         <button id="now">いま</button></div>
@@ -135,9 +141,9 @@ header .pri{background:#fff;color:var(--hd);border-color:#fff}
 <div id="auth" class="wrap" style="padding:48px 14px"><h1>ログイン</h1>
 <form id="lf" style="display:flex;flex-direction:column;gap:10px;margin-top:14px"><input id="em" type="email" autocomplete="username" required placeholder="メールアドレス"><input id="pw" type="password" autocomplete="current-password" required placeholder="パスワード"><button class="pri" type="submit">ログイン</button><div id="aerr" class="mute" role="alert"></div></form></div>
 <div id="drop" class="hide"><h2>路線を選んでください</h2><div id="lines" class="tiles"></div><div id="lmsg" class="mute" style="margin-top:12px"></div></div>
-<section id="rs" class="hide"><div class="bar"><select id="rdia" aria-label="ダイヤ"></select><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span></div><div id="rt"></div></section>
+<section id="rs" class="hide"><div class="bar"><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span></div><div id="rt"></div></section>
 <section id="sv" class="hide"><div class="bar"><button id="sprev" aria-label="前の駅" style="font-size:20px;min-width:44px">‹</button><select id="sstn" aria-label="駅" style="flex:1;min-width:0"></select><button id="snext" aria-label="次の駅" style="font-size:20px;min-width:44px">›</button></div>
-<div class="bar" style="padding-top:0"><select id="sdia" aria-label="ダイヤ"></select><div class="seg" id="sdirs" style="width:150px"><button data-sd="0" class="on">下り</button><button data-sd="1">上り</button></div><span id="smeta" class="mute"></span></div><div id="sbody"></div></section>
+<div class="bar" style="padding-top:0"><div class="seg" id="sdirs" style="width:150px"><button data-sd="0" class="on">下り</button><button data-sd="1">上り</button></div><span id="smeta" class="mute"></span></div><div id="sbody"></div></section>
 <section id="ov" class="hide"></section>
 <main class="hide" id="mn"><div class="wrap"><svg id="map" role="img" aria-label="路線図"><g id="base"></g><g id="stp" style="pointer-events:none"></g><g id="trains"></g></svg></div></main>
 <div id="sheet" class="hide"><div id="sh"></div><div id="sb"></div></div>
@@ -188,7 +194,7 @@ function setup(root,name){
     comp.forEach(u=>node[u].row+=sh);cs.forEach(c=>{c.top+=sh;c.bot+=sh});rows+=mx-mn+1;
   }
   st.forEach((_,i)=>{pos[i]={...node[cn(i)],copy:cn(i)!==i,id:cn(i)}});
-    const types=(R.Ressyasyubetsu||[]).map(t=>({name:t.Syubetsumei,ini:[...(t.Ryakusyou||t.Syubetsumei||'?')][0],col:col(t.DiagramSenColor||t.JikokuhyouMojiColor)}));
+    const types=(R.Ressyasyubetsu||[]).map(t=>({name:t.Syubetsumei,ini:[...(t.Ryakusyou||t.Syubetsumei||'?')][0],ab:t.Ryakusyou||[...(t.Syubetsumei||'?')][0],col:col(t.DiagramSenColor||t.JikokuhyouMojiColor)}));
   M={st,pos,conn,rows,maxLane,types,dias:(R.Dia||[]).map(d=>({name:d.DiaName||'ダイヤ',d,trains:null})),name:name||R.Rosenmei||''};
   // --- 駅名・停車種別の文字幅から各レーンの位置と全体の幅を決める(駅名と列車アイコンが重ならないように) ---
   // 本線(レーン0)の文字は線の左側、分岐レーンの文字は線の右側。列車アイコンは線から26pxの位置で、
@@ -219,11 +225,12 @@ function setup(root,name){
   const H=Y(rows)+10;$('#map').setAttribute('viewBox',`0 0 ${W} ${H}`);$('#map').style.maxWidth=W+'px';$('#map').style.minWidth=(maxLane>1||W>520)?W+'px':'';$('#base').innerHTML=h;
   // UI
   $('#ttl').textContent=M.name||'列車位置表示';
-  $('#dia').innerHTML=M.dias.map((d,i)=>`<option value="${i}">${esc(d.name)}</option>`).join('');
   hidden.clear();hideTT.clear();selIds=new Set();
   show('#drop',false);
-  const di=Math.max(0,M.dias.findIndex(d=>/平日/.test(d.name)));$('#dia').value=di;
-  useDia(di,true);showView('roster');loadPosts().then(refresh);
+  selDate=svcDate();$('#dsel').value=selDate;
+  M.free=!M.dias.some(d=>/平日|土|休|日曜|祝/.test(d.name)); // ダイヤ名から曜日が分からない路線は、手動で選ぶ
+  $('#ddia').innerHTML=M.dias.map((d,i)=>`<option value="${i}">${esc(d.name)}</option>`).join('');show('#ddia',M.free);
+  useDia(M.free?0:diaFor(dayType(selDate)).i,true);showView('roster');loadPosts().then(refresh);
 }
 
 function build(d){
@@ -393,7 +400,6 @@ function loadFile(f){
     catch(e){alert('このファイルは読み込めませんでした。OuDiaSecond形式(.oud2)のファイルを選んでください。')}};
   rd.readAsArrayBuffer(f);
 }
-$('#dia').onchange=e=>useDia(+e.target.value);
 const ICON_PAUSE='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M7 4h3.5v16H7zM13.5 4H17v16h-3.5z" fill="currentColor"/></svg>',ICON_PLAY='<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor"/></svg>';
 function setPlay(on){playing=on;$('#play').innerHTML=on?ICON_PAUSE:ICON_PLAY}
 $('#play').onclick=()=>setPlay(!playing);
@@ -410,13 +416,13 @@ $('#map').addEventListener('pointerup',e=>{if(!pd)return;const mv=Math.hypot(e.c
 setInterval(()=>{if(M&&playing){T+=.25*speed;if(T>M.hi)T=M.lo;draw()}},250);
 
 // ---- 運用一覧・運用の一覧・編成の投稿 ----
-const VIEWS=['#ctl','#mn','#info','#rs','#sv','#ov','#bnav','#sheet'];
+const VIEWS=['#ctl','#mn','#info','#rs','#sv','#ov','#bnav','#sheet','#dbar'];
 let posts=[],postErr=false,me=null,lineFile='',curOp=0,postsSig='',postsDirty=false;
 const svcDate=()=>new Date(Date.now()+6*3600e3).toISOString().slice(0,10); // 日本時間の午前3時で日付が変わる
-const postsOf=u=>posts.filter(p=>p.unit===u&&p.dia===M.dias[M.cur].name);
+const postsOf=u=>posts.filter(p=>p.unit===u);
 async function loadPosts(){
   if(!M||!lineFile)return;
-  const {data,error}=await sb.from('formation_posts').select('*').eq('file',lineFile).eq('service_date',svcDate()).order('created_at',{ascending:false});
+  const {data,error}=await sb.from('formation_posts').select('*').eq('file',lineFile).eq('service_date',selDate).order('created_at',{ascending:false});
   postErr=!!error;posts=error?[]:data;const sig=posts.map(p=>p.id).join();postsDirty=sig!==postsSig;postsSig=sig;
 }
 function refresh(){
@@ -436,7 +442,6 @@ $('#sheet').addEventListener('change',e=>{const o=e.target.closest('[data-o]');i
   lastHtml=null;draw();refresh();if(!$('#sv').classList.contains('hide'))renderSt()});
 function renderRoster(){
   const o=cur.ops||[];
-  $('#rdia').innerHTML=M.dias.map((d,i)=>`<option value="${i}"${i===M.cur?' selected':''}>${esc(d.name)}</option>`).join('');
   $('#rmsg').textContent=postErr?'編成の投稿を読み込めませんでした':'運用の行をタップで運用の一覧、列車のマスをタップで時刻';
   const sl=$('#rt').scrollLeft;$('#rt').innerHTML=o.length?`<table class="ro">${o.map(x=>{const f=x.trains[0],l=x.trains[x.trains.length-1],p=postsOf(x.name)[0];
     return `<tr><td class="lf"><div class="lb" data-op="${x.i}"><span class="fm${p?'':' none'}">${p?esc(p.formation):'―'}</span><div><span class="un">${esc(x.name)}</span><div class="io">${S(f.route[f.fs].s)} → ${S(l.route[l.ls].s)}</div>${p&&p.remark?`<div class="io">${esc(p.remark)}</div>`:''}</div></div></td>${x.trains.map(cell).join('')}</tr>`}).join('')}</table>`:'<div class="mute" style="padding:20px 0">このダイヤには運用の情報が入っていません。別のダイヤを選んでください</div>';
@@ -451,7 +456,9 @@ function renderOp(){
     return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td></tr>`}).join('')}</table></div>`;
 }
 function showView(v,i){
-  for(const el of VIEWS)show(el,false);sh=null;selIds=new Set();show('#bnav',true);
+  for(const el of VIEWS)show(el,false);sh=null;selIds=new Set();show('#bnav',true);view=v;
+  if(v==='map'&&selDate!==svcDate()){selDate=svcDate();$('#dsel').value=selDate;posts=[];postsSig='';loadPosts().then(refresh)} // 在線位置は今日のダイヤ
+  applyDate();show('#dbar',v!=='map');
   if(v==='map'){for(const el of ['#ctl','#mn','#info'])show(el,true);lastHtml=null;$('#now').click()}
   else if(v==='op'){curOp=i;show('#ov',true);renderOp();scrollTo(0,0)}
   else if(v==='st'){show('#sv',true);renderSt()}
@@ -459,27 +466,27 @@ function showView(v,i){
   $('#nr').classList.toggle('on',v==='roster'||v==='op');$('#nm').classList.toggle('on',v==='map');$('#ns').classList.toggle('on',v==='st');
 }
 function renderPost(tr){
-  const e=$('#pst');if(!e)return;const o=tr.op,bk=tr.bikou?`<div class="mute">備考 ${esc(tr.bikou)}</div>`:'',back=sh&&sh.from?'<button data-back style="margin-bottom:8px">‹ 駅の時刻表へ戻る</button>':'';
+  const e=$('#pst');if(!e)return;const o=tr.op,bk=tr.bikou?`<div class="mute">備考 ${esc(tr.bikou)}</div>`:'',back=sh&&sh.from?'<button data-back style="margin-bottom:8px">‹ 駅の時刻表へ戻る</button>':'',ro=selDate!==svcDate();
   if(!o){e.innerHTML=`<div class="pp">${back}${bk}<div class="mute">この列車は運用に入っていないため、編成を投稿できません</div></div>`;return}
   e.innerHTML=`<div class="pp">${back}${bk}<div class="row" style="margin:0 0 8px"><span class="un">${esc(o.name)}</span><button data-goop="${o.i}">この運用の列車一覧</button></div>
-  <div class="row"><input id="pf" type="text" maxlength="20" placeholder="編成 例 06" aria-label="編成番号" style="width:7.5em"><input id="pr" type="text" maxlength="100" placeholder="備考(任意)" aria-label="備考" style="flex:1;min-width:0"><button id="pb" class="pri">投稿</button></div>
-  <div id="pm" class="mute" role="status"></div><div id="ph"></div></div>`;
+  ${ro?`<div class="mute">${selDate} の運用です。編成の投稿・取消は今日の分だけできます</div>`:`<div class="row"><input id="pf" type="text" maxlength="20" placeholder="編成 例 06" aria-label="編成番号" style="width:7.5em"><input id="pr" type="text" maxlength="100" placeholder="備考(任意)" aria-label="備考" style="flex:1;min-width:0"><button id="pb" class="pri">投稿</button></div>
+  <div id="pm" class="mute" role="status"></div>`}<div id="ph"></div></div>`;
   renderPh(tr);
 }
 function renderPh(tr){
   const e=$('#ph');if(!e||!tr||!tr.op)return;const L=postsOf(tr.op.name);
-  e.innerHTML=L.length?L.map(p=>`<div class="po"><b>${esc(p.formation)}</b><span>${esc(p.remark)}<div class="io">${new Date(p.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})} ${esc(p.train)}</div></span>${p.user_id===me?`<button data-del="${esc(p.id)}">取消</button>`:''}</div>`).join(''):'<div class="mute">今日の投稿はまだありません</div>';
+  e.innerHTML=L.length?L.map(p=>`<div class="po"><b>${esc(p.formation)}</b><span>${esc(p.remark)}<div class="io">${new Date(p.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})} ${esc(p.train)}</div></span>${p.user_id===me&&selDate===svcDate()?`<button data-del="${esc(p.id)}">取消</button>`:''}</div>`).join(''):'<div class="mute">今日の投稿はまだありません</div>';
 }
 $('#sheet').addEventListener('click',async e=>{
   const g=e.target.closest('[data-goop]');if(g){const i=+g.dataset.goop;closeSheet();showView('op',i);return}
   if(!sh||sh.type!=='tr')return;const tr=cur[sh.ids[sh.act]],b=e.target.closest('#pb'),x=e.target.closest('[data-del]');
-  if(b&&tr.op){const pf=$('#pf'),pr=$('#pr'),m=$('#pm'),f=pf.value.trim();
+  if(b&&tr.op&&selDate===svcDate()){const pf=$('#pf'),pr=$('#pr'),m=$('#pm'),f=pf.value.trim();
     if(!f){m.textContent='編成番号を入力してください';return}
     b.disabled=true;const a=tr.route[tr.fs];
-    const {error}=await sb.from('formation_posts').insert({file:lineFile,dia:M.dias[M.cur].name,unit:tr.op.name,train:M.st[a.s].name+' '+fmt(a.d)+'発',formation:f,remark:pr.value.trim(),service_date:svcDate()});
+    const {error}=await sb.from('formation_posts').insert({file:lineFile,dia:M.dias[M.cur].name,unit:tr.op.name,train:M.st[a.s].name+' '+fmt(a.d)+'発',formation:f,remark:pr.value.trim(),service_date:selDate});
     b.disabled=false;if(error){m.textContent='投稿できませんでした。時間をおいてもう一度試してください';return}
     pf.value='';pr.value='';m.textContent='';await loadPosts();refresh()}
-  if(x){x.disabled=true;await sb.from('formation_posts').delete().eq('id',x.dataset.del);await loadPosts();refresh()}
+  if(x&&selDate===svcDate()){x.disabled=true;await sb.from('formation_posts').delete().eq('id',x.dataset.del);await loadPosts();refresh()}
 });
 $('#sheet').addEventListener('click',e=>{
   const t=e.target.closest('[data-t]');
@@ -489,9 +496,58 @@ const nav=e=>{const t=e.target.closest('[data-t]'),o=e.target.closest('[data-op]
   if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o)showView('op',+o.dataset.op);else if(e.target.closest('#bk'))showView('roster')};
 $('#rs').addEventListener('click',nav);$('#ov').addEventListener('click',nav);
 $('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');$('#ns').onclick=()=>showView('st');
-const setDia=i=>{useDia(i);$('#dia').value=i;refresh();if(!$('#sv').classList.contains('hide'))renderSt()};
-$('#rdia').onchange=e=>setDia(+e.target.value);$('#sdia').onchange=e=>setDia(+e.target.value);
 setInterval(async()=>{if(authed&&M&&!document.hidden){await loadPosts();refresh()}},60000);
+
+// 日本の祝日(2007〜2099年)。振替休日と国民の休日を含む
+const jpHol=(()=>{
+  const dow=(y,m,d)=>new Date(Date.UTC(y,m-1,d)).getUTCDay();
+  const nthMon=(y,m,n)=>{const f=dow(y,m,1);return 1+(8-f)%7+(n-1)*7};          // m月の第n月曜日
+  const eq=(y,k)=>Math.floor(k+0.242194*(y-1980)-Math.floor((y-1980)/4));        // 春分・秋分(1980〜2099年)
+  const base=(y,m,d)=>{ // 振替休日を除く祝日か
+    if(y<2007||y>2099)return false;
+    if(m===1)return d===1||d===nthMon(y,1,2);
+    if(m===2)return d===11||(d===23&&y>=2020);
+    if(m===3)return d===eq(y,20.8431);
+    if(m===4)return d===29;
+    if(m===5)return d===3||d===4||d===5||(y===2019&&d===1);
+    if(m===7){if(y===2020)return d===23||d===24;if(y===2021)return d===22||d===23;return d===nthMon(y,7,3)}
+    if(m===8){if(y===2020)return d===10;if(y===2021)return d===8;return y>=2016&&d===11}
+    if(m===9)return d===nthMon(y,9,3)||d===eq(y,23.2488);
+    if(m===10){if(y===2019&&d===22)return true;return y!==2020&&y!==2021&&d===nthMon(y,10,2)}
+    if(m===11)return d===3||d===23;
+    if(m===12)return d===23&&y<=2018;
+    return false};
+  const add=(y,m,d,n)=>{const t=new Date(Date.UTC(y,m-1,d+n));return[t.getUTCFullYear(),t.getUTCMonth()+1,t.getUTCDate()]};
+  return(y,m,d)=>{
+    if(base(y,m,d))return true;
+    if(dow(y,m,d)!==0){ // 振替休日: 直前の連続する祝日の先頭が日曜なら、その次の平日
+      for(let k=1;k<=7;k++){const[a,b,c]=add(y,m,d,-k);if(!base(a,b,c))break;if(dow(a,b,c)===0)return true}
+      // 国民の休日: 前日と翌日がどちらも祝日の平日
+      const p=add(y,m,d,-1),n=add(y,m,d,1);if(base(...p)&&base(...n))return true}
+    return false};
+})();
+const ymd=s=>s.split('-').map(Number),dow=s=>{const [y,m,d]=ymd(s);return new Date(Date.UTC(y,m-1,d)).getUTCDay()};
+const dayType=s=>{const [y,m,d]=ymd(s);return jpHol(y,m,d)||dow(s)===0?'h':dow(s)===6?'s':'w'}; // w=平日 s=土曜 h=休日(日曜・祝日)
+const dayName=s=>{const t=dayType(s);return t==='h'?(dow(s)===0?'休日(日曜)':'休日(祝日)'):t==='s'?'土曜':'平日'};
+const DRE={w:/平日/,s:/土曜|土休|土日|土・休|^土/,h:/休日|日曜|日祝|祝日|土休|土日|土・休/};
+function diaFor(t){for(const k of {w:'whs',s:'shw',h:'hsw'}[t]){const i=M.dias.findIndex(d=>DRE[k].test(d.name));if(i>=0)return{i,exact:k===t}}return{i:0,exact:false}}
+let selDate=svcDate(),view='roster';
+function applyDate(){ // 選んだ日付の種類(平日・土曜・休日)に合うダイヤへ切り替える
+  const r=M.free?{i:+$('#ddia').value||0,exact:true}:diaFor(dayType(selDate));
+  if(r.i!==M.cur)useDia(r.i);
+  const nm=M.dias[M.cur].name;
+  $('#dinfo').textContent=M.free?selDate:dayName(selDate)+'  '+nm+(r.exact?'':'(該当するダイヤがないため代わりに表示)');
+  $('#mdia').textContent=dayName(selDate)+'  '+nm;
+}
+const shiftDate=n=>{const [y,m,d]=ymd(selDate);return new Date(Date.UTC(y,m-1,d+n)).toISOString().slice(0,10)};
+function setDate(v){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return;selDate=v;$('#dsel').value=v;
+  showView(view==='st'?'st':'roster');                    // 運用の番号が変わるので、運用の一覧などは開き直す
+  posts=[];postsSig='';loadPosts().then(refresh);
+}
+$('#dsel').onchange=e=>setDate(e.target.value);
+$('#dprev').onclick=()=>setDate(shiftDate(-1));$('#dnext').onclick=()=>setDate(shiftDate(1));$('#dtoday').onclick=()=>setDate(svcDate());
+$('#ddia').onchange=()=>setDate(selDate);
 
 // ---- 駅時刻表 ----
 let stI=-1,stDir=0;
@@ -500,7 +556,6 @@ const stIds=()=>M.st.map((_,i)=>i).filter(i=>!M.pos[i].copy);
 function renderSt(){
   const ids=stIds();if(stI<0||M.pos[stI].copy)stI=ids[0];
   $('#sstn').innerHTML=ids.map(i=>`<option value="${i}">${esc(M.st[i].name)}</option>`).join('');$('#sstn').value=stI;
-  $('#sdia').innerHTML=M.dias.map((d,i)=>`<option value="${i}"${i===M.cur?' selected':''}>${esc(d.name)}</option>`).join('');
   document.querySelectorAll('#sdirs button').forEach(b=>b.classList.toggle('on',+b.dataset.sd===stDir));
   const r=stTable(pk(stI),stDir);$('#smeta').textContent=r.n+'本';$('#sbody').innerHTML=r.html;
 }
@@ -515,7 +570,7 @@ function stTable(key,dir){
   const no=L.some(x=>x.tr.name);let ph=null;
   return{n:L.length,html:`<table class="stt"><tr><th></th><th>時刻</th><th>行先</th>${no?'<th>列車</th>':''}<th>運用</th><th>編成</th></tr>${L.map(x=>{
     const h=Math.floor(x.t/3600),o=x.tr.op,p=o?postsOf(o.name)[0]:null,first=h!==ph;ph=h;
-    return `<tr data-t="${x.tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(x.tr)}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b></td><td>${x.last?'当駅止':esc(x.dest)+'行'}${x.trk?`<small>${esc(x.trk)}</small>`:''}</td>${no?`<td>${esc(x.tr.name)}</td>`:''}<td>${o?esc(o.name):''}</td><td><b>${p?esc(p.formation):''}</b></td></tr>`}).join('')}</table>`}
+    return `<tr data-t="${x.tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(x.tr)}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b></td><td><span class="ab" style="background:${ccol(x.tr)};color:${ink(ccol(x.tr))}">${esc((M.types[x.tr.ty]||{ab:''}).ab)}</span>${x.last?'当駅止':esc(x.dest)+'行'}${x.trk?`<small>${esc(x.trk)}</small>`:''}</td>${no?`<td>${esc(x.tr.name)}</td>`:''}<td>${o?esc(o.name):''}</td><td><b>${p?esc(p.formation):''}</b></td></tr>`}).join('')}</table>`}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches&&e.target.matches('tr[data-t]'))e.target.click()});
 const stStep=d=>{const ids=stIds(),k=ids.indexOf(stI);stI=ids[(k+d+ids.length)%ids.length];renderSt();scrollTo(0,0)};
