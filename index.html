@@ -111,8 +111,10 @@ header .pri{background:#fff;color:var(--hd);border-color:#fff}
 #ctl.fold #tin{flex:1}
 #ctl.fold #fold svg{transform:rotate(180deg)}
 #sbody{padding:0 14px 100px}
-.sc{display:inline-flex;flex-direction:column;align-items:center;min-height:0;border:0;background:transparent;padding:2px 6px;margin:0 4px 6px 0;line-height:1.15;border-radius:6px}
-.sc:hover{background:var(--band)}.sc b{font-size:22px;font-variant-numeric:tabular-nums}.sc small{font-size:11px;color:var(--mute);white-space:nowrap}.sc i{font-style:normal;font-size:10px;color:var(--mute)}
+.stt{width:100%;border-collapse:collapse}.stt tr[data-t]{cursor:pointer}.stt tr[data-t]:hover td{background:var(--band)}
+.stt th{font-size:11px;color:var(--mute);text-align:left;font-weight:400;padding:4px 6px}
+.stt td{padding:5px 6px;white-space:nowrap;vertical-align:top}.stt tr.hh td{border-top:2px solid var(--rule)}
+.stt td b{font-size:19px;font-variant-numeric:tabular-nums}.stt small{display:block;font-size:10px;color:var(--mute)}
 </style>
 </head>
 <body>
@@ -359,13 +361,10 @@ function renderSheet(){
     $('#sb').innerHTML=`<div id="pst"></div><table><tr><th>駅</th><th>着</th><th>発</th></tr>${rows.map((r,i)=>r.ps?`<tr data-a="${r.ka}" data-b="${r.b}"><td class="mute">${S(r.s)}</td><td class="mute" colspan="2">通過 ${fmt(r.a)}</td></tr>`:`<tr data-a="${r.ka}" data-b="${r.b}"><td>${S(r.s)}</td><td>${i?fmt(r.a):''}</td><td>${i<rows.length-1?fmt(r.d):''}</td></tr>`).join('')}</table>`;
     markRows();renderPost(tr);
   }else{
-    const i=sh.i,key=pk(i),L=[];
-    for(const tr of cur){if(hideTT.has(tr.ty)||tr.dir!==ttDir)continue;const R=tr.route,ks=tr.si.filter(j=>!R[j].ps&&pk(R[j].s)===key);if(!ks.length)continue;const last=ks[ks.length-1]===tr.ls;
-      L.push({t:last?R[ks[0]].a:R[ks[ks.length-1]].d,tr,last,dest:M.st[R[tr.ls].s].name})}
-    L.sort((p,q)=>p.t-q.t);const hrs=[...new Set(L.map(x=>Math.floor(x.t/3600)))];
+    const i=sh.i,key=pk(i),T2=stTable(key,ttDir);
     const tset=[...(stops().get(key)||[])].filter(t=>!hideTT.has(t)).sort((a,b)=>a-b);
     $('#sh').innerHTML=`<div style="flex:1;min-width:0"><b style="font-size:18px">${S(i)}</b><div class="mute">${tset.length?'停車: '+tset.map(t=>{const ty=M.types[t]||{name:'',col:'var(--ink)'};return `<b style="color:${ty.col}">${esc(ty.name)}</b>`}).join(' '):'停車する列車なし'}</div><div class="seg" id="dirs" style="margin-top:8px;max-width:240px"><button data-dir="0" class="${ttDir?'':'on'}">下り</button><button data-dir="1" class="${ttDir?'on':''}">上り</button></div></div><button id="cls">閉じる</button>`;
-    $('#sb').innerHTML=L.length?`<table>${hrs.map(h=>`<tr><td class="hr">${h%24}</td><td>${L.filter(x=>Math.floor(x.t/3600)===h).map(x=>`<span class="m" style="color:${(M.types[x.tr.ty]||{col:'var(--ink)'}).col}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b><small>${x.last?'当駅止':esc(x.dest)+'行'}</small></span>`).join('')}</td></tr>`).join('')}</table>`:'<div class="mute" style="padding:12px 0">この方面に停車する列車はありません</div>';
+    $('#sb').innerHTML=T2.html;
   }
 }
 function markRows(){
@@ -379,7 +378,7 @@ function info(){markRows()}
 $('#sheet').addEventListener('click',e=>{if(e.target.closest('#cls'))closeSheet();const dd=e.target.closest('[data-dir]');if(dd&&sh&&sh.type==='st'){ttDir=+dd.dataset.dir;renderSheet();$('#sb').scrollTop=0}const t=e.target.closest('[data-act]');if(t){sh.act=+t.dataset.act;selIds=new Set([sh.ids[sh.act]]);renderSheet();draw()}});
 function renderSet(){
   $('#sh').innerHTML='<div><b style="font-size:17px">設定</b></div><button id="cls">閉じる</button>';
-  $('#sb').innerHTML=`<h3>列車の表示</h3><label class="opt"><input type="checkbox" data-o="op" ${showOp?'checked':''}>運用番号</label><label class="opt"><input type="checkbox" data-o="no" ${showNo?'checked':''}>列車番号</label><label class="opt"><input type="checkbox" data-o="dest" ${showDest?'checked':''}>行先</label><div class="mute" style="font-size:12px;margin-top:6px">列車番号と行先は運用一覧のマスと在線位置の列車アイコンに、運用番号は在線位置の列車アイコンに表示します</div>`;
+  $('#sb').innerHTML=`<h3>列車の表示</h3><label class="opt"><input type="checkbox" data-o="op" ${showOp?'checked':''}>運用番号</label><label class="opt"><input type="checkbox" data-o="no" ${showNo?'checked':''}>列車番号</label><label class="opt"><input type="checkbox" data-o="dest" ${showDest?'checked':''}>行先</label><div class="mute" style="font-size:12px;margin:6px 0 14px">列車番号と行先は運用一覧のマスと在線位置の列車アイコンに、運用番号は在線位置の列車アイコンに表示します</div><h3>駅時刻表</h3><label class="opt"><input type="checkbox" data-o="term" ${showTerm?'checked':''}>当駅止まりの列車を表示</label>`;
 }
 $('#gear').onclick=()=>openSheet({type:'set'});
 $('#thm').onclick=()=>{const r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('thm',r.dataset.theme)}catch(e){}};
@@ -412,28 +411,29 @@ setInterval(()=>{if(M&&playing){T+=.25*speed;if(T>M.hi)T=M.lo;draw()}},250);
 
 // ---- 運用一覧・運用の一覧・編成の投稿 ----
 const VIEWS=['#ctl','#mn','#info','#rs','#sv','#ov','#bnav','#sheet'];
-let posts=[],postErr=false,me=null,lineFile='',curOp=0;
+let posts=[],postErr=false,me=null,lineFile='',curOp=0,postsSig='',postsDirty=false;
 const svcDate=()=>new Date(Date.now()+6*3600e3).toISOString().slice(0,10); // 日本時間の午前3時で日付が変わる
 const postsOf=u=>posts.filter(p=>p.unit===u&&p.dia===M.dias[M.cur].name);
 async function loadPosts(){
   if(!M||!lineFile)return;
   const {data,error}=await sb.from('formation_posts').select('*').eq('file',lineFile).eq('service_date',svcDate()).order('created_at',{ascending:false});
-  postErr=!!error;posts=error?[]:data;
+  postErr=!!error;posts=error?[]:data;const sig=posts.map(p=>p.id).join();postsDirty=sig!==postsSig;postsSig=sig;
 }
 function refresh(){
   if(!M)return;
   if(!$('#rs').classList.contains('hide'))renderRoster();
   if(!$('#ov').classList.contains('hide'))renderOp();
   if(sh&&sh.type==='tr')renderPh(cur[sh.ids[sh.act]]);
+  if(postsDirty){postsDirty=false;if(!$('#sv').classList.contains('hide'))renderSt();if(sh&&sh.type==='st')renderSheet()}
 }
 const ccol=t=>{const c=tcol(t);return c==='var(--ink)'?'var(--car)':c}; // 種別の色が黒(未設定)のときは落ち着いたスレート色
-let showNo=true,showDest=false,showOp=true;try{showNo=localStorage.getItem('sNo')!=='0';showDest=localStorage.getItem('sDest')==='1';showOp=localStorage.getItem('sOp')!=='0'}catch(e){}
+let showNo=true,showDest=false,showOp=true,showTerm=true;try{showTerm=localStorage.getItem('sTerm')!=='0';showNo=localStorage.getItem('sNo')!=='0';showDest=localStorage.getItem('sDest')==='1';showOp=localStorage.getItem('sOp')!=='0'}catch(e){}
 const cell=t=>{const c=ccol(t),a=t.route[t.fs],b=t.route[t.ls],tm=fmt(a.d),no=showNo&&t.name;
   return `<td><button class="c" data-t="${t.id}" style="background:${c};color:${ink(c)}"><b>${esc(no?t.name:tm)}</b><small>${showDest?S(b.s)+'行':S(a.s)+(no?' '+tm:'')}</small></button></td>`};
 $('#sheet').addEventListener('change',e=>{const o=e.target.closest('[data-o]');if(!o)return;
-  const k=o.dataset.o;if(k==='no')showNo=o.checked;else if(k==='dest')showDest=o.checked;else showOp=o.checked;
-  try{localStorage.setItem('sNo',showNo?'1':'0');localStorage.setItem('sDest',showDest?'1':'0');localStorage.setItem('sOp',showOp?'1':'0')}catch(err){}
-  lastHtml=null;draw();refresh()});
+  const k=o.dataset.o;if(k==='no')showNo=o.checked;else if(k==='dest')showDest=o.checked;else if(k==='term')showTerm=o.checked;else showOp=o.checked;
+  try{localStorage.setItem('sNo',showNo?'1':'0');localStorage.setItem('sDest',showDest?'1':'0');localStorage.setItem('sOp',showOp?'1':'0');localStorage.setItem('sTerm',showTerm?'1':'0')}catch(err){}
+  lastHtml=null;draw();refresh();if(!$('#sv').classList.contains('hide'))renderSt()});
 function renderRoster(){
   const o=cur.ops||[];
   $('#rdia').innerHTML=M.dias.map((d,i)=>`<option value="${i}"${i===M.cur?' selected':''}>${esc(d.name)}</option>`).join('');
@@ -452,16 +452,16 @@ function renderOp(){
 }
 function showView(v,i){
   for(const el of VIEWS)show(el,false);sh=null;selIds=new Set();show('#bnav',true);
-  if(v==='map'){for(const el of ['#ctl','#mn','#info'])show(el,true);lastHtml=null;draw()}
+  if(v==='map'){for(const el of ['#ctl','#mn','#info'])show(el,true);lastHtml=null;$('#now').click()}
   else if(v==='op'){curOp=i;show('#ov',true);renderOp();scrollTo(0,0)}
   else if(v==='st'){show('#sv',true);renderSt()}
   else{show('#rs',true);renderRoster()}
   $('#nr').classList.toggle('on',v==='roster'||v==='op');$('#nm').classList.toggle('on',v==='map');$('#ns').classList.toggle('on',v==='st');
 }
 function renderPost(tr){
-  const e=$('#pst');if(!e)return;const o=tr.op,bk=tr.bikou?`<div class="mute">備考 ${esc(tr.bikou)}</div>`:'';
-  if(!o){e.innerHTML=`<div class="pp">${bk}<div class="mute">この列車は運用に入っていないため、編成を投稿できません</div></div>`;return}
-  e.innerHTML=`<div class="pp">${bk}<div class="row" style="margin:0 0 8px"><span class="un">${esc(o.name)}</span><button data-goop="${o.i}">この運用の列車一覧</button></div>
+  const e=$('#pst');if(!e)return;const o=tr.op,bk=tr.bikou?`<div class="mute">備考 ${esc(tr.bikou)}</div>`:'',back=sh&&sh.from?'<button data-back style="margin-bottom:8px">‹ 駅の時刻表へ戻る</button>':'';
+  if(!o){e.innerHTML=`<div class="pp">${back}${bk}<div class="mute">この列車は運用に入っていないため、編成を投稿できません</div></div>`;return}
+  e.innerHTML=`<div class="pp">${back}${bk}<div class="row" style="margin:0 0 8px"><span class="un">${esc(o.name)}</span><button data-goop="${o.i}">この運用の列車一覧</button></div>
   <div class="row"><input id="pf" type="text" maxlength="20" placeholder="編成 例 06" aria-label="編成番号" style="width:7.5em"><input id="pr" type="text" maxlength="100" placeholder="備考(任意)" aria-label="備考" style="flex:1;min-width:0"><button id="pb" class="pri">投稿</button></div>
   <div id="pm" class="mute" role="status"></div><div id="ph"></div></div>`;
   renderPh(tr);
@@ -481,6 +481,10 @@ $('#sheet').addEventListener('click',async e=>{
     pf.value='';pr.value='';m.textContent='';await loadPosts();refresh()}
   if(x){x.disabled=true;await sb.from('formation_posts').delete().eq('id',x.dataset.del);await loadPosts();refresh()}
 });
+$('#sheet').addEventListener('click',e=>{
+  const t=e.target.closest('[data-t]');
+  if(t&&sh&&sh.type==='st'){const id=+t.dataset.t;selIds=new Set([id]);lastHtml=null;openSheet({type:'tr',ids:[id],act:0,from:{type:'st',i:sh.i}});draw();return}
+  if(e.target.closest('[data-back]')&&sh&&sh.from){const f=sh.from;selIds=new Set();lastHtml=null;openSheet({...f});draw()}});
 const nav=e=>{const t=e.target.closest('[data-t]'),o=e.target.closest('[data-op]');
   if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o)showView('op',+o.dataset.op);else if(e.target.closest('#bk'))showView('roster')};
 $('#rs').addEventListener('click',nav);$('#ov').addEventListener('click',nav);
@@ -498,14 +502,22 @@ function renderSt(){
   $('#sstn').innerHTML=ids.map(i=>`<option value="${i}">${esc(M.st[i].name)}</option>`).join('');$('#sstn').value=stI;
   $('#sdia').innerHTML=M.dias.map((d,i)=>`<option value="${i}"${i===M.cur?' selected':''}>${esc(d.name)}</option>`).join('');
   document.querySelectorAll('#sdirs button').forEach(b=>b.classList.toggle('on',+b.dataset.sd===stDir));
-  const key=pk(stI),L=[];
-  for(const tr of cur){if(tr.dir!==stDir)continue;const R=tr.route,ks=tr.si.filter(j=>!R[j].ps&&pk(R[j].s)===key);if(!ks.length)continue;
-    const last=ks[ks.length-1]===tr.ls,x=R[last?ks[0]:ks[ks.length-1]];
-    L.push({t:last?x.a:x.d,tr,last,dest:M.st[R[tr.ls].s].name,trk:stTrack(x.s,x.tk)})}
-  L.sort((p,q)=>p.t-q.t);const hrs=[...new Set(L.map(x=>Math.floor(x.t/3600)))];
-  $('#smeta').textContent=L.length+'本';
-  $('#sbody').innerHTML=L.length?`<table>${hrs.map(h=>`<tr><td class="hr">${h%24}</td><td>${L.filter(x=>Math.floor(x.t/3600)===h).map(x=>`<button class="sc" data-t="${x.tr.id}" style="color:${tcol(x.tr)}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b><small>${x.last?'当駅止':esc(x.dest)+'行'}</small>${x.trk?`<i>${esc(x.trk)}</i>`:''}</button>`).join('')}</td></tr>`).join('')}</table>`:'<div class="mute" style="padding:20px 0">この向きに停車する列車はありません</div>';
+  const r=stTable(pk(stI),stDir);$('#smeta').textContent=r.n+'本';$('#sbody').innerHTML=r.html;
 }
+// 駅の時刻表(駅時刻表タブと在線位置の駅シートで共通)。時刻・行先・列車番号・運用番号・編成
+function stTable(key,dir){
+  const L=[];
+  for(const tr of cur){if(hideTT.has(tr.ty)||tr.dir!==dir)continue;const R=tr.route,ks=tr.si.filter(j=>!R[j].ps&&pk(R[j].s)===key);if(!ks.length)continue;
+    const last=ks[ks.length-1]===tr.ls;if(last&&!showTerm)continue;const x=R[last?ks[0]:ks[ks.length-1]];
+    L.push({t:last?x.a:x.d,tr,last,dest:M.st[R[tr.ls].s].name,trk:stTrack(x.s,x.tk)})}
+  L.sort((p,q)=>p.t-q.t);
+  if(!L.length)return{n:0,html:'<div class="mute" style="padding:16px 0">この方面に停車する列車はありません</div>'};
+  const no=L.some(x=>x.tr.name);let ph=null;
+  return{n:L.length,html:`<table class="stt"><tr><th></th><th>時刻</th><th>行先</th>${no?'<th>列車</th>':''}<th>運用</th><th>編成</th></tr>${L.map(x=>{
+    const h=Math.floor(x.t/3600),o=x.tr.op,p=o?postsOf(o.name)[0]:null,first=h!==ph;ph=h;
+    return `<tr data-t="${x.tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(x.tr)}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b></td><td>${x.last?'当駅止':esc(x.dest)+'行'}${x.trk?`<small>${esc(x.trk)}</small>`:''}</td>${no?`<td>${esc(x.tr.name)}</td>`:''}<td>${o?esc(o.name):''}</td><td><b>${p?esc(p.formation):''}</b></td></tr>`}).join('')}</table>`}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches&&e.target.matches('tr[data-t]'))e.target.click()});
 const stStep=d=>{const ids=stIds(),k=ids.indexOf(stI);stI=ids[(k+d+ids.length)%ids.length];renderSt();scrollTo(0,0)};
 $('#sprev').onclick=()=>stStep(-1);$('#snext').onclick=()=>stStep(1);
 $('#sstn').onchange=e=>{stI=+e.target.value;renderSt()};
