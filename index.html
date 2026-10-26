@@ -128,6 +128,8 @@ header .pri{background:#fff;color:var(--hd);border-color:#fff}
 .pv{font-size:10px;color:var(--mute);text-decoration:line-through;line-height:1.1}
 .rp{display:inline-block;font-size:10px;font-weight:700;padding:0 5px;border-radius:4px;background:var(--band);color:var(--acc)}
 #ph{margin-top:10px}#popen{margin-top:2px}
+.wn{display:inline-block;margin-left:4px;width:15px;height:15px;border-radius:50%;background:#e8a317;color:#fff;font-size:11px;font-weight:700;line-height:15px;text-align:center;vertical-align:1px}
+.wnote{margin:0 0 8px;padding:6px 10px;border-left:4px solid #e8a317;background:var(--band);font-size:12px}
 </style>
 </head>
 <body>
@@ -209,7 +211,7 @@ function setup(root,name){
   }
   st.forEach((_,i)=>{pos[i]={...node[cn(i)],copy:cn(i)!==i,id:cn(i)}});
     const types=(R.Ressyasyubetsu||[]).map(t=>({name:t.Syubetsumei,ini:[...(t.Ryakusyou||t.Syubetsumei||'?')][0],ab:t.Ryakusyou||[...(t.Syubetsumei||'?')][0],col:col(t.DiagramSenColor||t.JikokuhyouMojiColor)}));
-  M={st,pos,conn,rows,maxLane,types,dias:(R.Dia||[]).map(d=>({name:d.DiaName||'ダイヤ',d,trains:null})),name:name||R.Rosenmei||''};
+  M={st,pos,conn,rows,maxLane,types,dias:(R.Dia||[]).map(d=>({name:d.DiaName||'ダイヤ',d,trains:null})),name:name||R.Rosenmei||'',kiten:(()=>{const k=tm(R.KitenJikoku);return k>0?k:14400})()};
   // --- 駅名・停車種別の文字幅から各レーンの位置と全体の幅を決める(駅名と列車アイコンが重ならないように) ---
   // 本線(レーン0)の文字は線の左側、分岐レーンの文字は線の右側。列車アイコンは線から26pxの位置で、
   // 同じ駅に列車が重なって寄る場合は34pxさらに外側(合計で約78pxまで)に出る
@@ -260,32 +262,74 @@ function build(d){
     });
     const si=[];route.forEach((x,i)=>{if(x.a!=null)si.push(i)});
     const stp=si.filter(i=>!route[i].ps);if(stp.length<2)continue;
-    let off=0,prev=-1;
+    let off=route[si[0]].a<M.kiten?86400:0,prev=-1; // 起点時刻より前の時刻は翌日(24時以降)として扱う
     for(const i of si){const x=route[i];let a=x.a+off;if(a<prev){off+=86400;a+=86400}let dd=x.d+off;if(dd<a){off+=86400;dd+=86400}x.a=a;x.d=dd;prev=dd}
     out.push({dir,ty:+r.Syubetsu||0,name:[r.Ressyabangou,r.Ressyamei].filter(Boolean).join(' '),route,si,fs:stp[0],ls:stp[stp.length-1],t0:route[si[0]].a,t1:route[si[si.length-1]].d,id:out.length,bikou:r.Bikou||'',opk:Object.fromEntries(Object.entries(r).filter(([k])=>/^Operation\d+[AB]$/.test(k)))});
   }
   linkOps(out);return out;
 }
 
-// 運用の連なり: OperationNB=始発側 / OperationNA=終着側。値の先頭 5=前後の列車と接続、3=出庫(名前つき)・入庫。
-// 同じ駅で、到着した列車と、直近に出発する接続列車を組み合わせる(直近優先)
+// 最小費用の割り当て(ハンガリー法)。C は正方行列で、行iに割り当てる列を配列で返す
+function assign(C){
+  const N=C.length,u=new Float64Array(N+1),v=new Float64Array(N+1),p=new Int32Array(N+1),way=new Int32Array(N+1);
+  for(let i=1;i<=N;i++){p[0]=i;let j0=0;const minv=new Float64Array(N+1).fill(Infinity),used=new Uint8Array(N+1);
+    do{used[j0]=1;const i0=p[j0];let d=Infinity,j1=0;
+      for(let j=1;j<=N;j++)if(!used[j]){const c=C[i0-1][j-1]-u[i0]-v[j];if(c<minv[j]){minv[j]=c;way[j]=j0}if(minv[j]<d){d=minv[j];j1=j}}
+      for(let j=0;j<=N;j++){if(used[j]){u[p[j]]+=d;v[j]-=d}else minv[j]-=d}
+      j0=j1}while(p[j0]!==0);
+    do{const j1=way[j0];p[j0]=p[j1];j0=j1}while(j0)}
+  const r=new Int32Array(N);for(let j=1;j<=N;j++)r[p[j]-1]=j-1;return r}
+// 運用の連なり。OperationNB=始発側 / OperationNA=終着側。値は「,」区切りで
+//   5/…                      前後の列車と接続
+//   3/時刻$連携コード/運用名    出区(始発側)・入区(終着側)。同じ連携コードの入区と出区は、車庫を経由してつながる
+//   0/種類$開始/終了$番線       駅作業(入換など)。作業のあと、車両は指定の番線に移る
+// つなぎ方: ①連携コードの一致 ②同じ駅ごとの最適な割り当て(駅作業の時刻と番線も考慮)
 function linkOps(out){
-  const kd=v=>{const k=v.split(',').map(x=>x.split('/')[0]);return k.includes('5')?5:k.includes('3')?3:0};
-  const ev=new Map();let any=false;
-  for(const t of out){t.sk=t.ek=0;t.nm='';t.op=null;
-    for(const k in t.opk){any=true;const v=t.opk[k],c=kd(v);
-      if(k.endsWith('B')){t.sk=c;if(c===3){const m=v.match(/^3\/[^$]*\$[^/]*\/([^,]*)/);t.nm=m?m[1]:''}}else t.ek=c}
-    const a=t.route[t.fs],b=t.route[t.ls],put=(s,x)=>{if(!ev.has(s))ev.set(s,[]);ev.get(s).push(x)};
-    put(a.s,[a.d,1,t]);put(b.s,[b.a,0,t])}
+  const K=M.kiten,sh=v=>v!=null&&v<K?v+86400:v; // 起点時刻より前は翌日
+  const pv=v=>{const o={conn:false,depot:null,works:[]};
+    for(const it of v.split(',')){
+      if(it.startsWith('5/'))o.conn=true;
+      else if(it.startsWith('3/')){const m=it.match(/^3\/([^$]*)\$([^/]*)(?:\/(.*))?$/);if(m)o.depot={t:sh(tm(m[1])),code:m[2],name:m[3]||''}}
+      else if(it.startsWith('0/')){const m=it.match(/^0\/(\d*)\$([^/]*)\/([^$]*)\$(\d*)$/);if(m)o.works.push({s:sh(tm(m[2])),e:sh(tm(m[3])),tk:m[4]||null})}}
+    return o};
+  let any=false;
+  for(const t of out){t.A={conn:false,depot:null,works:[]};t.B={conn:false,depot:null,works:[]};t.op=null;t.pv=t.nx=null;
+    for(const k in t.opk){any=true;t[k.slice(-1)]=pv(t.opk[k])}
+    const a=t.route[t.fs],b=t.route[t.ls];t.dep=a.d;t.arr=b.a;t.tkS=a.tk;
+    const w=t.A.works.filter(x=>x.tk!=null);t.tkEff=w.length?w[w.length-1].tk:b.tk;              // 駅作業のあとの番線
+    t.workEnd=Math.max(t.arr,...t.A.works.map(x=>x.e??0));
+    t.workStart=t.B.works.length?Math.min(...t.B.works.map(x=>x.s??Infinity)):Infinity}
   out.ops=[];if(!any)return;
-  for(const evs of ev.values()){evs.sort((p,q)=>p[0]-q[0]||p[1]-q[1]);const stack=[];
-    for(const [,ty,t] of evs){if(ty===0){if(t.ek===5)stack.push(t)}else if(t.sk===5&&stack.length){let k=stack.length-1;const tk=t.route[t.fs].tk; // 同じ番線に着いた列車を優先、なければ直近の到着
-      for(let j=k;j>=0;j--){const q=stack[j];if(q.route[q.ls].tk===tk){k=j;break}}
-      const p=stack.splice(k,1)[0];p.nx=t;t.pv=p}}}
+  // ① 入出区連携コード
+  const As=new Map(),Bs=new Map(),add=(m,c,t)=>{if(!m.has(c))m.set(c,[]);m.get(c).push(t)};
+  for(const t of out){if(t.A.depot&&t.A.depot.code)add(As,t.A.depot.code,t);if(t.B.depot&&t.B.depot.code)add(Bs,t.B.depot.code,t)}
+  for(const [c,al] of As){const bl=(Bs.get(c)||[]).sort((p,q)=>p.dep-q.dep),used=new Set();
+    for(const a of al.sort((p,q)=>p.arr-q.arr)){const b=bl.find(x=>!used.has(x)&&x.dep>=a.arr);if(b){used.add(b);a.nx=b;b.pv=a}}}
+  // ② 同じ駅ごとに、到着列車と出発列車の組み合わせ全体が最適になるように割り当てる
+  //    (時刻が合う・駅作業が終わっている・同じ番線(駅作業のあとの番線)を優先し、待ち時間が短いほど良い)
+  const arr=new Map(),dep=new Map();
+  for(const t of out){if(t.A.conn&&!t.nx)add(arr,t.route[t.ls].s,t);if(t.B.conn&&!t.pv)add(dep,t.route[t.fs].s,t)}
+  for(const [s,A] of arr){const D=dep.get(s);if(!D)continue;
+    const n=A.length,m=D.length,N=n+m,INF=1e9,C=Array.from({length:N},()=>new Array(N).fill(0));
+    for(let a=0;a<n;a++){const x=A[a];
+      for(let b=0;b<m;b++){const y=D[b],ok=x.workEnd<=y.dep&&!(y.B.works.length&&y.workStart<x.arr);
+        C[a][b]=!ok?INF:((y.B.works.length||x.tkEff===y.tkS)?0:5000)+Math.min((y.dep-x.arr)/60,1000)}
+      for(let b=0;b<n;b++)C[a][m+b]=a===b?20000:INF}               // 相手が見つからない到着列車
+    for(let a=0;a<m;a++)for(let b=0;b<m;b++)C[n+a][b]=a===b?20000:INF;  // 相手が見つからない出発列車
+    const as=assign(C);
+    for(let a=0;a<n;a++){const b=as[a];if(b<m&&C[a][b]<INF){A[a].nx=D[b];D[b].pv=A[a]}}}
+  // 連なりを運用にまとめる(運用名は最初の列車の出区に書かれた名前)。つながりが不完全なものには警告をつける
   let un=0;
   for(const t of out){if(t.pv)continue;const tr=[t];while(tr[tr.length-1].nx)tr.push(tr[tr.length-1].nx);
-    out.ops.push({name:t.nm||'運用'+(++un),named:!!t.nm,trains:tr})}
+    const f=tr[0],l=tr[tr.length-1],nm=f.B.depot&&f.B.depot.name||'',warn=[];
+    if(f.B.conn)warn.push('最初の列車に、前の列車が見つかりません');else if(f.B.depot&&f.B.depot.code)warn.push(`連携コード${f.B.depot.code}の入区が見つかりません`);else if(!f.B.depot)warn.push('出区の記述がありません');
+    if(l.A.conn)warn.push('最後の列車が次の列車に接続のままです(つながる列車が見つかりません)');else if(l.A.depot&&l.A.depot.code)warn.push(`連携コード${l.A.depot.code}の出区が見つかりません`);else if(!l.A.depot)warn.push('入区の記述がありません');
+    out.ops.push({name:nm||'運用'+(++un),named:!!nm,trains:tr,warn})}
   out.ops.sort((a,b)=>(a.named?0:1)-(b.named?0:1)||a.name.localeCompare(b.name,'ja',{numeric:true}));
+  const cnt=new Map();for(const o of out.ops)cnt.set(o.name,(cnt.get(o.name)||0)+1);
+  const kk=new Map();
+  for(const o of out.ops){const f=o.trains[0];o.key=cnt.get(o.name)>1?`${o.name}(${M.st[f.route[f.fs].s].name})`:o.name;kk.set(o.key,(kk.get(o.key)||0)+1)}
+  for(const o of out.ops)if(kk.get(o.key)>1){const f=o.trains[0],h=f.dep;o.key=`${o.key.slice(0,-1)} ${String(Math.floor(h/3600)%24).padStart(2,'0')}:${String(Math.floor(h%3600/60)).padStart(2,'0')})`} // 運用名の重複(同じ運用名・同じ始発駅)は時刻も付けて区別
   out.ops.forEach((o,i)=>{o.i=i;o.trains.forEach((t,k)=>{t.op=o;t.oi=k})});
 }
 
@@ -342,7 +386,7 @@ function icon(g){
   const tr=g.trs[0],c=tcol(tr),up=g.side<0,sel=g.trs.some(t=>selIds.has(t.id)),n=g.trs.length;
   const tri=up?'M0-25L7-16H-7Z':'M0 25L7 16H-7Z';
   const lab=n>1?`+${n-1}`:'',ini=(M.types[tr.ty]||{}).ini||'';
-  const fo=showFm&&tr.op?fmOf(tr.op.name):null,nf=fo?1:0;
+  const fo=showFm&&tr.op?fmOf(tr.op.key):null,nf=fo?1:0;
   const lines=[fo?fo.f:'',showOp&&tr.op?tr.op.name:'',showNo&&tr.name?tr.name:'',showDest?[...M.st[tr.route[tr.ls].s].name].slice(0,4).join(''):''].filter(Boolean),
     inf=lines.map((x,i)=>`<text y="${up?(lab?46:36)+i*11:-21-(lines.length-1-i)*11}" text-anchor="middle" font-size="${i<nf?12:10}" font-weight="700" fill="${i<nf?'var(--acc)':'var(--ink)'}" stroke="var(--bg)" stroke-width="3" paint-order="stroke">${esc(x)}</text>`).join('');
   return `<g data-ids="${g.trs.map(t=>t.id)}" transform="translate(${g.x} ${g.y})" style="cursor:pointer"><rect x="-18" y="-28" width="36" height="${lab?64:56}" fill="transparent"/>${sel?`<rect x="-15" y="-18" width="30" height="36" rx="11" fill="none" stroke="${c}" stroke-width="2.5"/>`:''}${shapeSvg(shape,c,ink(c),ini)}<path d="${tri}" fill="${c}"/>${lab?`<text y="${up?31:42}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">${lab}</text>`:''}${inf}</g>`;
@@ -428,7 +472,8 @@ setInterval(()=>{if(M&&live&&!$('#mn').classList.contains('hide')){const t=nowSv
 // ---- 運用一覧・運用の一覧・編成の投稿 ----
 const VIEWS=['#ctl','#mn','#info','#rs','#sv','#ov','#bnav','#sheet','#dbar','#pop'];
 let posts=[],postErr=false,me=null,lineFile='',curOp=0,postsSig='',postsDirty=false;
-const svcDate=()=>new Date(Date.now()+6*3600e3).toISOString().slice(0,10); // 日本時間の午前3時で日付が変わる
+const kitenS=()=>M&&M.kiten?M.kiten:14400;
+const svcDate=()=>new Date(Date.now()+9*3600e3-kitenS()*1000).toISOString().slice(0,10); // 日本時間でダイヤの起点時刻(4時)に日付が変わる
 const postsOf=u=>posts.filter(p=>p.unit===u);
 let fmCache=new Map(),fmFor=null;
 function fmOf(u){ // その運用の現在の編成。差替なら直前の編成も
@@ -459,15 +504,16 @@ $('#sheet').addEventListener('change',e=>{const o=e.target.closest('[data-o]');i
 function renderRoster(){
   const o=cur.ops||[];
   $('#rmsg').textContent=postErr?'編成の投稿を読み込めませんでした':'運用の行をタップで運用の一覧、列車のマスをタップで時刻';
-  const sl=$('#rt').scrollLeft;$('#rt').innerHTML=o.length?`<table class="ro">${o.map(x=>{const f=x.trains[0],l=x.trains[x.trains.length-1],fo=fmOf(x.name);
-    return `<tr><td class="lf"><div class="lb" data-op="${x.i}">${fo?fmHtml(fo,18):'<span class="fm none">―</span>'}<div><span class="un">${esc(x.name)}</span><div class="io">${S(f.route[f.fs].s)} → ${S(l.route[l.ls].s)}</div>${fo&&fo.remark?`<div class="io">${esc(fo.remark)}</div>`:''}</div></div></td>${x.trains.map(cell).join('')}</tr>`}).join('')}</table>`:'<div class="mute" style="padding:20px 0">このダイヤには運用の情報が入っていません。別のダイヤを選んでください</div>';
+  const sl=$('#rt').scrollLeft;$('#rt').innerHTML=o.length?`<table class="ro">${o.map(x=>{const f=x.trains[0],l=x.trains[x.trains.length-1],fo=fmOf(x.key);
+    return `<tr><td class="lf"><div class="lb" data-op="${x.i}">${fo?fmHtml(fo,18):'<span class="fm none">―</span>'}<div><span class="un">${esc(x.name)}</span>${x.warn.length?`<span class="wn" title="${esc(x.warn.join('\n'))}">!</span>`:''}<div class="io">${S(f.route[f.fs].s)} → ${S(l.route[l.ls].s)}</div>${fo&&fo.remark?`<div class="io">${esc(fo.remark)}</div>`:''}</div></div></td>${x.trains.map(cell).join('')}</tr>`}).join('')}</table>`:'<div class="mute" style="padding:20px 0">このダイヤには運用の情報が入っていません。別のダイヤを選んでください</div>';
   $('#rt').scrollLeft=sl;
 }
 function renderOp(){
   const o=(cur.ops||[])[curOp];if(!o){showView('roster');return}
-  const f=o.trains[0],l=o.trains[o.trains.length-1],fo=fmOf(o.name);
+  const f=o.trains[0],l=o.trains[o.trains.length-1],fo=fmOf(o.key);
   $('#ov').innerHTML=`<div class="wrap" style="padding:10px 14px"><div class="row" style="margin:0"><button id="bk">運用一覧へ</button><span class="un" style="font-size:18px">${esc(o.name)}</span>${fo?fmHtml(fo,22):'<span class="fm none" style="font-size:16px">編成未投稿</span>'}</div>
   <div class="mute" style="margin:8px 0">${S(f.route[f.fs].s)} 出庫、${S(l.route[l.ls].s)} 入庫、${o.trains.length}本${fo&&fo.remark?'。'+esc(fo.remark):''}</div>
+  ${o.warn.length?`<div class="wnote">${o.warn.map(esc).join('<br>')}</div>`:''}
   <table><tr><th>発</th><th>列車</th><th>着</th><th>備考</th></tr>${o.trains.map(t=>{const a=t.route[t.fs],b=t.route[t.ls],c=ccol(t),ty=M.types[t.ty]||{ini:''};
     return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td></tr>`}).join('')}</table></div>`;
 }
@@ -488,7 +534,7 @@ function renderPost(tr){
   renderPh(tr);
 }
 function renderPh(tr){
-  const e=$('#ph');if(!e||!tr||!tr.op)return;const L=postsOf(tr.op.name),fo=fmOf(tr.op.name);
+  const e=$('#ph');if(!e||!tr||!tr.op)return;const L=postsOf(tr.op.key),fo=fmOf(tr.op.key);
   $('#pfm').innerHTML=fo?fmHtml(fo,22):'<span class="mute">編成未投稿</span>';
   e.innerHTML=L.length?L.map(p=>`<div class="po"><b>${esc(p.formation)}</b><span>${p.replaced?'<span class="rp">差替</span> ':''}${esc(p.remark)}<div class="io">${new Date(p.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})} ${esc(p.train)}</div></span>${p.user_id===me&&selDate===svcDate()?`<button data-del="${esc(p.id)}">取消</button>`:''}</div>`).join(''):`<div class="mute">${selDate===svcDate()?'今日':selDate}の投稿はまだありません</div>`;
 }
@@ -516,7 +562,7 @@ $('#pb').onclick=async()=>{
   const tr=popTr;if(!tr||!tr.op||selDate!==svcDate())return;
   const f=$('#pf').value.trim(),m=$('#pm');if(!f){m.textContent='編成を入力してください';$('#pf').focus();return}
   $('#pb').disabled=true;const a=tr.route[tr.fs];
-  const {error}=await sb.from('formation_posts').insert({file:lineFile,dia:M.dias[M.cur].name,unit:tr.op.name,train:M.st[a.s].name+' '+fmt(a.d)+'発',formation:f,replaced:$('#pc').checked,remark:$('#pr').value.trim(),service_date:selDate});
+  const {error}=await sb.from('formation_posts').insert({file:lineFile,dia:M.dias[M.cur].name,unit:tr.op.key,train:M.st[a.s].name+' '+fmt(a.d)+'発',formation:f,replaced:$('#pc').checked,remark:$('#pr').value.trim(),service_date:selDate});
   $('#pb').disabled=false;
   if(error){m.textContent=/replaced/.test(error.message||'')?'データベースの更新(formation_posts_add_replaced.sql)がまだです':'投稿できませんでした。時間をおいてもう一度試してください';return}
   closePop();await loadPosts();refresh()};
@@ -579,7 +625,7 @@ function setDate(v){
   posts=[];postsSig='';loadPosts().then(refresh);
 }
 $('#dsel').onchange=e=>setDate(e.target.value);$('#mdate').onchange=e=>setDate(e.target.value);
-function nowSvc(){const j=new Date(Date.now()+9*3600e3),sec=j.getUTCHours()*3600+j.getUTCMinutes()*60+j.getUTCSeconds();return{T:j.getUTCHours()<3?sec+86400:sec}} // 日本時間。午前3時までは前日の続き
+function nowSvc(){const j=new Date(Date.now()+9*3600e3),sec=j.getUTCHours()*3600+j.getUTCMinutes()*60+j.getUTCSeconds();return{T:sec<kitenS()?sec+86400:sec}} // 日本時間。起点時刻までは前日の続き
 function goLive(){ // 今日・現在時刻に合わせて、実時間で動かす
   const d=svcDate(),ch=d!==selDate;selDate=d;live=true;$('#dsel').value=$('#mdate').value=d;applyDate();
   const t=nowSvc().T;T=(t>=M.lo&&t<=M.hi)?t:M.lo;
@@ -607,7 +653,7 @@ function stTable(key,dir){
   if(!L.length)return{n:0,html:'<div class="mute" style="padding:16px 0">この方面に停車する列車はありません</div>'};
   const no=L.some(x=>x.tr.name);let ph=null;
   return{n:L.length,html:`<table class="stt"><tr><th></th><th>時刻</th><th>行先</th>${no?'<th>列車</th>':''}<th>運用</th><th>編成</th></tr>${L.map(x=>{
-    const h=Math.floor(x.t/3600),o=x.tr.op,fo=o?fmOf(o.name):null,first=h!==ph;ph=h;
+    const h=Math.floor(x.t/3600),o=x.tr.op,fo=o?fmOf(o.key):null,first=h!==ph;ph=h;
     return `<tr data-t="${x.tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(x.tr)}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b></td><td><span class="ab" style="background:${ccol(x.tr)};color:${ink(ccol(x.tr))}">${esc((M.types[x.tr.ty]||{ab:''}).ab)}</span>${x.last?'当駅止':esc(x.dest)+'行'}${x.trk?`<small>${esc(x.trk)}</small>`:''}</td>${no?`<td>${esc(x.tr.name)}</td>`:''}<td>${o?esc(o.name):''}</td><td><b>${fo?esc(fo.f):''}</b>${fo&&fo.prev?`<small class="pv">${esc(fo.prev)}</small>`:''}</td></tr>`}).join('')}</table>`}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches&&e.target.matches('tr[data-t]'))e.target.click()});
