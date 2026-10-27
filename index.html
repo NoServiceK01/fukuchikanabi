@@ -353,7 +353,10 @@ function along(pts,f,q){const ls=[];let L=0;for(let i=1;i<pts.length;i++){const 
   return pts[pts.length-1]}
 // 駅間を4分割し、区間ごとに段階的に進む。出発直後と到着直前は、その駅に別の番線の列車がいる場合だけ番線側へ寄る
 function where(tr,t){
-  if(t<tr.t0||t>tr.t1)return null;const R=tr.route,si=tr.si;
+  if(t<tr.t0){ // 前の列車と駅でつながっているなら、前の列車が終着に着いてから出発まで、始発駅で次の列車として待機する(入出庫の連携は車庫に入るので表示しない)
+    const p=tr.pv;if(p&&p.nx===tr&&!(p.A.depot&&p.A.depot.code)&&t>p.t1){const x=tr.route[tr.si[0]];return{p:pp(x.s),at:x.s,tk:x.tk,k:0,sp:pp(x.s),stk:x.tk,ss:x.s,ta:p.t1,wait:true}}
+    return null}
+  if(t>tr.t1)return null;const R=tr.route,si=tr.si;
   for(let k=0;k<si.length;k++){const x=R[si[k]];
     if(t>=x.a&&t<=x.d){if(!x.ps)return{p:pp(x.s),at:x.s,tk:x.tk,k,sp:pp(x.s),stk:x.tk,ss:x.s,ta:x.a};
       const nx=R[si[k+1]];return{p:pp(x.s),from:x.s,next:nx?nx.s:x.s,k,q:1,sp:null}}
@@ -363,7 +366,7 @@ function where(tr,t){
   return null;
 }
 
-const ink=c=>{if(c[0]!=='#')return'var(--panel)';const v=parseInt(c.slice(1),16),r=v>>16,g=v>>8&255,b=v&255;return(r*299+g*587+b*114)/1000>150?'#111':'#fff'};
+const ink=c=>{if(c[0]!=='#')return'var(--panel)';const v=parseInt(c.slice(1),16),r=v>>16,g=v>>8&255,b=v&255;return(r*299+g*587+b*114)/1000>185?'#111':'#fff'}; // 橙(#ff8040など)は白文字、黄色や薄い色は黒文字
 // 各駅に停車する種別(ダイヤごと)
 function stopMap(d){const m=new Map();for(const tr of d.trains)for(const j of tr.si){if(tr.route[j].ps)continue;const k=pk(tr.route[j].s);if(!m.has(k))m.set(k,new Set());m.get(k).add(tr.ty)}return m}
 const stops=()=>{const d=M.dias[M.cur];return d.stops||(d.stops=stopMap(d))};
@@ -415,7 +418,7 @@ function draw(){
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const pk=i=>M.pos[i].lane+'_'+M.pos[i].row,S=i=>esc(M.st[i].name);
 let sh=null,ttDir=0;
-const statusOf=tr=>{const w=where(tr,T);return w?(w.at!=null?`${M.st[w.at].name} に停車中`:`${M.st[w.from].name} → ${M.st[w.next].name} 走行中`):(T<tr.t0?'運転前':'運転終了')};
+const statusOf=tr=>{const w=where(tr,T);return w?(w.wait?`${M.st[w.at].name} で待機中(${fmt(tr.t0)}発)`:w.at!=null?`${M.st[w.at].name} に停車中`:`${M.st[w.from].name} → ${M.st[w.next].name} 走行中`):(T<tr.t0?'運転前':'運転終了')};
 function openSheet(o){sh=o;$('#sheet').classList.remove('hide');renderSheet()}
 function closeSheet(){sh=null;selIds=new Set();$('#sheet').classList.add('hide');draw()}
 function renderSheet(){
