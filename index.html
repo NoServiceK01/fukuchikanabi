@@ -10,9 +10,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
-:root{--bg:#f3f7fd;--panel:#fff;--band:#e4edf9;--ink:#14263d;--mute:#5b6f87;--car:#2f7fd0;--line:#b2c4da;--rule:#d6e2f1;--acc:#1d64c8;--accf:#fff;--lc:#2a78d6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1522;--panel:#142132;--band:#1a2b42;--ink:#e2ecf8;--mute:#8aa0ba;--car:#4f93e0;--line:#3a5272;--rule:#233750;--acc:#6cacf5;--accf:#06203f;--lc:#4f93e0}}
-:root[data-theme="dark"]{--bg:#0c1522;--panel:#142132;--band:#1a2b42;--ink:#e2ecf8;--mute:#8aa0ba;--car:#4f93e0;--line:#3a5272;--rule:#233750;--acc:#6cacf5;--accf:#06203f;--lc:#4f93e0}
+:root{--bg:#f3f7fd;--panel:#fff;--band:#e4edf9;--ink:#14263d;--mute:#5b6f87;--car:#2f7fd0;--line:#b2c4da;--rule:#d6e2f1;--acc:#1d64c8;--accf:#fff;--lc:#2a78d6;--stn:#8593a3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1522;--panel:#142132;--band:#1a2b42;--ink:#e2ecf8;--mute:#8aa0ba;--car:#4f93e0;--line:#3a5272;--rule:#233750;--acc:#6cacf5;--accf:#06203f;--lc:#4f93e0;--stn:#9aa8b8}}
+:root[data-theme="dark"]{--bg:#0c1522;--panel:#142132;--band:#1a2b42;--ink:#e2ecf8;--mute:#8aa0ba;--car:#4f93e0;--line:#3a5272;--rule:#233750;--acc:#6cacf5;--accf:#06203f;--lc:#4f93e0;--stn:#9aa8b8}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Zen Kaku Gothic New",system-ui,sans-serif}
@@ -246,7 +246,7 @@ function setup(root,name){
     const nm=st[c.end].name+'方面',w=nm.length*14+28;
     h+=`<rect x="${mx-w/2}" y="${hy-40}" width="${w}" height="28" rx="14" fill="var(--panel)" stroke="var(--line)"/><text x="${mx}" y="${hy-21}" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">${esc(nm)}</text>`}
   st.forEach((s,i)=>{const p=pos[i];if(p.copy)return;const x=X(p.lane),y=Y(p.row);
-    h+=`<g data-st="${i}" style="cursor:pointer"><rect x="${p.lane?x-16:0}" y="${y-26}" width="${p.lane?W-x+16:x+16}" height="52" fill="transparent"/><circle cx="${x}" cy="${y}" r="${s.major?9:7.5}" fill="var(--panel)" stroke="${segCol(i)||'var(--lc)'}" stroke-width="5"/>`;
+    h+=`<g data-st="${i}" style="cursor:pointer"><rect x="${p.lane?x-16:0}" y="${y-26}" width="${p.lane?W-x+16:x+16}" height="52" fill="transparent"/><circle cx="${x}" cy="${y}" r="${s.major?9:7.5}" fill="var(--panel)" stroke="var(--stn)" stroke-width="5"/>`;
     h+=p.lane===0?`<text class="nm" x="12" y="${y-2}">${esc(s.name)}</text></g>`:`<text class="nm sub" x="${x+82}" y="${y-2}">${esc(s.name)}</text></g>`});
   const H=Y(rows)+10;$('#map').setAttribute('viewBox',`0 0 ${W} ${H}`);$('#map').style.maxWidth=W+'px';$('#map').style.minWidth=(maxLane>1||W>520)?W+'px':'';$('#base').innerHTML=h;
   // UI
