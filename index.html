@@ -238,10 +238,10 @@ function setup(root,name){
   if(l0.length){const ms=st.map((_,i)=>i).filter(i=>!pos[i].copy&&pos[i].lane===0).sort((a,b)=>pos[a].row-pos[b].row);
     if(!M.cfg||!M.cfg.segments.length||ms.length<2)h+=`<line x1="${X(0)}" y1="${Y(Math.min(...l0))-40}" x2="${X(0)}" y2="${Y(Math.max(...l0))}" stroke="var(--lc)" stroke-width="9" stroke-linecap="round"/>`;
     else for(let k=0;k<ms.length-1;k++)h+=`<line x1="${X(0)}" y1="${Y(pos[ms[k]].row)-(k?0:40)}" x2="${X(0)}" y2="${Y(pos[ms[k+1]].row)}" stroke="${edgeCol(ms[k],ms[k+1])||'var(--lc)'}" stroke-width="9" stroke-linecap="round"/>`}
-  // 分岐線は駅と駅の間でカーブを描いて本線から分かれる
+  // 分岐線は駅と駅の間でカーブを描いて本線から分かれる。分岐駅までの区間は、分岐先の線を本線の上(手前)に重ねて描く
   for(const c of conn){const f=c.from,R=26,x0=X(f.lane),x1=X(c.lane),mx=(x0+x1)/2,sg=Math.sign(x1-x0)||1;let d,hy;
-    if(!c.up){const yA=Y(f.row)+56;hy=yA+R;d=`M${x0} ${yA}Q${x0} ${hy} ${x0+sg*R} ${hy}H${x1-sg*R}Q${x1} ${hy} ${x1} ${yA+2*R}V${Y(c.bot)}`}
-    else{const yJ=Y(f.row)-56;hy=yJ-R;d=`M${x1} ${Y(c.top)}V${yJ-2*R}Q${x1} ${hy} ${x1-sg*R} ${hy}H${x0+sg*R}Q${x0} ${hy} ${x0} ${yJ}`}
+    if(!c.up){const yA=Y(f.row)+56;hy=yA+R;d=`M${x0} ${Y(f.row)}V${yA}Q${x0} ${hy} ${x0+sg*R} ${hy}H${x1-sg*R}Q${x1} ${hy} ${x1} ${yA+2*R}V${Y(c.bot)}`}
+    else{const yJ=Y(f.row)-56;hy=yJ-R;d=`M${x1} ${Y(c.top)}V${yJ-2*R}Q${x1} ${hy} ${x1-sg*R} ${hy}H${x0+sg*R}Q${x0} ${hy} ${x0} ${yJ}V${Y(f.row)}`}
     h+=`<path d="${d}" fill="none" stroke="${segCol(c.end)||'var(--lc)'}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>`;
     const nm=st[c.end].name+'方面',w=nm.length*14+28;
     h+=`<rect x="${mx-w/2}" y="${hy-40}" width="${w}" height="28" rx="14" fill="var(--panel)" stroke="var(--line)"/><text x="${mx}" y="${hy-21}" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">${esc(nm)}</text>`}
@@ -412,7 +412,8 @@ function draw(){
     if(w.sp){const k=w.sp.x+'_'+w.sp.y+'_'+side;if(!slots.has(k))slots.set(k,[]);slots.get(k).push([w.ta,tr.id])}}
   // 駅ごとに、先に着いていた列車ほど線の近く、あとから来た列車ほど外側に入る(番線が決まっていても同じ)。1本だけならまっすぐのまま
   const order=new Map();
-  for(const [k,a] of slots)order.set(k,a.sort((p,q)=>p[0]-q[0]||p[1]-q[1]).map(z=>z[1]));
+  // 並ぶ列車は、列車番号(なければ運用番号)の若い順に左から並べる。右側(下り)は線に近い方が左、左側(上り)は外側が左
+  for(const [k,a] of slots){const ids=a.sort((p,q)=>numCmp(cur[p[1]],cur[q[1]])||p[0]-q[0]||p[1]-q[1]).map(z=>z[1]);order.set(k,k.endsWith('_-1')?ids.reverse():ids)}
   for(const {tr,w,side} of items){
     const lst=w.sp?order.get(w.sp.x+'_'+w.sp.y+'_'+side):null,ox=lst?26+34*lst.indexOf(tr.id):26,x=w.p.x+side*ox,y=w.p.y;
     if(w.at!=null){const k=x+'_'+y;if(!stopped.has(k))stopped.set(k,{trs:[],x,y,side});stopped.get(k).trs.push(tr)}
@@ -436,9 +437,9 @@ function renderSheet(){
   if(sh.type==='cfg'){renderCfg();return}
   if(sh.type==='tr'){
     const trs=sh.ids.map(i=>cur[i]),tr=trs[sh.act],R=tr.route,ty=M.types[tr.ty]||{name:'',col:'var(--ink)'},a=R[tr.fs],b=R[tr.ls];
-    const rows=[];tr.si.forEach((i,k)=>{const x=R[i],l=rows[rows.length-1];if(l&&!l.ps&&!x.ps&&pk(l.s)===pk(x.s)){l.d=x.d;l.b=k}else rows.push({s:x.s,a:x.a,d:x.d,ps:x.ps,ka:k,b:k})});
+    const rows=[];tr.si.forEach((i,k)=>{const x=R[i],l=rows[rows.length-1];if(l&&!l.ps&&!x.ps&&pk(l.s)===pk(x.s)){l.d=x.d;l.b=k}else rows.push({s:x.s,a:x.a,d:x.d,ps:x.ps,tk:x.tk,ka:k,b:k})});
     $('#sh').innerHTML=`<div><div><b style="color:${ty.col}">${esc(ty.name)}</b> ${esc(tr.name)} ${tr.dir?'上り':'下り'}</div><div class="mute">${S(a.s)} ${fmt(a.d)} → ${S(b.s)} ${fmt(b.a)}</div><div id="sst"></div>${trs.length>1?'<div class="tabs">'+trs.map((t,i)=>`<button data-act="${i}" ${i===sh.act?'style="border-color:var(--acc)"':''}>${esc((M.types[t.ty]||{}).name)} ${esc(t.name)||fmt(t.t0)}</button>`).join('')+'</div>':''}</div><button id="cls">閉じる</button>`;
-    $('#sb').innerHTML=`<div id="pst"></div><table><tr><th>駅</th><th>着</th><th>発</th></tr>${rows.map((r,i)=>r.ps?`<tr data-a="${r.ka}" data-b="${r.b}"><td class="mute">${S(r.s)}</td><td class="mute" colspan="2">通過 ${fmt(r.a)}</td></tr>`:`<tr data-a="${r.ka}" data-b="${r.b}"><td>${S(r.s)}</td><td>${i?fmt(r.a):''}</td><td>${i<rows.length-1?fmt(r.d):''}</td></tr>`).join('')}</table>`;
+    $('#sb').innerHTML=`<div id="pst"></div><table><tr><th>駅</th><th>番線</th><th>着</th><th>発</th></tr>${rows.map((r,i)=>r.ps?`<tr data-a="${r.ka}" data-b="${r.b}"><td class="mute">${S(r.s)}</td><td class="mute" colspan="3">通過 ${fmt(r.a)}</td></tr>`:`<tr data-a="${r.ka}" data-b="${r.b}"><td>${S(r.s)}</td><td>${esc(trkS(r.s,r.tk))}</td><td>${i?fmt(r.a):''}</td><td>${i<rows.length-1?fmt(r.d):''}</td></tr>`).join('')}</table>`;
     markRows();renderPost(tr);
   }else{
     const i=sh.i,key=pk(i),T2=stTable(key,ttDir);
@@ -660,6 +661,10 @@ $('#dprev').onclick=()=>setDate(shiftDate(-1));$('#dnext').onclick=()=>setDate(s
 $('#ddia').onchange=()=>setDate(selDate);
 
 // ---- 駅時刻表 ----
+const numOf=x=>{const m=String(x==null?'':x).match(/\d+/);return m?+m[0]:Infinity};
+function numCmp(a,b){ // 番数の比較: 列車番号の数字、なければ運用番号の数字
+  for(const f of[t=>numOf(t.name),t=>numOf(t.op&&t.op.name)]){const x=f(a),y=f(b);if(x!==y)return x<y?-1:1}return 0}
+function trkS(s,tk){const t=tk!=null?M.st[s].tracks[+tk]:null;return t?(t.TrackRyakusyou||t.TrackName||''):''}
 let stI=-1,stDir=0;
 const stTrack=(s,tk)=>{const t=tk!=null?M.st[s].tracks[+tk]:null;return t?(t.TrackName||t.TrackRyakusyou||''):''};
 const stIds=()=>M.st.map((_,i)=>i).filter(i=>!M.pos[i].copy);
