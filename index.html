@@ -1123,8 +1123,7 @@ $('#adm').addEventListener('input',admInput);$('#adm').addEventListener('change'
 let lineList=null,menuOpen=false;
 function setTheme(t){const r=document.documentElement;if(t==='auto')r.removeAttribute('data-theme');else r.dataset.theme=t;try{localStorage.setItem('thm',t)}catch(e){}}
 const themeNow=()=>{const t=document.documentElement.dataset.theme;return t==='dark'||t==='light'?t:'auto'};
-function whoAmI(){const u=meUser;if(!u)return{n:'',nm:''};const m=u.user_metadata||{},x=(u.identities||[]).find(i=>i.provider==='x'||i.provider==='twitter'),d=x&&x.identity_data||{};
-  return{n:String(d.user_name||d.preferred_username||m.user_name||m.preferred_username||'').replace(/^@/,''),nm:d.name||m.name||m.full_name||''}}
+function whoAmI(){return{n:meUser?meUser.handle:'',nm:meUser?meUser.name:''}}
 function renderMenu(){
   const w=whoAmI(),t=themeNow();
   $('#menu').innerHTML=`<div class="mrow" style="justify-content:space-between"><b style="font-size:18px">メニュー</b><button id="mclose" class="ib" aria-label="閉じる">×</button></div>
@@ -1168,18 +1167,20 @@ function authMsg(code,desc){desc=desc||'';
   return desc||'ログインできませんでした'}
 const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,flowType:'pkce'}});
 let meUser=null;
-async function xAuth(kind){ // kind: 'login'=Xでログイン / 'link'=ログイン中のアカウントにXを連携
-  const o={provider:'x',options:{redirectTo:location.origin+location.pathname}},m=kind==='link'?$('#xmsg'):$('#aerr');
-  if(m)m.textContent='';
-  try{const {error}=kind==='link'?await sb.auth.linkIdentity(o):await sb.auth.signInWithOAuth(o);
+function slimUser(u){ // アプリで使うのは、ユーザーID・表示名・Xのユーザー名だけ。メールアドレスなどは、ここで落として、アプリの中には持たない
+  if(!u)return null;const m=u.user_metadata||{},x=(u.identities||[]).find(i=>i.provider==='x'||i.provider==='twitter'),d=x&&x.identity_data||{};
+  return{id:u.id,name:String(d.name||m.name||m.full_name||''),handle:String(d.user_name||d.preferred_username||m.user_name||m.preferred_username||'').replace(/^@/,'')}}
+async function xAuth(){ // Xでログイン。追加の権限(scopes)は求めない(Supabaseの標準のままで、アプリからは何も足さない)
+  const m=$('#aerr');if(m)m.textContent='';
+  try{const {error}=await sb.auth.signInWithOAuth({provider:'x',options:{redirectTo:location.origin+location.pathname}});
     if(error&&m)m.textContent=authMsg(error.code,error.message)}
   catch(e){if(m)m.textContent=authMsg('',e.message)}}
-$('#xlogin').onclick=()=>xAuth('login');
+$('#xlogin').onclick=()=>xAuth();
 if(urlErr)$('#aerr').textContent=urlErr;
 const show=(el,on)=>$(el).classList.toggle('hide',!on);
 let authed=false;
 function gate(s){
-  me=s&&s.user?s.user.id:null;meUser=s&&s.user?s.user:null;const ok=!!s;if(ok===authed)return;authed=ok;
+  me=s&&s.user?s.user.id:null;meUser=s&&s.user?slimUser(s.user):null;const ok=!!s;if(ok===authed)return;authed=ok;
   show('#auth',!ok);show('#hd',ok);
   if(ok){if(urlErr){alert(urlErr);urlErr=''}setTimeout(()=>{showList();loadAdmin()},0)}
   else{for(const el of ['#drop',...VIEWS])show(el,false);
