@@ -170,13 +170,14 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 .mdt{display:flex;flex-direction:column;gap:3px;padding:6px;background:var(--panel);border:1px solid var(--rule);border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
 .mdt input{min-height:30px;font-size:13px;padding:0 6px}
 #info{padding-right:172px}
+.gb2{gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0}.gb2 svg{width:18px;height:18px;flex:none}
 </style>
 </head>
 <body>
 <header id="hd" class="hide"><div class="top"><h1 id="ttl">フクチカナビ</h1><button id="mbtn" class="mb" aria-label="メニュー" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div></header>
 <button id="mbg" class="hide" aria-label="メニューを閉じる" tabindex="-1"></button>
 <nav id="menu" class="hide" aria-label="メニュー"></nav>
-<div id="auth" class="wrap" style="padding:84px 20px;text-align:center"><h1 style="font-size:28px;color:var(--hd);margin:0">フクチカナビ</h1><p class="mute" style="margin:12px 0 26px">Xのアカウントでログインすると、運用や列車の位置を見られます</p><button id="xlogin" type="button" class="xb" style="margin:0 auto;min-width:250px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>Xでログイン</button><div id="aerr" class="mute" role="alert" style="margin-top:14px"></div></div>
+<div id="auth" class="wrap" style="padding:84px 20px;text-align:center"><h1 style="font-size:28px;color:var(--hd);margin:0">フクチカナビ</h1><p class="mute" style="margin:12px 0 26px">XまたはGoogleのアカウントでログインすると、運用や列車の位置を見られます</p><button id="xlogin" type="button" class="xb" style="margin:0 auto;min-width:250px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>Xでログイン</button><button id="glogin" type="button" class="gb2" style="margin:10px auto 0;min-width:250px"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Googleでログイン</button><div id="aerr" class="mute" role="alert" style="margin-top:14px"></div></div>
 <div id="dbar" class="hide"><button id="dprev" aria-label="前の日">‹</button><input id="dsel" type="date" aria-label="日付"><button id="dnext" aria-label="次の日">›</button><button id="dtoday">今日</button><select id="ddia" class="hide" aria-label="ダイヤ"></select><span id="dinfo"></span></div>
 <div id="drop" class="hide"><h2>路線を選んでください</h2><div id="lines" class="tiles"></div><div id="lmsg" class="mute" style="margin-top:12px"></div></div>
 <section id="rs" class="hide"><div class="bar"><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span></div><div id="rt"></div></section>
@@ -1123,11 +1124,11 @@ $('#adm').addEventListener('input',admInput);$('#adm').addEventListener('change'
 let lineList=null,menuOpen=false;
 function setTheme(t){const r=document.documentElement;if(t==='auto')r.removeAttribute('data-theme');else r.dataset.theme=t;try{localStorage.setItem('thm',t)}catch(e){}}
 const themeNow=()=>{const t=document.documentElement.dataset.theme;return t==='dark'||t==='light'?t:'auto'};
-function whoAmI(){return{n:meUser?meUser.handle:'',nm:meUser?meUser.name:''}}
+function whoAmI(){return{n:meUser?meUser.handle:'',nm:meUser?meUser.name:'',p:meUser?meUser.provider:''}}
 function renderMenu(){
   const w=whoAmI(),t=themeNow();
   $('#menu').innerHTML=`<div class="mrow" style="justify-content:space-between"><b style="font-size:18px">メニュー</b><button id="mclose" class="ib" aria-label="閉じる">×</button></div>
-  <h2>アカウント</h2><div class="mrow" style="flex-direction:column;align-items:flex-start;gap:2px"><div>${w.nm?esc(w.nm):'Xアカウント'}${w.n?` <span class="mute">@${esc(w.n)}</span>`:''}${isAdmin?' <span class="rp">管理者</span>':''}</div><div class="mute" style="font-size:12px">ユーザーID: <code>${esc(meUser?meUser.id:'')}</code></div></div><button id="mlogout" class="mi">ログアウト</button>
+  <h2>アカウント</h2><div class="mrow" style="flex-direction:column;align-items:flex-start;gap:2px"><div>${w.nm?esc(w.nm):'アカウント'}${w.n?` <span class="mute">@${esc(w.n)}</span>`:''}${isAdmin?' <span class="rp">管理者</span>':''}</div>${w.p?`<div class="mute" style="font-size:12px">${w.p==='google'?'Google':w.p==='x'||w.p==='twitter'?'X':esc(w.p)}でログイン中</div>`:''}<div class="mute" style="font-size:12px">ユーザーID: <code>${esc(meUser?meUser.id:'')}</code></div></div><button id="mlogout" class="mi">ログアウト</button>
   <h2>設定</h2><div class="mute" style="font-size:12px;margin-bottom:4px">表示テーマ</div>
   <div class="seg" role="radiogroup" aria-label="表示テーマ">${[['auto','自動'],['light','ライト'],['dark','ダーク']].map(([k,l])=>`<button data-th="${k}" role="radio" aria-checked="${t===k}" class="${t===k?'on':''}">${l}</button>`).join('')}</div>
   <label class="opt" style="margin-top:6px"><input type="checkbox" data-mo="term" ${showTerm?'checked':''}>駅時刻表に、当駅止まりの列車を表示する</label>
@@ -1161,21 +1162,21 @@ const SB_URL='https://mukmgauweucsppjmpxha.supabase.co',SB_KEY='sb_publishable_q
 let urlErr='';(()=>{const q=new URLSearchParams(location.search),h=new URLSearchParams(location.hash.slice(1)),d=q.get('error_description')||h.get('error_description'),c=q.get('error_code')||h.get('error_code');
   if(d){urlErr=authMsg(c,d.replace(/\+/g,' '));try{history.replaceState(null,'',location.pathname)}catch(e){}}})();
 function authMsg(code,desc){desc=desc||'';
-  if(code==='signup_disabled'||/signups? not allowed/i.test(desc))return 'このXアカウントは、まだ登録されていません。先にメールアドレスでログインして、設定の「Xアカウントを連携」から連携してください';
+  if(code==='signup_disabled'||/signups? not allowed/i.test(desc))return 'このアカウントでは、まだ新規登録が許可されていません。管理者に、新規登録を許可してもらってください';
   if(/manual linking/i.test(desc))return 'アカウントの連携が許可されていません。管理者が、Supabase の「Allow manual linking」をオンにしてください';
-  if(code==='identity_already_exists'||/already (linked|exists)|identity.*exists/i.test(desc))return 'このXアカウントは、すでに別のユーザーに連携されています';
+  if(code==='identity_already_exists'||/already (linked|exists)|identity.*exists/i.test(desc))return 'このアカウントは、すでに別のユーザーに連携されています';
   return desc||'ログインできませんでした'}
 const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,flowType:'pkce'}});
 let meUser=null;
-function slimUser(u){ // アプリで使うのは、ユーザーID・表示名・Xのユーザー名だけ。メールアドレスなどは、ここで落として、アプリの中には持たない
-  if(!u)return null;const m=u.user_metadata||{},x=(u.identities||[]).find(i=>i.provider==='x'||i.provider==='twitter'),d=x&&x.identity_data||{};
-  return{id:u.id,name:String(d.name||m.name||m.full_name||''),handle:String(d.user_name||d.preferred_username||m.user_name||m.preferred_username||'').replace(/^@/,'')}}
-async function xAuth(){ // Xでログイン。追加の権限(scopes)は求めない(Supabaseの標準のままで、アプリからは何も足さない)
+function slimUser(u){ // アプリで使うのは、ユーザーID・表示名・ログインの種類・Xのユーザー名だけ。メールアドレス・電話番号・画像などは、ここで落として、アプリの中には持たない
+  if(!u)return null;const m=u.user_metadata||{},ids=(u.identities||[]).filter(i=>i.provider!=='email').slice().sort((a,b)=>String(b.last_sign_in_at||'').localeCompare(String(a.last_sign_in_at||''))),x=ids[0]||{},d=x.identity_data||{};
+  return{id:u.id,provider:String(x.provider||''),name:String(d.name||d.full_name||m.name||m.full_name||''),handle:String(d.user_name||d.preferred_username||m.user_name||m.preferred_username||'').replace(/^@/,'')}}
+async function oauthLogin(provider){ // XまたはGoogleでログイン。追加の権限(scopes)は求めない(Supabaseの標準のままで、アプリからは何も足さない)
   const m=$('#aerr');if(m)m.textContent='';
-  try{const {error}=await sb.auth.signInWithOAuth({provider:'x',options:{redirectTo:location.origin+location.pathname}});
+  try{const {error}=await sb.auth.signInWithOAuth({provider,options:{redirectTo:location.origin+location.pathname}});
     if(error&&m)m.textContent=authMsg(error.code,error.message)}
   catch(e){if(m)m.textContent=authMsg('',e.message)}}
-$('#xlogin').onclick=()=>xAuth();
+$('#xlogin').onclick=()=>oauthLogin('x');$('#glogin').onclick=()=>oauthLogin('google');
 if(urlErr)$('#aerr').textContent=urlErr;
 const show=(el,on)=>$(el).classList.toggle('hide',!on);
 let authed=false;
