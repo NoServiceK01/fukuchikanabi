@@ -189,7 +189,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <main class="hide" id="mn"><div class="wrap"><svg id="map" role="img" aria-label="路線図"><g id="base"></g><g id="stp" style="pointer-events:none"></g><g id="trains"></g></svg></div></main>
 <div id="sheet" class="hide"><div id="sh"></div><div id="sb"></div></div>
 <div id="pop" class="hide" role="dialog" aria-modal="true" aria-labelledby="ptt"><div class="pc">
-  <h3 id="ptt">編成を投稿</h3><div id="pw" class="mute"></div>
+  <h3 id="ptt">編成を投稿</h3><div id="pw" class="mute"></div><div id="pwho" class="mute" style="font-size:12px"></div>
   <label class="fl">編成<input id="pf" type="text" maxlength="20" placeholder="例 06" autocomplete="off" list="fmlist"></label><datalist id="fmlist"></datalist><div id="pfw" class="pfw" role="status"></div>
   <label class="opt"><input id="pc" type="checkbox">差替(直前の編成から差し替えた)</label>
   <label class="fl">備考(任意)<input id="pr" type="text" maxlength="100" placeholder="例 側面:3段帯" autocomplete="off"></label>
@@ -519,13 +519,14 @@ const postsOf=u=>posts.filter(p=>p.unit===u);
 let fmCache=new Map(),fmFor=null;
 function fmOf(u){ // その運用の現在の編成。差替なら直前の編成も
   if(fmFor!==posts){fmFor=posts;fmCache=new Map()}
-  if(!fmCache.has(u)){const L=postsOf(u),c=L[0];fmCache.set(u,c?{f:c.formation,prev:c.replaced&&L[1]?L[1].formation:'',remark:c.remark||'',reg:fmReg(c.formation)}:null)}
+  if(!fmCache.has(u)){const L=postsOf(u),c=L[0];fmCache.set(u,c?{f:c.formation,prev:c.replaced&&L[1]?L[1].formation:'',remark:c.remark||'',reg:fmReg(c.formation),by:c.user_id}:null)}
   return fmCache.get(u)}
 const fmHtml=(fo,sz)=>`<span class="fmw"><span class="fm" style="font-size:${sz}px">${esc(fo.f)}${FM.size&&!fo.reg?'<span class="wn" title="編成表に登録されていません">?</span>':''}</span>${fo.prev?`<small class="pv">${esc(fo.prev)}</small>`:''}</span>`;
 async function loadPosts(){
   if(!M||!lineFile)return;
   const {data,error}=await sb.from('formation_posts').select('*').eq('file',lineFile).eq('service_date',selDate).order('created_at',{ascending:false});
-  postErr=!!error;posts=error?[]:data;const sig=posts.map(p=>p.id).join();postsDirty=sig!==postsSig;postsSig=sig;
+  postErr=!!error;posts=error?[]:data;await refreshNames(posts.map(p=>p.user_id));
+  const sig=posts.map(p=>p.id+':'+(NAMES.get(p.user_id)||'')).join();postsDirty=sig!==postsSig;postsSig=sig;
 }
 function refresh(){
   if(!M)return;
@@ -563,7 +564,7 @@ function renderOp(){
   const o=(cur.ops||[])[curOp];if(!o){showView('roster');return}
   const f=o.trains[0],l=o.trains[o.trains.length-1],fo=fmOf(o.key);
   $('#ov').innerHTML=`<div class="wrap" style="padding:10px 14px"><div class="row" style="margin:0"><button id="bk">運用一覧へ</button><span class="un" style="font-size:18px">${esc(o.name)}</span>${fo?fmHtml(fo,22):'<span class="fm none" style="font-size:16px">編成未投稿</span>'}</div>
-  <div class="mute" style="margin:8px 0">${o.group?esc(o.group)+'、':''}${o.custom?'自作の運用、':''}${S(f.route[f.fs].s)} 出庫、${S(l.route[l.ls].s)} 入庫、${o.trains.length}本${fo&&fo.remark?'。'+esc(fo.remark):''}</div>
+  <div class="mute" style="margin:8px 0">${o.group?esc(o.group)+'、':''}${o.custom?'自作の運用、':''}${S(f.route[f.fs].s)} 出庫、${S(l.route[l.ls].s)} 入庫、${o.trains.length}本${fo&&fo.remark?'。'+esc(fo.remark):''}${fo?'。投稿 '+esc(nameOf(fo.by)):''}</div>
   ${o.warn.length?`<div class="wnote">${o.warn.map(esc).join('<br>')}</div>`:''}
   <table><tr><th>発</th><th>列車</th><th>着</th><th>備考</th></tr>${o.trains.map(t=>{const a=t.route[t.fs],b=t.route[t.ls],c=ccol(t),ty=M.types[t.ty]||{ini:''};
     return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td></tr>`}).join('')}</table></div>`;
@@ -588,8 +589,8 @@ function renderPost(tr){
 }
 function renderPh(tr){
   const e=$('#ph');if(!e||!tr||!tr.op)return;const L=postsOf(tr.op.key),fo=fmOf(tr.op.key),reg=fo&&fo.reg,tp=ccol(tr);
-  $('#pfm').innerHTML=`<div class="fc"><span class="tp" style="background:${tp};color:${ink(tp)}">${esc(tr.name||(M.types[tr.ty]||{}).ab||'')}</span><img class="fi${fo?'':' gh0'}" src="${esc(fmIconUrl(fo&&fo.f))}" width="34" height="48" alt=""><div class="fk">${fo?fmHtml(fo,22):'<b class="mute">編成未投稿</b>'}${reg&&reg.owner?`<div class="io">所 ${esc(reg.owner)}</div>`:''}<div class="io">運 ${esc(tr.op.name)}</div>${reg&&reg.remark?`<div class="io">${esc(reg.remark)}</div>`:''}</div>${reg&&reg.cars.length?`<button data-fv="${esc(reg.number)}">編成表</button>`:''}</div>`;
-  e.innerHTML=L.length?L.map(p=>`<div class="po"><b>${esc(p.formation)}</b><span>${p.replaced?'<span class="rp">差替</span> ':''}${esc(p.remark)}<div class="io">${new Date(p.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})} ${esc(p.train)}</div></span>${(p.user_id===me||isAdmin)&&selDate===svcDate()?`<button data-del="${esc(p.id)}">取消</button>`:''}</div>`).join(''):`<div class="mute">${selDate===svcDate()?'今日':selDate}の投稿はまだありません</div>`;
+  $('#pfm').innerHTML=`<div class="fc"><span class="tp" style="background:${tp};color:${ink(tp)}">${esc(tr.name||(M.types[tr.ty]||{}).ab||'')}</span><img class="fi${fo?'':' gh0'}" src="${esc(fmIconUrl(fo&&fo.f))}" width="34" height="48" alt=""><div class="fk">${fo?fmHtml(fo,22):'<b class="mute">編成未投稿</b>'}${reg&&reg.owner?`<div class="io">所 ${esc(reg.owner)}</div>`:''}<div class="io">運 ${esc(tr.op.name)}</div>${L[0]?`<div class="io">投稿 ${esc(nameOf(L[0].user_id))}</div>`:''}${reg&&reg.remark?`<div class="io">${esc(reg.remark)}</div>`:''}</div>${reg&&reg.cars.length?`<button data-fv="${esc(reg.number)}">編成表</button>`:''}</div>`;
+  e.innerHTML=L.length?L.map(p=>`<div class="po"><b>${esc(p.formation)}</b><span>${p.replaced?'<span class="rp">差替</span> ':''}${esc(p.remark)}<div class="io">${new Date(p.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})} ${esc(p.train)}  投稿: ${esc(nameOf(p.user_id))}</div></span>${(p.user_id===me||isAdmin)&&selDate===svcDate()?`<button data-del="${esc(p.id)}">取消</button>`:''}</div>`).join(''):`<div class="mute">${selDate===svcDate()?'今日':selDate}の投稿はまだありません</div>`;
 }
 $('#sheet').addEventListener('click',async e=>{
   const g=e.target.closest('[data-goop]');if(g){const i=+g.dataset.goop;closeSheet();showView('op',i);return}
@@ -602,6 +603,7 @@ let popTr=null,popFrom=null;
 function openPop(tr,from){popTr=tr;popFrom=from;const a=tr.route[tr.fs];
   $('#pw').textContent=`運番 ${tr.op.name}  ${M.st[a.s].name} ${fmt(a.d)}発の列車から投稿します`;
   $('#pf').value='';$('#pc').checked=false;$('#pr').value='';$('#pm').textContent='';$('#pb').disabled=false;
+  $('#pwho').textContent='投稿者: '+nameOf(me)+'(≡メニューの設定で変えられます)';
   $('#fmlist').innerHTML=[...FM.values()].sort((a,b)=>a.number.localeCompare(b.number,'ja',{numeric:true})).map(f=>`<option value="${esc(f.number)}" label="${esc(f.owner)}"></option>`).join('');pfCheck();
   show('#pop',true);$('#pf').focus()}
 function pfCheck(){ // 編成表にない編成を入力したときの注意
@@ -744,9 +746,10 @@ $('#fv').addEventListener('click',e=>{const h=e.target.closest('[data-fh]');if(h
 async function renderFmh(){ // 編成の運用の履歴(最近の投稿)
   const n=sh.n,f=fmReg(n);
   $('#sh').innerHTML=`<div><b style="font-size:17px">${esc(n)} の運用の履歴</b><div class="mute">最近60件の投稿</div></div><button id="cls">閉じる</button>`;$('#sb').innerHTML='<div class="mute">読み込み中…</div>';
-  const {data,error}=await sb.from('formation_posts').select('service_date,unit,remark,replaced,created_at').eq('file',lineFile).eq('formation',f?f.number:n).order('service_date',{ascending:false}).order('created_at',{ascending:false}).limit(60);
+  const {data,error}=await sb.from('formation_posts').select('service_date,unit,remark,replaced,created_at,user_id').eq('file',lineFile).eq('formation',f?f.number:n).order('service_date',{ascending:false}).order('created_at',{ascending:false}).limit(60);
+  if(!error)await refreshNames(data.map(p=>p.user_id));
   if(!sh||sh.type!=='fmh'||sh.n!==n)return;
-  $('#sb').innerHTML=error?'<div class="mute">履歴を読み込めませんでした</div>':data.length?`<table><tr><th>日付</th><th>運用</th><th>備考</th></tr>${data.map(p=>`<tr><td>${esc(p.service_date)}</td><td>${esc(p.unit)}</td><td>${p.replaced?'<span class="rp">差替</span> ':''}${esc(p.remark)}</td></tr>`).join('')}</table>`:'<div class="mute">この編成の投稿は、まだありません</div>'}
+  $('#sb').innerHTML=error?'<div class="mute">履歴を読み込めませんでした</div>':data.length?`<table><tr><th>日付</th><th>運用</th><th>備考</th><th>投稿者</th></tr>${data.map(p=>`<tr><td>${esc(p.service_date)}</td><td>${esc(p.unit)}</td><td>${p.replaced?'<span class="rp">差替</span> ':''}${esc(p.remark)}</td><td>${esc(nameOf(p.user_id))}</td></tr>`).join('')}</table>`:'<div class="mute">この編成の投稿は、まだありません</div>'}
 
 // ---- 駅時刻表 ----
 const numOf=x=>{const m=String(x==null?'':x).match(/\d+/);return m?+m[0]:Infinity};
@@ -1124,12 +1127,15 @@ $('#adm').addEventListener('input',admInput);$('#adm').addEventListener('change'
 let lineList=null,menuOpen=false;
 function setTheme(t){const r=document.documentElement;if(t==='auto')r.removeAttribute('data-theme');else r.dataset.theme=t;try{localStorage.setItem('thm',t)}catch(e){}}
 const themeNow=()=>{const t=document.documentElement.dataset.theme;return t==='dark'||t==='light'?t:'auto'};
-function whoAmI(){return{n:meUser?meUser.handle:'',nm:meUser?meUser.name:'',p:meUser?meUser.provider:''}}
+function whoAmI(){return{p:meUser?meUser.provider:''}}
 function renderMenu(){
   const w=whoAmI(),t=themeNow();
   $('#menu').innerHTML=`<div class="mrow" style="justify-content:space-between"><b style="font-size:18px">メニュー</b><button id="mclose" class="ib" aria-label="閉じる">×</button></div>
-  <h2>アカウント</h2><div class="mrow" style="flex-direction:column;align-items:flex-start;gap:2px"><div>${w.nm?esc(w.nm):'アカウント'}${w.n?` <span class="mute">@${esc(w.n)}</span>`:''}${isAdmin?' <span class="rp">管理者</span>':''}</div>${w.p?`<div class="mute" style="font-size:12px">${w.p==='google'?'Google':w.p==='x'||w.p==='twitter'?'X':esc(w.p)}でログイン中</div>`:''}<div class="mute" style="font-size:12px">ユーザーID: <code>${esc(meUser?meUser.id:'')}</code></div></div><button id="mlogout" class="mi">ログアウト</button>
-  <h2>設定</h2><div class="mute" style="font-size:12px;margin-bottom:4px">表示テーマ</div>
+  <h2>アカウント</h2><div class="mrow" style="flex-direction:column;align-items:flex-start;gap:2px"><div><b>${esc(nameOf(me))}</b>${isAdmin?' <span class="rp">管理者</span>':''}</div>${w.p?`<div class="mute" style="font-size:12px">${w.p==='google'?'Google':w.p==='x'||w.p==='twitter'?'X':esc(w.p)}でログイン中</div>`:''}<div class="mute" style="font-size:12px">ユーザーID: <code>${esc(meUser?meUser.id:'')}</code></div></div><button id="mlogout" class="mi">ログアウト</button>
+  <h2>設定</h2><div class="mute" style="font-size:12px;margin-bottom:4px">アカウント名(編成を投稿すると、投稿者として、ほかの利用者にも表示されます)</div>
+  <div class="row" style="margin:0"><input id="mname" type="text" maxlength="20" value="${esc(nameDraft!=null?nameDraft:NAMES.get(me)||'')}" placeholder="${esc(defName(me))}" aria-label="アカウント名" autocomplete="off" style="flex:1;min-width:0"><button id="msave" class="pri">保存</button></div>
+  <div id="mnmsg" class="mute" role="status" style="font-size:12px;min-height:1.4em;margin-bottom:10px">本名やメールアドレスなどは、入れないでください。空にして保存すると、初期の名前(${esc(defName(me))})に戻ります</div>
+  <div class="mute" style="font-size:12px;margin-bottom:4px">表示テーマ</div>
   <div class="seg" role="radiogroup" aria-label="表示テーマ">${[['auto','自動'],['light','ライト'],['dark','ダーク']].map(([k,l])=>`<button data-th="${k}" role="radio" aria-checked="${t===k}" class="${t===k?'on':''}">${l}</button>`).join('')}</div>
   <label class="opt" style="margin-top:6px"><input type="checkbox" data-mo="term" ${showTerm?'checked':''}>駅時刻表に、当駅止まりの列車を表示する</label>
   <h2>路線選択</h2><div id="mlines">${lineList===null?'<div class="mute">読み込み中…</div>':lineList.length?lineList.map(n=>`<button class="mi" data-line="${esc(n)}"${n===lineFile?' aria-current="true"':''}>${esc(n.replace(/\.oud2?$/i,''))}</button>`).join(''):'<div class="mute">路線がありません</div>'}</div>
@@ -1140,12 +1146,15 @@ function closeMenu(){if(!menuOpen)return;menuOpen=false;show('#menu',false);show
 $('#mbtn').onclick=()=>menuOpen?closeMenu():openMenu();$('#mbg').onclick=closeMenu;
 $('#menu').addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;
   if(t.id==='mclose'){closeMenu();return}
+  if(t.id==='msave'){saveName();return}
   if(t.id==='mlogout'){closeMenu();await sb.auth.signOut();return}
   if(t.dataset.th){setTheme(t.dataset.th);renderMenu();return}
   if(t.dataset.line){const n=t.dataset.line;closeMenu();showList(true);openLine(n);return}
   if(t.dataset.adm){closeMenu();if(t.dataset.adm==='cfg')openSheet({type:'cfg'});else admOpen(t.dataset.adm)}});
+$('#menu').addEventListener('input',e=>{if(e.target.id==='mname')nameDraft=e.target.value});
 $('#menu').addEventListener('change',e=>{const c=e.target.closest('[data-mo]');if(!c||c.dataset.mo!=='term')return;showTerm=c.checked;try{localStorage.setItem('sTerm',showTerm?'1':'0')}catch(err){}if(!$('#sv').classList.contains('hide'))renderSt()});
 document.addEventListener('keydown',e=>{if(!menuOpen)return;if(e.key==='Escape'){closeMenu();return}
+  if(e.key==='Enter'&&e.target.id==='mname'){e.preventDefault();saveName();return}
   if(e.key==='Tab'){const f=[...$('#menu').querySelectorAll('button,input')];if(!f.length)return;const i=f.indexOf(document.activeElement);
     if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}}});
 // ---- 在線位置の操作(右下): 列番/行先、リアルタイム、日付と時刻 ----
@@ -1154,6 +1163,25 @@ $('#rtb').onclick=()=>{if(live){live=false;syncMctl()}else goLive()};
 $('#lmb').onclick=()=>{labelMode=labelMode==='no'?'dest':'no';showNo=labelMode==='no';showDest=!showNo;try{localStorage.setItem('sMode',labelMode)}catch(e){}lastHtml=null;draw();refresh()};
 // ---- 運用一覧・駅時刻表の日付バーは、ページの一番上に埋め込む ----
 function placeDbar(v){const h=v==='roster'?$('#rs'):v==='st'?$('#sv'):null;if(h){h.prepend($('#dbar'));show('#dbar',true)}else show('#dbar',false)}
+
+// ---- アカウント名(編成を投稿したとき、投稿者として表示される名前) ----
+const NAMES=new Map();let nameDraft=null;
+const defName=id=>'ユーザー'+String(id||'').replace(/-/g,'').slice(0,4).toUpperCase(); // 名前を決めていない人の、初期の名前(XやGoogleの名前は使わない)
+const nameOf=id=>NAMES.get(id)||defName(id);
+const cleanName=x=>String(x==null?'':x).replace(/[\u0000-\u001f\u007f]/g,'').trim();
+async function refreshNames(ids){ // 投稿者の名前を、まとめて取得する
+  const L=[...new Set(ids)].filter(Boolean).slice(0,200);if(!L.length)return;
+  const {data,error}=await sb.from('profiles').select('user_id,name').in('user_id',L);if(error)return;
+  const got=new Set((data||[]).map(r=>r.user_id));for(const r of data||[])NAMES.set(r.user_id,r.name);for(const i of L)if(!got.has(i))NAMES.delete(i)}
+const loadProfile=async()=>{if(me)await refreshNames([me])};
+async function saveName(){
+  const msg=$('#mnmsg'),v=cleanName($('#mname').value);
+  if([...v].length>20){msg.textContent='20文字までです';return}
+  msg.textContent='保存中…';$('#msave').disabled=true;
+  const r=v?await sb.from('profiles').upsert({user_id:me,name:v,updated_at:new Date().toISOString()}):await sb.from('profiles').delete().eq('user_id',me);
+  if(!$('#msave'))return;$('#msave').disabled=false;
+  if(r.error){msg.textContent='保存できませんでした(データベースの準備(profiles.sql)が、まだかもしれません)';return}
+  if(v)NAMES.set(me,v);else NAMES.delete(me);nameDraft=null;renderMenu();$('#mnmsg').textContent=v?'保存しました':'初期の名前に戻しました';refresh()}
 
 // ---- 認証と時刻表の取得 ----
 // ここに書く2つの値は公開されても問題ない値です(Project URL と Publishable key = sb_publishable_...)。Secret key(sb_secret_...)や service_role は絶対に入れないこと
@@ -1168,9 +1196,9 @@ function authMsg(code,desc){desc=desc||'';
   return desc||'ログインできませんでした'}
 const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,flowType:'pkce'}});
 let meUser=null;
-function slimUser(u){ // アプリで使うのは、ユーザーID・表示名・ログインの種類・Xのユーザー名だけ。メールアドレス・電話番号・画像などは、ここで落として、アプリの中には持たない
-  if(!u)return null;const m=u.user_metadata||{},ids=(u.identities||[]).filter(i=>i.provider!=='email').slice().sort((a,b)=>String(b.last_sign_in_at||'').localeCompare(String(a.last_sign_in_at||''))),x=ids[0]||{},d=x.identity_data||{};
-  return{id:u.id,provider:String(x.provider||''),name:String(d.name||d.full_name||m.name||m.full_name||''),handle:String(d.user_name||d.preferred_username||m.user_name||m.preferred_username||'').replace(/^@/,'')}}
+function slimUser(u){ // アプリで使うのは、ユーザーIDとログインの種類だけ。名前・メールアドレス・電話番号・画像などは、ここで落として、アプリの中には持たない
+  if(!u)return null;const ids=(u.identities||[]).filter(i=>i.provider!=='email').slice().sort((a,b)=>String(b.last_sign_in_at||'').localeCompare(String(a.last_sign_in_at||'')));
+  return{id:u.id,provider:String((ids[0]||{}).provider||'')}}
 async function oauthLogin(provider){ // XまたはGoogleでログイン。追加の権限(scopes)は求めない(Supabaseの標準のままで、アプリからは何も足さない)
   const m=$('#aerr');if(m)m.textContent='';
   try{const {error}=await sb.auth.signInWithOAuth({provider,options:{redirectTo:location.origin+location.pathname}});
@@ -1183,9 +1211,9 @@ let authed=false;
 function gate(s){
   me=s&&s.user?s.user.id:null;meUser=s&&s.user?slimUser(s.user):null;const ok=!!s;if(ok===authed)return;authed=ok;
   show('#auth',!ok);show('#hd',ok);
-  if(ok){if(urlErr){alert(urlErr);urlErr=''}setTimeout(()=>{showList();loadAdmin()},0)}
+  if(ok){if(urlErr){alert(urlErr);urlErr=''}setTimeout(()=>{showList();loadAdmin();loadProfile()},0)}
   else{for(const el of ['#drop',...VIEWS])show(el,false);
-    M=null;cur=[];posts=[];lineFile='';FM=new Map();isAdmin=false;adm=null;lineList=null;closeMenu();sh=null;selIds=new Set();lastHtml='';for(const el of ['#base','#stp','#trains','#lines'])$(el).textContent='';}
+    M=null;cur=[];posts=[];lineFile='';FM=new Map();isAdmin=false;adm=null;lineList=null;NAMES.clear();nameDraft=null;closeMenu();sh=null;selIds=new Set();lastHtml='';for(const el of ['#base','#stp','#trains','#lines'])$(el).textContent='';}
 }
 async function api(q){
   const {data:{session}}=await sb.auth.getSession();
