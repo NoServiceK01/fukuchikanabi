@@ -197,7 +197,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
   <div class="row" style="justify-content:flex-end"><button id="pcx">キャンセル</button><button id="pb" class="pri">投稿</button></div>
 </div></div>
 <nav id="bnav" class="hide" aria-label="表示の切り替え"><button id="nr" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>運用一覧</button><button id="nm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>在線位置</button><button id="ns"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>駅時刻表</button><button id="nf"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="14" rx="3"/><path d="M9 21l1.5-4M15 21l-1.5-4M9 10h6M9.5 14h.01M14.5 14h.01"/></svg>編成表</button></nav>
-<div id="mctl" class="hide"><button id="lmb" type="button"></button><button id="rtb" type="button" aria-pressed="true">リアルタイム</button><div class="mdt"><div id="mdia"></div><input id="mdate" type="date" aria-label="日付"><input id="tin" type="time" step="1" aria-label="時刻"></div></div>
+<div id="mctl" class="hide"><button id="lmb" type="button"></button><button id="rtb" type="button" aria-pressed="true">リアルタイム</button><div class="mdt"><div id="mdia"></div><input id="mdate" type="date" aria-label="日付"><input id="tin" type="time" step="60" aria-label="時刻"></div></div>
 <div id="info" class="hide"><div class="wrap"><div id="inf"></div><div id="note">時刻表に基づく計算上の位置です。実際の運行とは異なる場合があります</div></div></div>
 <script>
 const $=s=>document.querySelector(s);
@@ -456,7 +456,7 @@ function draw(){syncMctl();
   let hd=null;
   for(const m of moving){if(hd&&hd.x===m.x&&m.y-hd.y<40)hd.trs.push(m.tr);else{hd={x:m.x,y:m.y,side:m.side,trs:[m.tr]};groups.push(hd)}}
   const html=groups.map(icon).join('');if(html!==lastHtml){$('#trains').innerHTML=html;lastHtml=html}
-  const ti=$('#tin');if(document.activeElement!==ti)ti.value=fmt(T,true);
+  const ti=$('#tin');if(document.activeElement!==ti)ti.value=fmt(T);
   info();
 }
 const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -508,7 +508,8 @@ $('#map').addEventListener('pointerup',e=>{if(!pd)return;const mv=Math.hypot(e.c
   const t=document.elementFromPoint(e.clientX,e.clientY),g=t&&t.closest('[data-ids]');
   if(g){const ids=g.dataset.ids.split(',').map(Number);selIds=new Set([ids[0]]);lastHtml=null;openSheet({type:'tr',ids,act:0});draw();return}
   const q=t&&t.closest('[data-st]');if(q){selIds=new Set();lastHtml=null;openSheet({type:'st',i:+q.dataset.st});draw()}});
-setInterval(()=>{if(M&&live&&!$('#mn').classList.contains('hide')){const t=nowSvc().T;T=(t>=M.lo&&t<=M.hi)?t:M.lo;draw()}},1000); // いま=実時間で動く(倍速なし)
+let liveMin=-1; // リアルタイムで、最後に表示した「分」
+setInterval(()=>{if(M&&live&&!$('#mn').classList.contains('hide')){const m=Math.floor(nowSvc().T/60)*60;if(m!==liveMin){liveMin=m;T=(m>=M.lo&&m<=M.hi)?m:M.lo;draw()}}},1000); // 在線位置は1分ごとに更新する(分が変わったときだけ描き直す)
 
 // ---- 運用一覧・運用の一覧・編成の投稿 ----
 const VIEWS=['#mctl','#mn','#info','#rs','#sv','#fv','#adm','#ov','#bnav','#sheet','#dbar','#pop'];
@@ -692,7 +693,7 @@ $('#dsel').onchange=e=>setDate(e.target.value);$('#mdate').onchange=e=>setDate(e
 function nowSvc(){const j=new Date(Date.now()+9*3600e3),sec=j.getUTCHours()*3600+j.getUTCMinutes()*60+j.getUTCSeconds();return{T:sec<kitenS()?sec+86400:sec}} // 日本時間。起点時刻までは前日の続き
 function goLive(){ // 今日・現在時刻に合わせて、実時間で動かす
   const d=svcDate(),ch=d!==selDate;selDate=d;live=true;$('#dsel').value=$('#mdate').value=d;applyDate();
-  const t=nowSvc().T;T=(t>=M.lo&&t<=M.hi)?t:M.lo;
+  const t=Math.floor(nowSvc().T/60)*60;liveMin=t;T=(t>=M.lo&&t<=M.hi)?t:M.lo; // 分までで表示する
   if(ch){posts=[];postsSig=''}lastHtml=null;draw();loadPosts().then(refresh)}
 $('#dprev').onclick=()=>setDate(shiftDate(-1));$('#dnext').onclick=()=>setDate(shiftDate(1));$('#dtoday').onclick=()=>setDate(svcDate());
 $('#ddia').onchange=()=>setDate(selDate);
