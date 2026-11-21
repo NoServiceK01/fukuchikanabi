@@ -171,10 +171,18 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 .mdt input{min-height:30px;font-size:13px;padding:0 6px}
 #info{padding-right:172px}
 .gb2{gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0}.gb2 svg{width:18px;height:18px;flex:none}
+#svc{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hh,54px));z-index:4}
+.svb{width:100%;display:flex;align-items:center;gap:8px;justify-content:flex-start;text-align:left;min-height:38px;border:0;border-radius:0;padding:6px 14px;font-size:13px}
+.svb b{font-size:12px;opacity:.9;flex:none}.svt{font-weight:700;flex:none}.svn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sva{flex:none;font-size:12px;opacity:.9}
+.sbd{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;font-weight:700;flex:none}
+.svo{display:flex;flex-direction:column;gap:6px}
+.svr{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--rule);border-radius:8px;cursor:pointer;background:var(--panel)}.svr input{margin:0}.svr.on{border-color:var(--acc);background:var(--band)}
+.hbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 8px}.hbar select{min-width:7em}
 </style>
 </head>
 <body>
 <header id="hd" class="hide"><div class="top"><h1 id="ttl">フクチカナビ</h1><button id="mbtn" class="mb" aria-label="メニュー" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div></header>
+<div id="svc" class="hide" role="status"></div>
 <button id="mbg" class="hide" aria-label="メニューを閉じる" tabindex="-1"></button>
 <nav id="menu" class="hide" aria-label="メニュー"></nav>
 <div id="auth" class="wrap" style="padding:84px 20px;text-align:center"><h1 style="font-size:28px;color:var(--hd);margin:0">フクチカナビ</h1><p class="mute" style="margin:12px 0 26px">XまたはGoogleのアカウントでログインすると、運用や列車の位置を見られます</p><button id="xlogin" type="button" class="xb" style="margin:0 auto;min-width:250px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>Xでログイン</button><button id="glogin" type="button" class="gb2" style="margin:10px auto 0;min-width:250px"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Googleでログイン</button><div id="aerr" class="mute" role="alert" style="margin-top:14px"></div></div>
@@ -182,7 +190,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <div id="drop" class="hide"><h2>路線を選んでください</h2><div id="lines" class="tiles"></div><div id="lmsg" class="mute" style="margin-top:12px"></div></div>
 <section id="rs" class="hide"><div class="bar"><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span></div><div id="rt"></div></section>
 <section id="sv" class="hide"><div class="bar"><button id="sprev" aria-label="前の駅" style="font-size:20px;min-width:44px">‹</button><select id="sstn" aria-label="駅" style="flex:1;min-width:0"></select><button id="snext" aria-label="次の駅" style="font-size:20px;min-width:44px">›</button></div>
-<div class="bar" style="padding-top:0"><div class="seg" id="sdirs" style="width:150px"><button data-sd="0" class="on">下り</button><button data-sd="1">上り</button></div><span id="smeta" class="mute"></span></div><div id="sbody"></div></section>
+<div class="bar" style="padding-top:0"><div class="seg" id="sdirs" style="width:150px"><button data-sd="0" class="on">下り</button><button data-sd="1">上り</button></div><span id="smeta" class="mute"></span></div><div id="shb" class="bar" style="padding-top:0"></div><div id="sbody"></div></section>
 <section id="fv" class="hide"><div class="bar"><input id="fq" type="search" placeholder="編成番号・所属・車号で検索" aria-label="編成を検索" style="flex:1;min-width:0"><button id="fadm" class="hide">編成を管理</button></div><div id="fl" style="padding:0 14px 100px"></div></section>
 <section id="adm" class="hide"></section>
 <section id="ov" class="hide"></section>
@@ -282,7 +290,7 @@ function setup(root,name){
   selDate=svcDate();$('#dsel').value=$('#mdate').value=selDate;
   M.free=!M.dias.some(d=>/平日|土|休|日曜|祝/.test(d.name)); // ダイヤ名から曜日が分からない路線は、手動で選ぶ
   $('#ddia').innerHTML=M.dias.map((d,i)=>`<option value="${i}">${esc(d.name)}</option>`).join('');show('#ddia',M.free);
-  useDia(M.free?0:diaFor(dayType(selDate)).i,true);showView('roster');loadPosts().then(refresh);if(afterSetup){const f=afterSetup;afterSetup=null;f()}
+  useDia(M.free?0:diaFor(dayType(selDate)).i,true);showView('roster');loadPosts().then(refresh);loadNotices();if(afterSetup){const f=afterSetup;afterSetup=null;f()}
 }
 
 function build(d){
@@ -467,6 +475,7 @@ function openSheet(o){sh=o;$('#sheet').classList.remove('hide');renderSheet()}
 function closeSheet(){sh=null;selIds=new Set();$('#sheet').classList.add('hide');draw()}
 function renderSheet(){
   if(sh.type==='cfg'){renderCfg();return}
+  if(sh.type==='inf'){renderInf();return}
   if(sh.type==='fmh'){renderFmh();return}
   if(sh.type==='tr'){
     const trs=sh.ids.map(i=>cur[i]),tr=trs[sh.act],R=tr.route,ty=M.types[tr.ty]||{name:'',col:'var(--ink)'},a=R[tr.fs],b=R[tr.ls];
@@ -475,10 +484,10 @@ function renderSheet(){
     $('#sb').innerHTML=`<div id="pst"></div><table><tr><th>駅</th><th>番線</th><th>着</th><th>発</th></tr>${rows.map((r,i)=>r.ps?`<tr data-a="${r.ka}" data-b="${r.b}"><td class="mute">${S(r.s)}</td><td class="mute" colspan="3">通過 ${fmt(r.a)}</td></tr>`:`<tr data-a="${r.ka}" data-b="${r.b}"><td>${S(r.s)}</td><td>${esc(trkS(r.s,r.tk))}</td><td>${i?fmt(r.a):''}</td><td>${i<rows.length-1?fmt(r.d):''}</td></tr>`).join('')}</table>`;
     markRows();renderPost(tr);
   }else{
-    const i=sh.i,key=pk(i),T2=stTable(key,ttDir);
+    const i=sh.i,key=pk(i),T2=stTable(key,ttDir,ttHr);ttHrs=T2.hrs;
     const tset=[...(stops().get(key)||[])].filter(t=>!hideTT.has(t)).sort((a,b)=>a-b);
     $('#sh').innerHTML=`<div style="flex:1;min-width:0"><b style="font-size:18px">${S(i)}</b><div class="mute">${tset.length?'停車: '+tset.map(t=>{const ty=M.types[t]||{name:'',col:'var(--ink)'};return `<b style="color:${ty.col}">${esc(ty.name)}</b>`}).join(' '):'停車する列車なし'}</div><div class="seg" id="dirs" style="margin-top:8px;max-width:240px"><button data-dir="0" class="${ttDir?'':'on'}">下り</button><button data-dir="1" class="${ttDir?'on':''}">上り</button></div></div><button id="cls">閉じる</button>`;
-    $('#sb').innerHTML=T2.html;
+    $('#sb').innerHTML=hourBar()+T2.html;
   }
 }
 function markRows(){
@@ -512,7 +521,7 @@ let liveMin=-1; // リアルタイムで、最後に表示した「分」
 setInterval(()=>{if(M&&live&&!$('#mn').classList.contains('hide')){const m=Math.floor(nowSvc().T/60)*60;if(m!==liveMin){liveMin=m;T=(m>=M.lo&&m<=M.hi)?m:M.lo;draw()}}},1000); // 在線位置は1分ごとに更新する(分が変わったときだけ描き直す)
 
 // ---- 運用一覧・運用の一覧・編成の投稿 ----
-const VIEWS=['#mctl','#mn','#info','#rs','#sv','#fv','#adm','#ov','#bnav','#sheet','#dbar','#pop'];
+const VIEWS=['#mctl','#mn','#info','#rs','#sv','#fv','#adm','#ov','#bnav','#sheet','#dbar','#pop','#svc'];
 let posts=[],postErr=false,me=null,lineFile='',curOp=0,postsSig='',postsDirty=false;
 const kitenS=()=>M&&M.kiten?M.kiten:14400;
 const svcDate=()=>new Date(Date.now()+9*3600e3-kitenS()*1000).toISOString().slice(0,10); // 日本時間でダイヤの起点時刻(4時)に日付が変わる
@@ -572,7 +581,7 @@ function renderOp(){
 }
 function showView(v,i){
   for(const el of VIEWS)show(el,false);sh=null;selIds=new Set();show('#bnav',true);view=v;
-  applyDate();placeDbar(v);
+  applyDate();placeDbar(v);show('#svc',v!=='adm');renderSvc();setHH();
   if(v==='map'){for(const el of ['#mctl','#mn','#info'])show(el,true);lastHtml=null;goLive()}
   else if(v==='op'){curOp=i;show('#ov',true);renderOp();scrollTo(0,0)}
   else if(v==='st'){show('#sv',true);renderSt()}
@@ -639,7 +648,7 @@ const nav=e=>{const t=e.target.closest('[data-t]'),o=e.target.closest('[data-op]
   if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o)showView('op',+o.dataset.op);else if(e.target.closest('#bk'))showView('roster')};
 $('#rs').addEventListener('click',nav);$('#ov').addEventListener('click',nav);
 $('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');$('#ns').onclick=()=>showView('st');$('#nf').onclick=()=>showView('fv');
-setInterval(async()=>{if(authed&&M&&!document.hidden){await loadPosts();refresh()}},60000);
+setInterval(async()=>{if(authed&&M&&!document.hidden){loadNotices();await loadPosts();refresh()}},60000);
 
 // 日本の祝日(2007〜2099年)。振替休日と国民の休日を含む
 const jpHol=(()=>{
@@ -757,25 +766,26 @@ const numOf=x=>{const m=String(x==null?'':x).match(/\d+/);return m?+m[0]:Infinit
 function numCmp(a,b){ // 番数の比較: 列車番号の数字、なければ運用番号の数字
   for(const f of[t=>numOf(t.name),t=>numOf(t.op&&t.op.name)]){const x=f(a),y=f(b);if(x!==y)return x<y?-1:1}return 0}
 function trkS(s,tk){const t=tk!=null?M.st[s].tracks[+tk]:null;return t?(t.TrackRyakusyou||t.TrackName||''):''}
-let stI=-1,stDir=0;
+let stI=-1,stDir=0,ttHr=null,ttHrs=[]; // ttHr: nullなら1日分、数字ならその時間台だけ
 const stTrack=(s,tk)=>{const t=tk!=null?M.st[s].tracks[+tk]:null;return t?(t.TrackName||t.TrackRyakusyou||''):''};
 const stIds=()=>M.st.map((_,i)=>i).filter(i=>!M.pos[i].copy);
 function renderSt(){
   const ids=stIds();if(stI<0||M.pos[stI].copy)stI=ids[0];
   $('#sstn').innerHTML=ids.map(i=>`<option value="${i}">${esc(M.st[i].name)}</option>`).join('');$('#sstn').value=stI;
   document.querySelectorAll('#sdirs button').forEach(b=>b.classList.toggle('on',+b.dataset.sd===stDir));
-  const r=stTable(pk(stI),stDir);$('#smeta').textContent=r.n+'本';$('#sbody').innerHTML=r.html;
+  const r=stTable(pk(stI),stDir,ttHr);ttHrs=r.hrs;$('#smeta').textContent=r.n+'本';$('#shb').innerHTML=hourBar();$('#sbody').innerHTML=r.html;
 }
 // 駅の時刻表(駅時刻表タブと在線位置の駅シートで共通)。時刻・行先・列車番号・運用番号・編成
-function stTable(key,dir){
-  const L=[];
+function stTable(key,dir,hour){ // hour: nullなら1日分、数字ならその時間台だけ
+  let L=[];
   for(const tr of cur){if(hideTT.has(tr.ty)||tr.dir!==dir)continue;const R=tr.route,ks=tr.si.filter(j=>!R[j].ps&&pk(R[j].s)===key);if(!ks.length)continue;
     const last=ks[ks.length-1]===tr.ls;if(last&&!showTerm)continue;const x=R[last?ks[0]:ks[ks.length-1]];
     L.push({t:last?x.a:x.d,tr,last,dest:M.st[R[tr.ls].s].name,trk:stTrack(x.s,x.tk)})}
-  L.sort((p,q)=>p.t-q.t);
-  if(!L.length)return{n:0,html:'<div class="mute" style="padding:16px 0">この方面に停車する列車はありません</div>'};
+  L.sort((p,q)=>p.t-q.t);const hrs=[...new Set(L.map(x=>Math.floor(x.t/3600)))];
+  if(hour!=null)L=L.filter(x=>Math.floor(x.t/3600)===hour);
+  if(!L.length)return{n:0,hrs,html:`<div class="mute" style="padding:16px 0">${hour!=null?'この時間台に停車する列車はありません':'この方面に停車する列車はありません'}</div>`};
   const no=L.some(x=>x.tr.name);let ph=null;
-  return{n:L.length,html:`<table class="stt"><tr><th></th><th>時刻</th><th>行先</th>${no?'<th>列車</th>':''}<th>運用</th><th>編成</th></tr>${L.map(x=>{
+  return{n:L.length,hrs,html:`<table class="stt"><tr><th></th><th>時刻</th><th>行先</th>${no?'<th>列車</th>':''}<th>運用</th><th>編成</th></tr>${L.map(x=>{
     const h=Math.floor(x.t/3600),o=x.tr.op,fo=o?fmOf(o.key):null,first=h!==ph;ph=h;
     return `<tr data-t="${x.tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(x.tr)}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b></td><td><span class="ab" style="background:${ccol(x.tr)};color:${ink(ccol(x.tr))}">${esc((M.types[x.tr.ty]||{ab:''}).ab)}</span>${x.last?'当駅止':esc(x.dest)+'行'}${x.trk?`<small>${esc(x.trk)}</small>`:''}</td>${no?`<td>${esc(x.tr.name)}</td>`:''}<td>${o?esc(o.name):''}</td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><span><b>${esc(fo.f)}</b>${fo.prev?`<small class="pv">${esc(fo.prev)}</small>`:''}</span></span>`:''}</td></tr>`}).join('')}</table>`}
 }
@@ -1184,6 +1194,58 @@ async function saveName(){
   if(r.error){msg.textContent='保存できませんでした(データベースの準備(profiles.sql)が、まだかもしれません)';return}
   if(v)NAMES.set(me,v);else NAMES.delete(me);nameDraft=null;renderMenu();$('#mnmsg').textContent=v?'保存しました':'初期の名前に戻しました';refresh()}
 
+// ---- 時刻表を1時間単位でも表示する(駅時刻表と、在線位置の駅の時刻表) ----
+const hrRange=()=>[Math.floor(M.lo/3600),Math.floor(M.hi/3600)];
+function hourBar(){
+  const [lo,hi]=hrRange();if(ttHr!=null)ttHr=Math.max(lo,Math.min(hi,ttHr));const hs=[];for(let h=lo;h<=hi;h++)hs.push(h);
+  return `<div class="hbar"><div class="seg" role="group" aria-label="時刻表の表示の単位"><button data-hm="day" class="${ttHr==null?'on':''}" aria-pressed="${ttHr==null}">1日</button><button data-hm="hour" class="${ttHr!=null?'on':''}" aria-pressed="${ttHr!=null}">1時間</button></div>${ttHr!=null?`<button data-hs="-1" aria-label="前の時間"${ttHr<=lo?' disabled':''}>‹</button><select data-hsel aria-label="時間">${hs.map(h=>`<option value="${h}"${h===ttHr?' selected':''}>${h%24}時台${h>=24?'(翌日)':''}</option>`).join('')}</select><button data-hs="1" aria-label="次の時間"${ttHr>=hi?' disabled':''}>›</button>`:''}</div>`}
+function ttHourAct(e,rerender){ // 1日/1時間の切り替え、前後の時間、時間の選択
+  const [lo,hi]=hrRange(),b=e.target.closest('[data-hm],[data-hs]'),sl=e.target.closest('[data-hsel]');
+  if(b&&b.dataset.hm==='day')ttHr=null;
+  else if(b&&b.dataset.hm==='hour')ttHr=selDate===svcDate()?Math.max(lo,Math.min(hi,Math.floor(nowSvc().T/3600))):(ttHrs.length?ttHrs[0]:lo); // 今日は、いまの時間台。ほかの日は、最初の列車がある時間台
+  else if(b&&b.dataset.hs&&ttHr!=null)ttHr=Math.max(lo,Math.min(hi,ttHr+(+b.dataset.hs)));
+  else if(sl&&e.type==='change')ttHr=+sl.value;
+  else return;
+  rerender()}
+$('#sv').addEventListener('click',e=>ttHourAct(e,renderSt));$('#sv').addEventListener('change',e=>ttHourAct(e,renderSt));
+$('#sheet').addEventListener('click',e=>{if(sh&&sh.type==='st')ttHourAct(e,renderSheet)});$('#sheet').addEventListener('change',e=>{if(sh&&sh.type==='st')ttHourAct(e,renderSheet)});
+
+// ---- 運行情報(平常運転・ダイヤ乱れ・運転見合わせ + 備考)。画面の上に出して、投稿できる ----
+const SVC={normal:{t:'平常運転',c:'#1f9d55',fg:'#ffffff'},delay:{t:'ダイヤ乱れ',c:'#e8a317',fg:'#1a1a1a'},suspended:{t:'運転見合わせ',c:'#d64545',fg:'#ffffff'}};
+const NOTICE_FRESH=12*3600e3; // 12時間たった運行情報は、「投稿なし」として扱う
+let notices=[],infDraft={s:'normal',note:''};
+const agoText=t=>{const m=Math.floor((Date.now()-new Date(t))/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':new Date(t).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})};
+const setHH=()=>{const h=$('#hd');if(h&&h.offsetHeight)document.documentElement.style.setProperty('--hh',h.offsetHeight+'px')};
+addEventListener('resize',setHH);
+async function loadNotices(){
+  if(!M||!lineFile)return;
+  const {data,error}=await sb.from('service_notices').select('*').eq('file',lineFile).order('created_at',{ascending:false}).limit(20);
+  notices=error?[]:data;await refreshNames(notices.map(n=>n.user_id));renderSvc();
+  if(sh&&sh.type==='inf'&&!(document.activeElement&&document.activeElement.id==='inote'))renderInf()}
+function renderSvc(){const e=$('#svc');if(!e)return;const n=notices[0],k=n&&Date.now()-new Date(n.created_at)<NOTICE_FRESH?SVC[n.status]:null;
+  e.innerHTML=`<button id="svcb" class="svb" style="background:${k?k.c:'var(--band)'};color:${k?k.fg:'var(--ink)'}" aria-label="運行情報を開く"><b>運行情報</b><span class="svt">${k?esc(k.t):'投稿なし'}</span><span class="svn">${k?esc(n.note):'タップして投稿できます'}</span><span class="sva">${k?esc(agoText(n.created_at)):''}</span></button>`}
+function renderInf(){
+  $('#sh').innerHTML=`<div><b style="font-size:17px">運行情報</b><div class="mute">${esc(lineFile.replace(/\.oud2?$/i,''))}</div></div><button id="cls">閉じる</button>`;
+  const rows=notices.map(n=>{const k=SVC[n.status]||SVC.normal;return `<div class="po"><span class="sbd" style="background:${k.c};color:${k.fg}">${esc(k.t)}</span><span style="flex:1;min-width:0">${esc(n.note)}<div class="io">${esc(agoText(n.created_at))}  投稿: ${esc(nameOf(n.user_id))}</div></span>${n.user_id===me||isAdmin?`<button data-idel="${esc(n.id)}">取消</button>`:''}</div>`}).join('');
+  $('#sb').innerHTML=`<div class="svo" role="radiogroup" aria-label="運行情報の種類">${Object.entries(SVC).map(([k,v])=>`<label class="svr${infDraft.s===k?' on':''}"><input type="radio" name="infs" value="${k}"${infDraft.s===k?' checked':''}><span class="sbd" style="background:${v.c};color:${v.fg}">${v.t}</span></label>`).join('')}</div>
+  <label class="fl" style="margin-top:8px">備考(任意)<input id="inote" type="text" maxlength="200" value="${esc(infDraft.note)}" placeholder="例 ○○駅で信号のトラブルのため、遅れが出ています" autocomplete="off"></label>
+  <div class="row" style="margin:8px 0"><button id="ipost" class="pri">運行情報を投稿</button></div><div id="imsg" class="cwarn" role="status"></div>
+  <h3 style="margin-top:14px">最近の運行情報</h3>${rows||'<div class="mute">まだ投稿がありません</div>'}`}
+async function postNotice(){
+  const m=$('#imsg'),note=cleanName($('#inote').value);
+  if([...note].length>200){m.textContent='備考は200文字までです';return}
+  $('#ipost').disabled=true;
+  const {error}=await sb.from('service_notices').insert({file:lineFile,status:infDraft.s,note});
+  if(!$('#ipost'))return;$('#ipost').disabled=false;
+  if(error){m.textContent='投稿できませんでした(データベースの準備(service_notices.sql)が、まだかもしれません)';return}
+  infDraft.note='';await loadNotices();if(sh&&sh.type==='inf'){renderInf();$('#imsg').textContent='投稿しました'}}
+$('#svc').addEventListener('click',()=>openSheet({type:'inf'}));
+$('#sheet').addEventListener('click',async e=>{if(!sh||sh.type!=='inf')return;
+  if(e.target.closest('#ipost')){postNotice();return}
+  const d=e.target.closest('[data-idel]');if(d){d.disabled=true;await sb.from('service_notices').delete().eq('id',d.dataset.idel);await loadNotices()}});
+$('#sheet').addEventListener('change',e=>{if(sh&&sh.type==='inf'&&e.target.name==='infs'){infDraft.s=e.target.value;renderInf()}});
+$('#sheet').addEventListener('input',e=>{if(e.target.id==='inote')infDraft.note=e.target.value});
+
 // ---- 認証と時刻表の取得 ----
 // ここに書く2つの値は公開されても問題ない値です(Project URL と Publishable key = sb_publishable_...)。Secret key(sb_secret_...)や service_role は絶対に入れないこと
 const SB_URL='https://mukmgauweucsppjmpxha.supabase.co',SB_KEY='sb_publishable_qmr5joxyFkAe2ILfEdLlpg_NqVrPlgr';
@@ -1214,7 +1276,7 @@ function gate(s){
   show('#auth',!ok);show('#hd',ok);
   if(ok){if(urlErr){alert(urlErr);urlErr=''}setTimeout(()=>{showList();loadAdmin();loadProfile()},0)}
   else{for(const el of ['#drop',...VIEWS])show(el,false);
-    M=null;cur=[];posts=[];lineFile='';FM=new Map();isAdmin=false;adm=null;lineList=null;NAMES.clear();nameDraft=null;closeMenu();sh=null;selIds=new Set();lastHtml='';for(const el of ['#base','#stp','#trains','#lines'])$(el).textContent='';}
+    M=null;cur=[];posts=[];lineFile='';FM=new Map();isAdmin=false;adm=null;lineList=null;NAMES.clear();nameDraft=null;notices=[];closeMenu();sh=null;selIds=new Set();lastHtml='';for(const el of ['#base','#stp','#trains','#lines'])$(el).textContent='';}
 }
 async function api(q){
   const {data:{session}}=await sb.auth.getSession();
