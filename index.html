@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; font-src https://fonts.gstatic.com; img-src data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; connect-src https://*.supabase.co https://overpass-api.de; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; font-src https://fonts.gstatic.com; img-src data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://server.arcgisonline.com https://*.tile.opentopomap.org; connect-src https://*.supabase.co https://overpass-api.de; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#16427f">
 <title>フクチカナビ</title>
@@ -1050,10 +1050,26 @@ async function gmLoadLeaflet(){ // Leafletを読み込む(初回だけ)。jsdeli
     }
     return false})();
   return gmLeafletP}
-function gmTileLayer(onFb){ // OpenStreetMapのタイル。5回以上読み込めなかったら、別の地図(CARTO)に切り替える
-  const tl=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'});
-  let err=0,fb=false;
-  tl.on('tileerror',()=>{err++;if(!fb&&err>=5){fb=true;tl.setUrl('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');if(onFb)onFb()}});
+// 地図のタイルは、どれもAPIキー不要のものだけを使う。CARTOは使わない(いまはAPIキーがないと
+// 「API KEY REQUIRED」の透かしだけのタイルが返るため)。
+// 1つ目が5回以上読み込めなかったら次の地図に切り替え、全部だめなら onFb(null) を呼ぶ。
+// なお最初のURLは {s}.tile.openstreetmap.org にする。サブドメインなしの tile.openstreetmap.org
+// だと、CSP の https://*.tile.openstreetmap.org に合わずブラウザにブロックされ、
+// 毎回フォールバックへ逃げてしまっていた(今回のスクショの原因)。
+const GM_TILES=[
+  {name:'OpenStreetMap',url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',attr:'© OpenStreetMap contributors',maxZoom:19,subdomains:'abc'},
+  {name:'Esri',url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',attr:'Esri, HERE, Garmin, © OpenStreetMap contributors',maxZoom:19},
+  {name:'OpenTopoMap',url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',attr:'© OpenStreetMap contributors, SRTM | style: © OpenTopoMap (CC-BY-SA)',maxZoom:17,subdomains:'abc'}];
+function gmTileLayer(onFb){
+  let idx=0,err=0;
+  const p=GM_TILES[0];
+  const tl=L.tileLayer(p.url,{maxZoom:p.maxZoom,attribution:p.attr,subdomains:p.subdomains});
+  tl.on('tileerror',()=>{err++;if(err<5)return;err=0;idx++;
+    if(idx>=GM_TILES.length){if(onFb)onFb(null);return}
+    const n=GM_TILES[idx];
+    if(tl.options)tl.options.attribution=n.attr;
+    tl.setUrl(n.url);
+    if(onFb)onFb(n.name)});
   return tl}
 function gmDraw(){ // 路線と駅を地図に描く
   if(!gmMap)return;
@@ -1075,7 +1091,7 @@ async function gmOpen(){
   if(!gmMap){
     let all=[];for(const Ln of GEO.lines)for(const p of Ln.pts)all.push([p.lat,p.lon]);
     gmMap=L.map('gmap',{zoomControl:true});
-    gmTileLayer(()=>{const d=$('#gmdist');if(d)d.textContent='地図の読み込みが遅いため、別の地図に切り替えました'}).addTo(gmMap);
+    gmTileLayer(n=>{const d=$('#gmdist');if(d)d.textContent=n?`地図の読み込みが遅いため、${n}の地図に切り替えました`:'地図のタイルを読み込めませんでした。通信環境をご確認ください'}).addTo(gmMap);
     gmMap.fitBounds(L.latLngBounds(all).pad(0.1));
     gmDraw();
     gmMap.on('click',e=>gmTap(e.latlng));
@@ -1600,7 +1616,7 @@ async function edOpen(){
   ed={map:null,layer:null,lineIdx:0,drawing:false,lines:edLines(),baseTrack:clone(adm.draft.track||[]),modified:new Set()};
   const el=$('#edmap');if(!el)return;
   ed.map=L.map('edmap',{zoomControl:true});
-  gmTileLayer(()=>{const m=$('#edmsg');if(m)m.textContent='地図の読み込みが遅いため、別の地図に切り替えました'}).addTo(ed.map);
+  gmTileLayer(n=>{const m=$('#edmsg');if(m)m.textContent=n?`地図の読み込みが遅いため、${n}の地図に切り替えました`:'地図のタイルを読み込めませんでした。通信環境をご確認ください'}).addTo(ed.map);
   let all=[];for(const Ln of ed.lines)for(const p of Ln)all.push([p.lat,p.lon]);
   if(all.length)ed.map.fitBounds(L.latLngBounds(all).pad(0.1));
   ed.map.on('click',e=>edTap(e.latlng));
