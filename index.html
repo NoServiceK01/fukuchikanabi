@@ -233,7 +233,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <div id="dbar" class="hide"><button id="dprev" aria-label="前の日">‹</button><input id="dsel" type="date" aria-label="日付"><button id="dnext" aria-label="次の日">›</button><button id="dtoday">今日</button><select id="ddia" class="hide" aria-label="ダイヤ"></select><span id="dinfo"></span></div>
 <div id="drop" class="hide"><h2>路線を選んでください</h2><div id="lines" class="tiles"></div><div id="lmsg" class="mute" style="margin-top:12px"></div></div>
 <section id="rs" class="hide"><div class="bar"><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span><button id="lmb2" type="button" style="margin-left:auto">表示: 列番</button></div><div class="bar" style="padding-top:0"><input id="rq" type="search" placeholder="列車番号・運用・編成で検索" aria-label="運用を検索" style="flex:1;min-width:0"></div><div id="rt"></div></section>
-<section id="tv" class="hide"><div class="bar" style="padding-bottom:0"><div class="seg" id="ttmode" style="width:230px"><button data-tt="st" class="on">駅時刻表</button><button data-tt="pt">通過時刻表</button></div></div>
+<section id="tv" class="hide"><div class="bar" style="padding-bottom:0"><button id="ttback">‹ 地図に戻る</button></div>
 <section id="sv" class="hide"><div class="bar"><button id="sprev" aria-label="前の駅" style="font-size:20px;min-width:44px">‹</button><select id="sstn" aria-label="駅" style="flex:1;min-width:0"></select><button id="snext" aria-label="次の駅" style="font-size:20px;min-width:44px">›</button></div>
 <div class="bar" style="padding-top:0"><div class="seg" id="sdirs" style="width:150px"><button data-sd="0" class="on">下り</button><button data-sd="1">上り</button></div><span id="smeta" class="mute"></span></div><div id="shb" class="bar" style="padding-top:0"></div>
 <details class="pfilters"><summary>絞り込み（時刻・編成）</summary><div class="bar" style="padding:0 0 8px;flex-direction:column;align-items:stretch;gap:8px"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="sftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="sttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><div id="sfmc" class="fmcks" aria-label="編成で絞り込む"></div></div></details>
@@ -243,7 +243,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <div class="bar" id="pnotebar" style="padding-top:2px"><span id="pnote" class="mute"></span></div>
 <details class="pfilters"><summary>絞り込み（時刻・編成）</summary><div class="bar" style="padding:0 0 8px;flex-direction:column;align-items:stretch;gap:8px"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="pftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="pttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><div id="pfmc" class="fmcks" aria-label="編成で絞り込む"></div><span id="pmeta" class="mute"></span></div></details>
 <div id="pbody" style="padding:0 14px 100px"></div></section></section>
-<section id="dg" class="hide"><div class="bar" style="padding-bottom:0"><button id="dgminus" aria-label="縮小" style="min-width:44px">－</button><button id="dgplus" aria-label="拡大" style="min-width:44px">＋</button><button id="dgreset">100%</button><button id="dgnow">今</button><button id="dgnum" aria-pressed="true">列車番号</button><span id="dgmeta" class="mute" style="margin-left:auto"></span></div>
+<section id="dg" class="hide"><div class="bar" style="padding-bottom:0"><button id="dgminus" aria-label="横を縮小" style="min-width:44px">横－</button><button id="dgplus" aria-label="横を拡大" style="min-width:44px">横＋</button><button id="dgminusv" aria-label="縦を縮小" style="min-width:44px">縦－</button><button id="dgplusv" aria-label="縦を拡大" style="min-width:44px">縦＋</button><button id="dgreset">100%</button><button id="dgnow">今</button><button id="dgnum" aria-pressed="true">列車番号</button><span id="dgmeta" class="mute" style="margin-left:auto"></span></div>
 <div id="dgwrap"><div id="dgtop"><div id="dgcorner"></div><div id="dgthead"><div id="dgtheadIn"></div></div></div><div id="dgmid"><div id="dgside"><div id="dgsideIn"></div></div><div id="dgscroll"><div id="dgzoom"><svg id="dgsvg" role="img" aria-label="ダイヤグラム"></svg></div></div></div></div></section>
 <section id="fv" class="hide"><div class="bar"><input id="fq" type="search" placeholder="編成番号・所属・車号で検索" aria-label="編成を検索" style="flex:1;min-width:0"><button id="fadm" class="hide">編成を管理</button></div><div id="fl" style="padding:0 14px 100px"></div></section>
 <div id="gm" class="hide"><div class="bar" style="padding-bottom:0"><button id="gmback">‹ 通過時刻表に戻る</button><b style="font-size:16px">地図から地点を選ぶ</b></div>
@@ -346,7 +346,7 @@ function setup(root,name){
   hidden.clear();hideTT.clear();selIds=new Set();cfgTypes();
   ptEdge=null;ptFrac=0.5;ptDir='all';ptFrom=null;ptTo=null;ptFms=null;ptFmsInit=false; // 通過時刻表の指定は、路線が変わったら最初から
   stFrom=null;stTo=null;stFms=null;stFmsInit=false;stFKey='';const sfa=$('#sftime'),sta=$('#sttime');if(sfa)sfa.value='';if(sta)sta.value=''; // 駅時刻表の絞り込みも、路線が変わったら最初から
-  dgSig='';dgOpened=false;dgK=1; // ダイヤグラムも、路線が変わったら最初から
+  dgSig='';dgOpened=false;dgKx=1;dgKy=1;dgGapCache=null; // ダイヤグラムも、路線が変わったら最初から
   rosterQ='';const rq=$('#rq');if(rq)rq.value=''; // 運用一覧の検索も、路線が変わったら最初から
   GEO.lines=null;GEO.mode='chord';if(gmMap){gmMap.remove();gmMap=null;gmLayer=null;gmPin=null;gmPick=null;gmTile=null}show('#gm',false); // 地図の状態も最初から
   show('#drop',false);
@@ -673,21 +673,66 @@ function showView(v,i){
   $('#nr').classList.toggle('on',v==='roster'||v==='op');$('#nm').classList.toggle('on',v==='map');$('#nt').classList.toggle('on',v==='tt');$('#nd').classList.toggle('on',v==='dg');$('#nf').classList.toggle('on',v==='fv');
 }
 let ttMode='st'; // 時刻表の表示(駅時刻表/通過時刻表)。下のナビでは最後に使ったほうで開く
-function showTt(m){ // 時刻表の、駅時刻表と通過時刻表の切り替え
+function showTt(m){ // 時刻表の、駅時刻表と通過時刻表の切り替え(切替は地図からの指定だけ。上のボタンは地図に戻る)
   ttMode=m;
-  document.querySelectorAll('#ttmode button').forEach(b=>b.classList.toggle('on',b.dataset.tt===m));
   show('#gm',false);show('#sv',m==='st');show('#pv',m==='pt');
   placeDbar('tt');scrollTo(0,0);
   if(m==='st')renderSt();
   else{renderPt();if(!ptSkipMap&&geoInit())gmOpen();ptSkipMap=false}}
-$('#ttmode').onclick=e=>{const b=e.target.closest('[data-tt]');if(b)showTt(b.dataset.tt)};
+$('#ttback').onclick=()=>showView('map'); // 時刻表の上のボタンは、地図の画面に戻る
 // ---- ダイヤグラム(時刻×駅・番線の折れ線図)。OuDia のダイヤグラムと同じ見た目 ----
 // 横=時刻、縦=駅の番線。列車は種別の色の折れ線で、停車は番線の行での水平線、通過は前後の時刻で内挿する
-const DG_PX_MIN=2, DG_ROW_H=18; // 基準の縮尺: 1分=2px、駅間=18px
-let dgK=1, dgSig='', dgOpened=false, dgNum=true;
-const dgPxMin=()=>DG_PX_MIN*dgK, dgRowH=()=>DG_ROW_H*dgK; // 拡大率をかけた縮尺(ズームすると駅間と時間幅が変わる)
+const DG_PX_MIN=2, DG_ROW_H=18; // 基準の縮尺: 1分=2px、駅間=18px(最短走行時間に比例して区間ごとに変わる)
+let dgKx=1, dgKy=1, dgSig='', dgOpened=false, dgNum=true;
+const dgPxMin=()=>DG_PX_MIN*dgKx, dgRowH=()=>DG_ROW_H*dgKy; // 横(時間)と縦(駅間)の縮尺は別々に変えられる
 function dgX(t){return (t-M.lo)/60*dgPxMin()}
-function dgY(r){return r*dgRowH()+dgRowH()/2}
+function dgGaps(){ // 区間 i (駅 i と i+1 の間) の幅(px、dgKy=1 のとき)。区間ごとの最短走行時間に比例(10px/分)、12〜40pxに収める
+  const n=M.st.length,min=[];
+  for(const tr of cur){
+    const R=tr.route,times=R.map(x=>x.d!=null?x.d:x.a);
+    let i=0; // 通過駅の時刻を前後で内挿(dgTrainPts と同じ)
+    while(i<times.length){
+      if(times[i]!=null){i++;continue}
+      let j=i;while(j<times.length&&times[j]==null)j++;
+      const tA=i>0?times[i-1]:null,tB=j<times.length?times[j]:null;
+      if(tA!=null&&tB!=null)for(let k=i;k<j;k++)times[k]=tA+(tB-tA)*(k-i+1)/(j-i+1);
+      else for(let k=i;k<j;k++)times[k]=tA??tB;
+      i=j}
+    for(let k=0;k<R.length-1;k++){
+      const a=R[k],b=R[k+1];
+      if(Math.abs(a.s-b.s)!==1)continue; // 隣り合う駅だけ
+      const t0=times[k],t1=times[k+1];
+      if(t0==null||t1==null)continue;
+      const run=Math.abs(t1-t0);
+      if(run<=0||run>900)continue;
+      const seg=Math.min(a.s,b.s);
+      if(min[seg]==null||run<min[seg])min[seg]=run}}
+  const vals=min.filter(v=>v!=null).sort((a,b)=>a-b);
+  const med=vals.length?vals[Math.floor(vals.length/2)]:105; // 直接の列車がない区間(中洲川端→福岡空港)は中央値で
+  const gaps=[];
+  for(let i=0;i<n-1;i++){const m=min[i]!=null?min[i]:med;gaps.push(Math.max(12,Math.min(40,m/60*10)))}
+  return gaps}
+let dgGapCache=null; // {key, gaps}。ダイヤが変わったら作り直す
+function dgGapList(){
+  const key=M.name+'|'+M.cur;
+  if(!dgGapCache||dgGapCache.key!==key)dgGapCache={key,gaps:dgGaps()};
+  return dgGapCache.gaps}
+function dgY(r){ // 駅 r (小数も可) の y。区間の幅の累積に、縦の倍率をかける
+  const gaps=dgGapList();
+  const i=Math.floor(r),f=r-i;
+  let y=0;
+  for(let k=0;k<i&&k<gaps.length;k++)y+=gaps[k];
+  if(f>0&&i<gaps.length)y+=gaps[i]*f;
+  return (y+9)*dgKy}
+function dgRowAt(y){ // y (px) が何行目か(小数)。ズームの焦点の復元用
+  const gaps=dgGapList();
+  let cum=y/dgKy-9;
+  if(cum<=0)return 0;
+  let acc=0;
+  for(let i=0;i<gaps.length;i++){
+    if(cum<acc+gaps[i])return i+(cum-acc)/gaps[i];
+    acc+=gaps[i]}
+  return gaps.length}
 function dgRows(){ // 駅ごとに1行(番線は出さない)。rowOf[駅] → 行番号
   const rows=[],rowOf=[];
   M.st.forEach((s,i)=>{rowOf[i]=rows.length;rows.push({s:i,label:esc(s.name)})});
@@ -712,7 +757,7 @@ function dgTrainPts(tr,rowOf){ // 列車の折れ線の点。点=[時刻(秒),y]
   return pts.filter((p,idx)=>idx===0||p[0]!==pts[idx-1][0]||p[1]!==pts[idx-1][1])}
 function renderDg(){
   if(!M)return;
-  const sig=M.name+'|'+M.cur+'|'+dgK+'|'+[...hideTT].sort().join(',')+'|'+cur.length;
+  const sig=M.name+'|'+M.cur+'|'+dgKx+'|'+dgKy+'|'+[...hideTT].sort().join(',')+'|'+cur.length;
   const now=selDate===svcDate()?nowSvc().T:null,nowOn=now!=null&&now>=M.lo&&now<=M.hi;
   if(sig===dgSig){ // 変わっていなければ描き直さない(拡大・スクロールを保つ)。現在時刻の線だけ動かす
     const nl=document.querySelector('#dgnow');
@@ -722,11 +767,11 @@ function renderDg(){
   }
   dgSig=sig;
   const {rows,rowOf}=dgRows(),rh=dgRowH();
-  const W=Math.ceil((M.hi-M.lo)/60*dgPxMin()),H=rows.length*rh+12; // 下に12px余白(運用のつなぎの弧がはみ出さないように)
+  const W=Math.ceil((M.hi-M.lo)/60*dgPxMin()),H=Math.ceil(dgY(rows.length-1)+24*dgKy); // 下に余白(運用のつなぎの弧がはみ出さないように)
   let g='';
   for(let m=Math.ceil(M.lo/600)*600;m<=M.hi;m+=600){const hr=m%3600===0;
-    g+=`<line x1="${dgX(m)}" y1="0" x2="${dgX(m)}" y2="${H}" stroke="var(--bd)" stroke-width="${hr?1.5:0.6}" opacity="${hr?1:0.55}"/>`}
-  rows.forEach((r,i)=>{g+=`<line x1="0" y1="${i*rh}" x2="${W}" y2="${i*rh}" stroke="var(--bd)" stroke-width="0.8" opacity="0.5"/>`});
+    g+=`<line x1="${dgX(m)}" y1="0" x2="${dgX(m)}" y2="${H}" stroke="var(--line)" stroke-width="${hr?1.5:0.6}" opacity="${hr?1:0.55}"/>`}
+  rows.forEach((r,i)=>{const y=dgY(i);g+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="var(--line)" stroke-width="0.8" opacity="0.6"/>`}); // 駅の行の罫線(駅の線の位置に引く)
   if(nowOn)g+=`<line id="dgnow" x1="${dgX(now)}" y1="0" x2="${dgX(now)}" y2="${H}" stroke="#d32f2f" stroke-width="1.5"/>`;
   let trs='';
   const ptsById=new Map();
@@ -758,7 +803,11 @@ function renderDg(){
     if(!p1||!p2||p1.length<2||p2.length<2)continue;
     if(tr.route[tr.ls].s!==nx.route[nx.fs].s)continue; // 同じ駅での折り返しだけつなぐ
     const a=p1[p1.length-1],b=p2[0],x1=dgX(a[0]),x2=dgX(b[0]),mx=(x1+x2)/2,y=a[1];
-    trs+=`<path class="dglnk" d="M${x1.toFixed(1)} ${y.toFixed(1)} Q${mx.toFixed(1)} ${(y+14).toFixed(1)} ${x2.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="${ccol(tr)}" stroke-width="1.5" stroke-linecap="round"/>`}
+    // 弧は、列車が来た方向と反対側にふくらませる(終端駅では外側へ)。下から来た列車は上に∩、上から来た列車は下に∪
+    let up=false;
+    for(let k=p1.length-2;k>=0;k--){if(p1[k][1]!==a[1]){up=p1[k][1]>a[1];break}}
+    const dip=rh*0.8,cy=up?y-dip:y+dip;
+    trs+=`<path class="dglnk" d="M${x1.toFixed(1)} ${y.toFixed(1)} Q${mx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="${ccol(tr)}" stroke-width="1.5" stroke-linecap="round"/>`}
   const svg=$('#dgsvg');
   svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
   svg.innerHTML=g+trs;
@@ -766,7 +815,7 @@ function renderDg(){
   let th='';
   for(let h=Math.ceil(M.lo/3600);h<=Math.floor(M.hi/3600);h++)th+=`<span style="left:${dgX(h*3600)}px">${h}</span>`;
   $('#dgtheadIn').innerHTML=th;$('#dgtheadIn').style.width=W+'px';
-  $('#dgsideIn').innerHTML=rows.map((r,i)=>`<div style="top:${i*rh}px;line-height:${rh}px">${r.label}</div>`).join('');
+  $('#dgsideIn').innerHTML=rows.map((r,i)=>`<div style="top:${(dgY(i)-9*dgKy).toFixed(1)}px;line-height:${(18*dgKy).toFixed(1)}px">${r.label}</div>`).join('');
   $('#dgsideIn').style.height=H+'px';
   $('#dgcorner').textContent=M.dias[M.cur].name;
   $('#dgmeta').textContent=`${M.dias[M.cur].name} ${cur.length}本`;
@@ -777,17 +826,18 @@ function dgSyncHeads(){ // 時刻の見出し・駅の見出しを、ダイヤ�
   const th=$('#dgtheadIn'),sd=$('#dgsideIn');
   if(th)th.style.transform=`translateX(${-sc.scrollLeft}px)`;
   if(sd)sd.style.transform=`translateY(${-sc.scrollTop}px)`}
-function dgSetZoom(k,fx,fy){ // fx,fy: 枠の中での指の位置。その点を中心に、駅間と時間幅を変えて描き直す
+function dgSetZoom(kx,ky,fx,fy){ // kx: 横(時間)の倍率、ky: 縦(駅間)の倍率。fx,fy: 枠の中での指の位置。その点を中心に、駅間と時間幅を変えて描き直す
   const sc=$('#dgscroll');if(!sc||!M)return;
-  const k0=dgK;k=Math.max(0.4,Math.min(8,k));if(k===k0)return;
-  const px0=DG_PX_MIN*k0,rh0=DG_ROW_H*k0;
+  kx=Math.max(0.4,Math.min(8,kx));ky=Math.max(0.4,Math.min(8,ky));
+  if(kx===dgKx&&ky===dgKy)return;
+  const px0=DG_PX_MIN*dgKx;
   const fx2=fx??sc.clientWidth/2,fy2=fy??sc.clientHeight/2;
   const tF=M.lo+(sc.scrollLeft+fx2)/px0*60; // 焦点の時刻
-  const rF=(sc.scrollTop+fy2)/rh0; // 焦点の行
-  dgK=k;renderDg();
-  const px1=DG_PX_MIN*k,rh1=DG_ROW_H*k;
+  const rF=dgRowAt(sc.scrollTop+fy2); // 焦点の行(小数)
+  dgKx=kx;dgKy=ky;renderDg();
+  const px1=DG_PX_MIN*dgKx;
   sc.scrollLeft=(tF-M.lo)/60*px1-fx2;
-  sc.scrollTop=rF*rh1-fy2;
+  sc.scrollTop=dgY(rF)-fy2;
   dgSyncHeads()}
 function dgGoNow(){ // 現在時刻のあたりにスクロールする
   const sc=$('#dgscroll');if(!sc||!M)return;
@@ -795,9 +845,11 @@ function dgGoNow(){ // 現在時刻のあたりにスクロールする
   const t=now!=null&&now>=M.lo&&now<=M.hi?now:(M.lo+M.hi)/2;
   sc.scrollLeft=Math.max(0,dgX(t)-sc.clientWidth/2);
   dgSyncHeads()}
-$('#dgplus').onclick=()=>dgSetZoom(dgK*1.4);
-$('#dgminus').onclick=()=>dgSetZoom(dgK/1.4);
-$('#dgreset').onclick=()=>{dgK=1;renderDg();const sc=$('#dgscroll');sc.scrollLeft=0;sc.scrollTop=0;dgSyncHeads()};
+$('#dgplus').onclick=()=>dgSetZoom(dgKx*1.4,dgKy);
+$('#dgminus').onclick=()=>dgSetZoom(dgKx/1.4,dgKy);
+$('#dgplusv').onclick=()=>dgSetZoom(dgKx,dgKy*1.4);
+$('#dgminusv').onclick=()=>dgSetZoom(dgKx,dgKy/1.4);
+$('#dgreset').onclick=()=>{dgKx=1;dgKy=1;renderDg();const sc=$('#dgscroll');sc.scrollLeft=0;sc.scrollTop=0;dgSyncHeads()};
 $('#dgnow').onclick=dgGoNow;
 $('#dgnum').onclick=e=>{dgNum=!dgNum;$('#dgwrap').classList.toggle('nonum',!dgNum);e.currentTarget.setAttribute('aria-pressed',String(dgNum))};
 const dgPtrs=new Map();let dgPinch0=null,dgDown=null; // ピンチ(2本指)とタップの区別
@@ -805,13 +857,13 @@ $('#dgscroll').addEventListener('pointerdown',e=>{
   dgPtrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(dgPtrs.size===1)dgDown={x:e.clientX,y:e.clientY,t:Date.now()};
   else dgDown=null;
-  if(dgPtrs.size===2){const [a,b]=[...dgPtrs.values()];dgPinch0={d:Math.hypot(a.x-b.x,a.y-b.y),k:dgK}}});
+  if(dgPtrs.size===2){const [a,b]=[...dgPtrs.values()];dgPinch0={d:Math.hypot(a.x-b.x,a.y-b.y),kx:dgKx,ky:dgKy}}});
 $('#dgscroll').addEventListener('pointermove',e=>{
   if(!dgPtrs.has(e.pointerId))return;
   dgPtrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(dgPtrs.size===2&&dgPinch0){
     const [a,b]=[...dgPtrs.values()],d=Math.hypot(a.x-b.x,a.y-b.y),r=$('#dgscroll').getBoundingClientRect();
-    dgSetZoom(dgPinch0.k*d/dgPinch0.d,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top)}});
+    dgSetZoom(dgPinch0.kx*d/dgPinch0.d,dgPinch0.ky*d/dgPinch0.d,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top)}});
 const dgPtrEnd=e=>{
   dgPtrs.delete(e.pointerId);
   if(e.type==='pointerup'&&dgDown&&Date.now()-dgDown.t<600&&Math.hypot(e.clientX-dgDown.x,e.clientY-dgDown.y)<12){
@@ -826,7 +878,8 @@ $('#dgscroll').addEventListener('wheel',e=>{ // Ctrl+ホイール(トラック�
   if(!(e.ctrlKey||e.metaKey))return;
   e.preventDefault();
   const r=$('#dgscroll').getBoundingClientRect();
-  dgSetZoom(dgK*Math.exp(-e.deltaY*0.0012),e.clientX-r.left,e.clientY-r.top)},{passive:false});
+  const f=Math.exp(-e.deltaY*0.0012);
+  dgSetZoom(dgKx*f,dgKy*f,e.clientX-r.left,e.clientY-r.top)},{passive:false});
 function renderPost(tr){
   const e=$('#pst');if(!e)return;const o=tr.op,bk=tr.bikou?`<div class="mute">備考 ${esc(tr.bikou)}</div>`:'',back=sh&&sh.from?'<button data-back style="margin-bottom:8px">‹ 駅の時刻表へ戻る</button>':'',ro=selDate!==svcDate();
   if(!o){e.innerHTML=`<div class="pp">${back}${bk}<div class="mute">この列車は運用に入っていないため、編成を投稿できません</div></div>`;return}
@@ -1015,9 +1068,15 @@ let stI=-1,stDir=0,ttHr=null,ttHrs=[]; // ttHr: nullなら1日分、数字なら
 let stFrom=null,stTo=null,stFms=null,stFmsInit=false,stFKey=''; // 駅時刻表の絞り込み(時刻の範囲・編成)。stFmsInit=ユーザーが1度でもチェックを触ったか(触る前は、選べる編成が変わるたびに全部にチェックし直す)
 const stTrack=(s,tk)=>{const t=tk!=null?M.st[s].tracks[+tk]:null;return t?(t.TrackName||t.TrackRyakusyou||''):''};
 const stIds=()=>M.st.map((_,i)=>i).filter(i=>!M.pos[i].copy);
-const stInRange=(t,from,to)=>{if(from==null&&to==null)return true;const m=Math.floor((t%86400)/60); // 24時を過ぎた列車は、0時台として扱う。from>to なら、深夜をまたぐ範囲
-  if(from!=null&&to!=null&&from>to)return !(m<from&&m>to);
-  if(from!=null&&m<from)return false;if(to!=null&&m>to)return false;return true};
+const stInRange=(t,from,to)=>{ // t: 運行秒(起点4時からの通算)。from/to: 時刻入力の分(0-1439)またはnull。運行秒で比べるので、23:00〜でも0時超えの列車が入る
+  if(from==null&&to==null)return true;
+  const K=M.kiten/60,sm=Math.floor(t/60); // 運行分の起点(4時=240分)。0時台は24時台として扱う
+  const fs=from==null?null:(from>=K?from:from+1440);
+  const ts=to==null?null:(to>=K?to:to+1440);
+  if(fs!=null&&ts!=null&&fs>ts)return sm>=fs||sm<=ts; // 運行日の境(4時)をまたぐ範囲
+  if(fs!=null&&sm<fs)return false;
+  if(ts!=null&&sm>ts)return false;
+  return true};
 function renderSt(){
   const ids=stIds();if(stI<0||M.pos[stI].copy)stI=ids[0];
   $('#sstn').innerHTML=ids.map(i=>`<option value="${i}">${esc(M.st[i].name)}</option>`).join('');$('#sstn').value=stI;
@@ -1108,9 +1167,7 @@ function ptRows(edge,frac){ // 方向と時刻で絞ったあとの、(通過時
   const out=[];
   for(const tr of cur){if(ptDir!=='all'&&tr.dir!==+ptDir)continue;
     const t=ptPassTime(tr,edge,frac);if(t==null)continue;
-    const m=Math.floor((t%86400)/60); // 24時を過ぎた列車は、0時台として扱う
-    if(ptFrom!=null&&ptTo!=null&&ptFrom>ptTo){if(m<ptFrom&&m>ptTo)continue}
-    else{if(ptFrom!=null&&m<ptFrom)continue;if(ptTo!=null&&m>ptTo)continue}
+    if(!stInRange(t,ptFrom,ptTo))continue;
     out.push({t,tr})}
   out.sort((a,b)=>a.t-b.t);return out}
 function hhmmss(t){return String(Math.floor(t/3600)%24).padStart(2,'0')+':'+String(Math.floor(t%3600/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0')}
