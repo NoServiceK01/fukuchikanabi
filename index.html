@@ -21,12 +21,13 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var
 h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.02em}
 .row{display:flex;gap:8px;align-items:center;margin-top:8px}
 #sb .row{flex-wrap:wrap}
-button,select,.btn,input[type=time],input[type=email],input[type=password],input[type=text],input[type=date]{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;min-height:40px;padding:0 12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+button,select,.btn,input[type=time],input[type=email],input[type=password],input[type=text],input[type=date]{font:inherit;font-size:16px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;min-height:44px;padding:0 14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;transition:transform .12s ease,box-shadow .12s ease,background .12s ease}
+button:active,select:active{transform:scale(.97)}
 select{padding-right:6px}
 .ib{width:40px;padding:0}
 .pri,.seg button.on{background:var(--acc);color:var(--accf);border-color:var(--acc)}
 .seg{display:inline-flex;flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.seg button{flex:1;min-width:0;border:0;border-radius:0;min-height:38px;padding:0 4px;background:var(--bg);border-right:1px solid var(--line)}
+.seg button{flex:1;min-width:0;border:0;border-radius:0;min-height:44px;padding:0 4px;background:var(--bg);border-right:1px solid var(--line);font-size:15px}
 .seg button:last-child{border-right:0}
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .acts{display:flex;gap:6px;flex:none}
@@ -79,7 +80,8 @@ h3{margin:14px 0 4px;font-size:14px}
 :root{--hd:#16427f}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hd:#0f2a4f}}
 :root[data-theme="dark"]{--hd:#0f2a4f}
-header{background:var(--hd);color:#fff;border-bottom:0}
+header{background:linear-gradient(115deg,#081f45 0%,var(--hd) 55%,#1d64c8 130%);color:#fff;border-bottom:0;box-shadow:0 2px 14px rgba(8,31,69,.25)}
+:root[data-theme="dark"] header{background:linear-gradient(115deg,#081426 0%,var(--hd) 60%,#1d4e9e 130%)}
 header h1{color:#fff}
 header button,header .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
 header .seg button{color:var(--ink)}
@@ -102,7 +104,7 @@ table.ro{border-collapse:separate;border-spacing:0;width:max-content}
 .po b{font-size:18px;min-width:2.2em}.po span{flex:1;min-width:0}
 .opt{display:flex;align-items:center;gap:10px;padding:10px 0;font-size:15px}
 #bnav{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:repeat(5,1fr);background:var(--panel);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom,0px)}
-#bnav button{flex-direction:column;gap:2px;border:0;border-radius:0;background:transparent;min-height:56px;font-size:12px;color:var(--mute);position:relative}
+#bnav button{flex-direction:column;gap:2px;border:0;border-radius:0;background:transparent;min-height:56px;font-size:13px;font-weight:700;color:var(--mute);position:relative;letter-spacing:.02em}
 #bnav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #bnav button.on{color:var(--acc);font-weight:700}
 #bnav button.on:before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--acc);border-radius:0 0 3px 3px}
@@ -146,7 +148,18 @@ details{margin:8px 0}summary{cursor:pointer;font-weight:700;font-size:14px}
 .fn{margin-top:4px;font-size:12px;color:var(--mute);text-align:center}
 .pfw{font-size:12px;min-height:1.4em}.pfw.ok{color:var(--acc);display:flex;align-items:center;gap:6px}.pfw.warn{color:#c98a00}
 .atabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px}
-.atabs button{flex:none;padding:0 12px}.atabs button.on{background:var(--acc);color:var(--accf);border-color:var(--acc)}
+.atabs button{flex:none;padding:0 14px;min-height:44px;font-size:15px;font-weight:700}.atabs button.on{background:linear-gradient(135deg,var(--acc),#0b5ed7);color:var(--accf);border-color:var(--acc)}
+/* クールな見た目と押しやすさ(在線位置の並びや大きさは変えない) */
+.pri{font-weight:700;letter-spacing:.03em;box-shadow:0 2px 10px rgba(20,60,120,.22)}
+.pri.on{box-shadow:0 0 0 2px var(--accf),0 2px 10px rgba(20,60,120,.3)}
+.ac,.tile,.fc{border-radius:12px;box-shadow:0 1px 6px rgba(10,30,70,.08)}
+#edmsg,#gmmsg,#amsg{color:var(--ink);font-size:14px;font-weight:700}
+.steps{margin:6px 0;padding:8px 10px;background:var(--band);border-radius:8px;font-size:13px}
+.steps b{color:var(--acc)}
+.abar .pri{flex:1;min-height:48px;font-size:16px}
+#gmgo{min-height:48px;font-size:16px}
+h1{letter-spacing:.05em}
+#dbar button,#dbar select{min-height:44px}
 .abar{position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom,0px));z-index:5;background:var(--panel);border-top:1px solid var(--rule);padding:8px 14px;max-height:40vh;overflow:auto}
 .amsg{font-size:12px;margin-bottom:6px}.abar .row{margin:0}
 .ac{padding:10px;margin:10px 0;background:var(--panel);border:1px solid var(--rule);border-radius:10px;display:flex;flex-direction:column;gap:8px}
@@ -1592,7 +1605,7 @@ function admDist(){const E=edgeList(),D=adm.draft.distances||[];
   ${E.map(({a,b})=>`<div class="orow"><span style="flex:1;min-width:0">${esc(stName(a))} → ${esc(stName(b))}</span><input type="number" min="0" max="200" step="0.1" data-dk="${esc(stName(a))}|${esc(stName(b))}" value="${esc(val(a,b))}" placeholder="km" style="width:6.5em" aria-label="${esc(stName(a))}から${esc(stName(b))}までの距離(km)"><span class="mute">km</span></div>`).join('')||'<div class="mute">区間がありません</div>'}
   <p class="mute">設定済みの合計: ${tot?tot.toFixed(1)+' km':'—'}</p>`}
 // ---- 地図の線路(管理者が地図で線を引く) ----
-let ed=null,edToken=0; // ed={map,layer,lineIdx,drawing,lines,baseTrack,modified}
+let ed=null,edToken=0,edDrawPending=false; // ed={map,layer,lineIdx,drawing,lines,baseTrack,modified}
 function edLines(){ // 編集の出発点になる、生の線(緯度経度だけ)。管理者が引いた線があればそれ、なければ駅を直線で結んだもの
   const chord=geoLineFromStations();
   const tl=M.cfg&&M.cfg.trackLines;
@@ -1610,9 +1623,10 @@ function edDraftTrack(){ // 保存する形の track。引いていない線は�
 function admTrack(){
   const lines=edLines();
   return `<p class="mute">地図の上で線路の形をなぞって線を引くと、その線に沿った距離で通過時刻を計算します。線を引いていない区間は、駅同士の直線のままです。駅は自動で線の上に置かれます。駅の位置がおかしいときは、駅のマーカーをドラッグして直してください(駅の位置を直すだけでも、直線距離の精度が上がります)</p>
+  <p class="steps"><b>手順</b> ①引く線を選ぶ → ②「線を引く」を押す → ③線路に沿って地図をタップする → ④下の「保存して反映」を押す</p>
   <div class="row" style="flex-wrap:wrap"><span class="mute">引く線:</span><div class="seg" id="edlines" style="flex:1">${lines.map((_,li)=>`<button data-a="ed-line" data-i="${li}" class="${ed&&ed.lineIdx===li?'on':''}">${esc(edLineLabel(li))}</button>`).join('')}</div></div>
   <div id="edmap" style="height:50vh;min-height:300px;margin:8px 0;border:1px solid var(--bd);border-radius:12px;overflow:hidden"></div>
-  <div class="row" style="flex-wrap:wrap"><button data-a="ed-draw" id="eddraw" class="${ed&&ed.drawing?'on':''}">線を引く</button><button data-a="ed-undo">1つ戻る</button><button data-a="ed-clear">この線をクリア</button><button data-a="ed-reset">線と駅の位置をリセット</button></div>
+  <div class="row" style="flex-wrap:wrap"><button data-a="ed-draw" id="eddraw" class="pri ${ed&&ed.drawing?'on':''}">線を引く</button><button data-a="ed-undo">1つ戻る</button><button data-a="ed-clear">この線をクリア</button><button data-a="ed-reset">線と駅の位置をリセット</button></div>
   <div id="edmsg" class="mute" role="status"></div>
   <p class="mute">保存は、下の「保存して反映」ボタンです。線の形と駅の位置は、路線の設定といっしょに保存されます</p>`}
 async function edOpen(){
@@ -1633,8 +1647,9 @@ async function edOpen(){
   edDraw();
   setTimeout(()=>{if(ed&&ed.map)ed.map.invalidateSize()},100);
   document.querySelectorAll('#edlines button').forEach((b,i)=>b.classList.toggle('on',i===ed.lineIdx));
-  const db=$('#eddraw');if(db)db.classList.toggle('on',false);
-  const m=$('#edmsg');if(m)m.textContent='線を引く線を選んで、「線を引く」を押してから線路の上をタップしてください'}
+  const db=$('#eddraw');if(db){db.classList.toggle('on',false);db.textContent='線を引く'}
+  const m=$('#edmsg');if(m)m.textContent='線を引く線を選んで、「線を引く」を押してから線路の上をタップしてください';
+  if(edDrawPending){edDrawPending=false;edSetDrawing(true)}}
 function edDraw(){ // 引いた線と、線の上の駅を描く
   if(!ed||!ed.map)return;
   if(ed.layer){ed.map.removeLayer(ed.layer);ed.layer=null}
@@ -1647,8 +1662,11 @@ function edDraw(){ // 引いた線と、線の上の駅を描く
     const cl=chord[li];
     if(cl&&cl.length>=2)L.polyline(cl.map(p=>[p.lat,p.lon]),{color:'#8593a3',weight:2,opacity:0.5,dashArray:'4 6'}).addTo(ed.layer); // 直線の目安
     if(ed.lines[li].length>=2)L.polyline(ed.lines[li].map(p=>[p.lat,p.lon]),{color:'#1976d2',weight:li===ed.lineIdx?6:3,opacity:0.9}).addTo(ed.layer);
+    // 線を引いているときは、タップした点そのものも青い点で出す(1点だけのときも見えるように)
+    if(ed.drawing&&li===ed.lineIdx)for(const p of ed.lines[li])L.circleMarker([p.lat,p.lon],{radius:5,color:'#fff',weight:2,fillColor:'#1976d2',fillOpacity:1}).addTo(ed.layer);
     for(const p of Ln.pts)if(p.si!=null&&p.si>=0){
-      const mk=L.marker([p.lat,p.lon],{draggable:true,icon:L.divIcon({className:'',html:'<div style="width:16px;height:16px;border-radius:50%;background:#ef6c00;border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.4)"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(ed.layer);
+      // 線を引いているあいだは駅マーカーを動かさず、タップを地図に通す(駅のそばでも線が引けるように)
+      const mk=L.marker([p.lat,p.lon],{draggable:!ed.drawing,interactive:!ed.drawing,icon:L.divIcon({className:'',html:'<div style="width:16px;height:16px;border-radius:50%;background:#ef6c00;border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.4)"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(ed.layer);
       mk.bindTooltip(M.st[p.si].name);
       mk._edSi=p.si;
       mk.on('dragend',e=>edDragStation(e.target))}});
@@ -1656,8 +1674,24 @@ function edDraw(){ // 引いた線と、線の上の駅を描く
 function edSelectLine(){
   if(!ed)return;
   document.querySelectorAll('#edlines button').forEach((b,i)=>b.classList.toggle('on',i===ed.lineIdx));
+  if(ed.drawing){edSetDrawing(true);return}
   edDraw();
   const m=$('#edmsg');if(m)m.textContent=`${edLineLabel(ed.lineIdx)} を引いています`}
+function edSetDrawing(on){ // 線を引くモードの入/切。入るとき、まだ何も引いていない直線の線は白紙から引き直す
+  if(!ed||!ed.map)return false;
+  ed.drawing=on;
+  const li=ed.lineIdx;
+  if(on&&!ed.modified.has(li)&&!ed.baseTrack[li]){
+    // ここが「線が引けない」の原因だった: 引く前の線には駅を結んだ直線の点がすでに入っていて、
+    // タップした点はその末尾(終点のあと)に足されていたため、タップした場所に線が伸びなかった
+    ed.lines[li]=[];ed.modified.add(li);
+    adm.draft.track=edDraftTrack();adm.dirty=true;renderMsg()}
+  const b=$('#eddraw');
+  if(b){b.classList.toggle('on',on);b.textContent=on?'線を引いています（タップで終了）':'線を引く'}
+  const m=$('#edmsg');
+  if(m)m.textContent=on?(ed.lines[li].length?'追加の点を足します。引き直すときは「この線をクリア」を先に押してください':'線路に沿ってタップしてください。タップした順に線になります'):'線を引くのをやめました';
+  edDraw();
+  return true}
 function edTap(ll){ // 線を引くモードのときだけ、タップした点を線に足す
   if(!ed||!ed.drawing)return;
   ed.lines[ed.lineIdx].push({lat:ll.lat,lon:ll.lon});
@@ -1791,7 +1825,7 @@ $('#adm').addEventListener('click',async e=>{
     case 'oup':case 'odown':{const L=orderKeys();if(swap(L,i,a==='oup'?i-1:i+1)){scopeData(D,adm.scope).order=L;rerender()}return}
     case 'reset':{const tb=adm.tab;admInit();adm.tab=tb;adm.msg='変更を破棄しました';renderAdm();return}
     case 'ed-line':ed.lineIdx=+t.dataset.i;edSelectLine();return;
-    case 'ed-draw':if(!ed)return;ed.drawing=!ed.drawing;t.classList.toggle('on',ed.drawing);{const m=$('#edmsg');if(m)m.textContent=ed.drawing?'線路の上をタップして、点を増やしてください':'線を引くのをやめました'}return;
+    case 'ed-draw':if(!ed||!ed.map){edDrawPending=true;const m=$('#edmsg');if(m)m.textContent='地図を読み込んでいます…読み込めたら線を引くモードになります';return}edSetDrawing(!ed.drawing);return;
     case 'ed-undo':edUndo();return;
     case 'ed-clear':edClear();return;
     case 'ed-reset':edReset();return;
