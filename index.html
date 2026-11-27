@@ -236,13 +236,13 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <div id="dbar" class="hide"><button id="dprev" aria-label="前の日">‹</button><input id="dsel" type="date" aria-label="日付"><button id="dnext" aria-label="次の日">›</button><button id="dtoday">今日</button><select id="ddia" class="hide" aria-label="ダイヤ"></select><span id="dinfo"></span></div>
 <div id="drop" class="hide"><h2>路線を選んでください</h2><div id="lines" class="tiles"></div><div id="lmsg" class="mute" style="margin-top:12px"></div></div>
 <section id="rs" class="hide"><div class="bar"><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span><button id="lmb2" type="button" style="margin-left:auto">表示: 列番</button></div><div class="bar" style="padding-top:0"><input id="rq" type="search" placeholder="列車番号・運用・編成で検索" aria-label="運用を検索" style="flex:1;min-width:0"></div><div id="rt"></div></section>
-<section id="tv" class="hide"><div class="bar" style="padding-bottom:0"><button id="ttback">‹ 地図に戻る</button></div>
+<section id="tv" class="hide"><div class="bar" style="padding-bottom:0"><div class="seg" id="ttmode" style="width:230px"><button data-tt="st" class="on">駅時刻表</button><button data-tt="pt">通過時刻表</button></div></div>
 <section id="sv" class="hide"><div class="bar"><button id="sprev" aria-label="前の駅" style="font-size:20px;min-width:44px">‹</button><select id="sstn" aria-label="駅" style="flex:1;min-width:0"></select><button id="snext" aria-label="次の駅" style="font-size:20px;min-width:44px">›</button></div>
 <div class="bar" style="padding-top:0"><div class="seg" id="sdirs" style="width:150px"><button data-sd="0" class="on">下り</button><button data-sd="1">上り</button></div><span id="smeta" class="mute"></span></div><div id="shb" class="bar" style="padding-top:0"></div>
 <details class="pfilters"><summary>絞り込み（時刻・編成）</summary><div class="bar" style="padding:0 0 8px;flex-direction:column;align-items:stretch;gap:8px"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="sftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="sttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><div id="sfmc" class="fmcks" aria-label="編成で絞り込む"></div></div></details>
 <div id="sbody"></div></section>
 <section id="pv" class="hide"><div class="bar" style="padding-bottom:0"><span id="pfrom" class="mute" style="white-space:nowrap"></span><input id="pslider" type="range" min="0" max="1000" value="500" step="10" aria-label="地点の位置" style="flex:1;min-width:0"><span id="pto" class="mute" style="white-space:nowrap"></span></div>
-<div class="bar" style="padding-top:2px;padding-bottom:0"><div class="seg" id="pdirs" style="width:190px"><button data-pd="all" class="on">両方</button><button data-pd="0">下り</button><button data-pd="1">上り</button></div><span id="ppos" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700"></span><button id="gmopen" class="pri" style="margin-left:auto">地図で選ぶ</button></div>
+<div class="bar" style="padding-top:2px;padding-bottom:0"><div class="seg" id="pdirs" style="width:190px"><button data-pd="all" class="on">両方</button><button data-pd="0">下り</button><button data-pd="1">上り</button></div><span id="ppos" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700"></span><button id="pvx" aria-label="地図に戻る" title="地図に戻る" style="margin-left:auto;min-width:36px;font-size:18px;line-height:1">×</button></div>
 <div class="bar" id="pnotebar" style="padding-top:2px"><span id="pnote" class="mute"></span></div>
 <details class="pfilters"><summary>絞り込み（時刻・編成）</summary><div class="bar" style="padding:0 0 8px;flex-direction:column;align-items:stretch;gap:8px"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="pftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="pttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><div id="pfmc" class="fmcks" aria-label="編成で絞り込む"></div><span id="pmeta" class="mute"></span></div></details>
 <div id="pbody" style="padding:0 14px 100px"></div></section></section>
@@ -675,14 +675,15 @@ function showView(v,i){
   else{show('#rs',true);renderRoster()}
   $('#nr').classList.toggle('on',v==='roster'||v==='op');$('#nm').classList.toggle('on',v==='map');$('#nt').classList.toggle('on',v==='tt');$('#nd').classList.toggle('on',v==='dg');$('#nf').classList.toggle('on',v==='fv');
 }
-let ttMode='st'; // 時刻表の表示(駅時刻表/通過時刻表)。下のナビでは最後に使ったほうで開く
-function showTt(m){ // 時刻表の、駅時刻表と通過時刻表の切り替え(切替は地図からの指定だけ。上のボタンは地図に戻る)
+let ttMode='st'; // 時刻表の表示(駅時刻表/通過時刻表)。下のナビでは駅時刻表から開く
+function showTt(m){ // 時刻表の、駅時刻表と通過時刻表のタブ切り替え。通過時刻表タブは地図を開く
   ttMode=m;
+  document.querySelectorAll('#ttmode button').forEach(b=>b.classList.toggle('on',b.dataset.tt===m));
   show('#gm',false);show('#sv',m==='st');show('#pv',m==='pt');
   placeDbar('tt');scrollTo(0,0);
   if(m==='st')renderSt();
   else{renderPt();if(!ptSkipMap&&geoInit())gmOpen();ptSkipMap=false}}
-$('#ttback').onclick=()=>showView('tt','pt'); // 時刻表の上のボタンは、通過時刻表の地図に戻る
+$('#ttmode').onclick=e=>{const b=e.target.closest('[data-tt]');if(b)showTt(b.dataset.tt)}; // タブで駅時刻表と通過時刻表を切り替える
 // ---- ダイヤグラム(時刻×駅・番線の折れ線図)。OuDia のダイヤグラムと同じ見た目 ----
 // 横=時刻、縦=駅の番線。列車は種別の色の折れ線で、停車は番線の行での水平線、通過は前後の時刻で内挿する
 const DG_PX_MIN=2, DG_ROW_H=18; // 基準の縮尺: 1分=2px、駅間=18px(最短走行時間に比例して区間ごとに変わる)
@@ -977,7 +978,7 @@ const nav=e=>{const pp=e.target.closest('[data-oppost]');
   if(g){const k=g.dataset.g;gcol.has(k)?gcol.delete(k):gcol.add(k);renderRoster();return}
   if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o)showView('op',+o.dataset.op);else if(e.target.closest('#bk'))showView('roster')};
 $('#rs').addEventListener('click',nav);$('#ov').addEventListener('click',nav);
-$('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');$('#nt').onclick=()=>showView('tt','pt');$('#nd').onclick=()=>showView('dg');$('#nf').onclick=()=>showView('fv'); // 時刻表は、まず通過時刻表の地図から開く
+$('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');$('#nt').onclick=()=>showView('tt','st');$('#nd').onclick=()=>showView('dg');$('#nf').onclick=()=>showView('fv'); // 時刻表は、駅時刻表から開く
 setInterval(async()=>{if(authed&&M&&!document.hidden){loadNotices();await loadPosts();refresh()}},60000);
 
 // 日本の祝日(2007〜2099年)。振替休日と国民の休日を含む
@@ -1234,7 +1235,7 @@ function renderPt(){
   const E=edgeList();
   if(!ptEdge||!E.some(e=>e.key===ptEdge))ptEdge=E.length?E[0].key:null;
   const edge=E.find(e=>e.key===ptEdge);
-  const gmBtn=$('#gmopen');if(gmBtn){gmBtn.disabled=!geoInit();gmBtn.title=gmBtn.disabled?'この路線の駅の位置が分からないため、地図は使えません':'地図で地点を選ぶ'}
+  const gmBtn=$('#pvx');if(gmBtn){gmBtn.disabled=!geoInit();gmBtn.title=gmBtn.disabled?'この路線の駅の位置が分からないため、地図は使えません':'地図に戻る'}
   document.querySelectorAll('#pdirs button').forEach(b=>b.classList.toggle('on',b.dataset.pd===ptDir));
   $('#pslider').value=Math.round(ptFrac*1000); // 地図で選んだ地点をスライダーにも反映する
   updatePtPos(edge);
@@ -1588,7 +1589,7 @@ function gmApplyTrack(j){ // Overpassの結果から、線路に沿った折れ�
     if(gmMap){gmDraw();const m=$('#gmdist');if(m&&gmPick)m.textContent=geoModeText('track')}
     return true;
   }catch(e){return false}}
-$('#gmopen').onclick=()=>gmOpen();
+$('#pvx').onclick=()=>gmOpen(); // 通過時刻表の×ボタンは、地図に戻る
 $('#gmretry').onclick=()=>{if(gmTile&&gmTile.gmReset){gmTile.gmReset();const d=$('#gmdist');if(d)d.textContent=''}gmOpen()};
 $('#gmback').onclick=()=>{show('#gm',false);ptSkipMap=true;showView('tt','pt')};
 $('#gmgo').onclick=gmGo;
