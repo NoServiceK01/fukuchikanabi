@@ -115,6 +115,8 @@ header .pri{background:#fff;color:var(--hd);border-color:#fff}
 .stt td b{font-size:19px;font-variant-numeric:tabular-nums}.stt small{display:block;font-size:10px;color:var(--mute)}
 .gmpop{border-collapse:collapse;font-size:13px;margin-top:4px;width:100%}.gmpop th,.gmpop td{padding:2px 6px 2px 0;text-align:left;white-space:nowrap;font-weight:400}.gmpop th{color:var(--mute);font-size:11px}.gmpop td b{font-variant-numeric:tabular-nums}
 .ab{display:inline-block;min-width:2.4em;padding:0 5px;height:20px;border-radius:5px;text-align:center;font-size:11px;font-weight:700;line-height:20px;vertical-align:-3px;margin-right:4px;white-space:nowrap}
+.circ{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border:1.5px solid var(--acc);border-radius:50%;color:var(--acc);font-size:11px;font-weight:700;line-height:1}
+.cg{display:inline-flex;align-items:center;gap:3px;margin-right:10px}.cg:last-child{margin-right:0}
 #dbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:10px 14px}
 #dbar button{min-height:36px;min-width:36px;font-size:18px}#dbar #dtoday{font-size:14px}
 #dinfo{flex-basis:100%;font-size:13px;color:var(--mute)}
@@ -840,7 +842,7 @@ function renderSt(){
   document.querySelectorAll('#sdirs button').forEach(b=>b.classList.toggle('on',+b.dataset.sd===stDir));
   const r=stTable(pk(stI),stDir,ttHr);ttHrs=r.hrs;$('#smeta').textContent=r.n+'本';$('#shb').innerHTML=hourBar();$('#sbody').innerHTML=r.html;
 }
-// 駅の時刻表(駅時刻表タブと在線位置の駅シートで共通)。時刻・編成・行先・列車番号・運用番号
+// 駅の時刻表(駅時刻表タブと在線位置の駅シートで共通)。時刻・編成・行先(下に列車番号・運用番号)・のりば
 function stTable(key,dir,hour){ // hour: nullなら1日分、数字ならその時間台だけ
   let L=[];
   for(const tr of cur){if(hideTT.has(tr.ty)||tr.dir!==dir)continue;const R=tr.route,ks=tr.si.filter(j=>!R[j].ps&&pk(R[j].s)===key);if(!ks.length)continue;
@@ -849,10 +851,11 @@ function stTable(key,dir,hour){ // hour: nullなら1日分、数字ならその�
   L.sort((p,q)=>p.t-q.t);const hrs=[...new Set(L.map(x=>Math.floor(x.t/3600)))];
   if(hour!=null)L=L.filter(x=>Math.floor(x.t/3600)===hour);
   if(!L.length)return{n:0,hrs,html:`<div class="mute" style="padding:16px 0">${hour!=null?'この時間台に停車する列車はありません':'この方面に停車する列車はありません'}</div>`};
-  const no=L.some(x=>x.tr.name);let ph=null;
-  return{n:L.length,hrs,html:`<table class="stt"><tr><th></th><th>時刻</th><th>編成</th><th>行先</th>${no?'<th>列車</th>':''}<th>運用</th></tr>${L.map(x=>{
+  let ph=null;
+  return{n:L.length,hrs,html:`<table class="stt"><tr><th></th><th>時刻</th><th>編成</th><th>行先</th><th>のりば</th></tr>${L.map(x=>{
     const h=Math.floor(x.t/3600),o=x.tr.op,fo=o?fmOf(o.key):null,first=h!==ph;ph=h;
-    return `<tr data-t="${x.tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(x.tr)}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b></td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><span><b>${esc(fo.f)}</b>${fo.prev?`<small class="pv">${esc(fo.prev)}</small>`:''}</span></span>`:''}</td><td><span class="ab" style="background:${ccol(x.tr)};color:${ink(ccol(x.tr))}">${esc((M.types[x.tr.ty]||{ab:''}).ab)}</span>${x.last?'当駅止':esc(x.dest)+'行'}${x.trk?`<small>${esc(x.trk)}</small>`:''}</td>${no?`<td>${esc(x.tr.name)}</td>`:''}<td>${o?esc(o.name):''}</td></tr>`}).join('')}</table>`}
+    const sub=[];if(x.tr.name)sub.push(`<span class="cg"><span class="circ">列</span>${esc(x.tr.name)}</span>`);if(o)sub.push(`<span class="cg"><span class="circ">運</span>${esc(o.name)}</span>`);
+    return `<tr data-t="${x.tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(x.tr)}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b></td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><span><b>${esc(fo.f)}</b>${fo.prev?`<small class="pv">${esc(fo.prev)}</small>`:''}</span></span>`:''}</td><td><span class="ab" style="background:${ccol(x.tr)};color:${ink(ccol(x.tr))}">${esc((M.types[x.tr.ty]||{ab:''}).ab)}</span>${x.last?'当駅止':esc(x.dest)+'行'}${sub.length?`<small>${sub.join('')}</small>`:''}</td><td>${esc(x.trk)}</td></tr>`}).join('')}</table>`}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches&&e.target.matches('tr[data-t]'))e.target.click()});
 const stStep=d=>{const ids=stIds(),k=ids.indexOf(stI);stI=ids[(k+d+ids.length)%ids.length];renderSt();scrollTo(0,0)};
