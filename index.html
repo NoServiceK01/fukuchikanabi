@@ -97,13 +97,13 @@ table.ro{border-collapse:separate;border-spacing:0;width:max-content}
 .un{display:inline-block;background:var(--hd);color:#fff;border-radius:99px;padding:0 8px;font-size:13px;font-weight:700}
 .io{font-size:10px;color:var(--mute);line-height:1.3}
 .c{flex-direction:column;justify-content:center;gap:0;width:84px;min-height:40px;border:0;border-radius:5px;padding:2px 3px;line-height:1.2;font-variant-numeric:tabular-nums}
-.c b{font-size:15px}.c small{font-size:10px;max-width:78px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c b{font-size:15px}.c small{font-size:9px;max-width:78px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pp{padding:8px 0 10px;border-bottom:1px solid var(--rule);margin-bottom:6px}
 .po{display:flex;gap:8px;align-items:center;padding:4px 0;border-top:1px solid var(--rule)}
 .po b{font-size:18px;min-width:2.2em}.po span{flex:1;min-width:0}
 .opt{display:flex;align-items:center;gap:10px;padding:10px 0;font-size:15px}
 #bnav{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:repeat(5,1fr);background:var(--panel);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom,0px)}
-#bnav button{flex-direction:column;gap:2px;border:0;border-radius:0;background:transparent;min-height:56px;font-size:13px;font-weight:700;color:var(--mute);position:relative;letter-spacing:.02em}
+#bnav button{flex-direction:column;gap:2px;border:0;border-radius:0;background:transparent;min-height:56px;padding:0 2px;font-size:11px;font-weight:700;color:var(--mute);position:relative;letter-spacing:0;white-space:nowrap}
 #bnav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #bnav button.on{color:var(--acc);font-weight:700}
 #bnav button.on:before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--acc);border-radius:0 0 3px 3px}
@@ -161,13 +161,16 @@ details{margin:8px 0}summary{cursor:pointer;font-weight:700;font-size:14px}
 .pfilters[open] summary:before{content:"－"}
 .pfilters .bar{padding:0 0 8px}
 .fmcks{display:flex;flex-wrap:wrap;gap:6px}
-.fck{display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:99px;cursor:pointer;font-size:14px;background:var(--bg);white-space:nowrap}
+.fck{display:inline-flex;align-items:center;gap:5px;min-height:38px;padding:0 10px;border:1px solid var(--line);border-radius:99px;cursor:pointer;font-size:13px;background:var(--bg);white-space:nowrap}
 .fck input{accent-color:var(--acc);width:18px;height:18px;margin:0}
 .fck:has(input:checked){border-color:var(--acc);background:var(--band);font-weight:700}
 #shb{background:var(--band);border-radius:10px;margin:0 14px}
 .steps b{color:var(--acc)}
 .abar .pri{flex:1;min-height:48px;font-size:16px}
 #gmgo{min-height:48px;font-size:16px}
+/* Leaflet の地図は内部の重なり順(z-index)が 400〜1000 もあるので、メニューや下のバーに覆いかぶさらないよう、地図を低い重なり順に閉じ込める */
+#gm{position:relative;z-index:1}
+#gmap,#edmap{z-index:0}
 h1{letter-spacing:.05em}
 #dbar button,#dbar select{min-height:44px}
 .abar{position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom,0px));z-index:5;background:var(--panel);border-top:1px solid var(--rule);padding:8px 14px;max-height:40vh;overflow:auto}
@@ -212,7 +215,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <div id="auth" class="wrap" style="padding:84px 20px;text-align:center"><h1 style="font-size:28px;color:var(--hd);margin:0">フクチカナビ</h1><p class="mute" style="margin:12px 0 26px">XまたはGoogleのアカウントでログインすると、運用や列車の位置を見られます</p><button id="xlogin" type="button" class="xb" style="margin:0 auto;min-width:250px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>Xでログイン</button><button id="glogin" type="button" class="gb2" style="margin:10px auto 0;min-width:250px"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Googleでログイン</button><div id="aerr" class="mute" role="alert" style="margin-top:14px"></div></div>
 <div id="dbar" class="hide"><button id="dprev" aria-label="前の日">‹</button><input id="dsel" type="date" aria-label="日付"><button id="dnext" aria-label="次の日">›</button><button id="dtoday">今日</button><select id="ddia" class="hide" aria-label="ダイヤ"></select><span id="dinfo"></span></div>
 <div id="drop" class="hide"><h2>路線を選んでください</h2><div id="lines" class="tiles"></div><div id="lmsg" class="mute" style="margin-top:12px"></div></div>
-<section id="rs" class="hide"><div class="bar"><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span><button id="lmb2" type="button" style="margin-left:auto">表示: 列番</button></div><div id="rt"></div></section>
+<section id="rs" class="hide"><div class="bar"><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span><button id="lmb2" type="button" style="margin-left:auto">表示: 列番</button></div><div class="bar" style="padding-top:0"><input id="rq" type="search" placeholder="列車番号・運用・編成で検索" aria-label="運用を検索" style="flex:1;min-width:0"></div><div id="rt"></div></section>
 <section id="sv" class="hide"><div class="bar"><button id="sprev" aria-label="前の駅" style="font-size:20px;min-width:44px">‹</button><select id="sstn" aria-label="駅" style="flex:1;min-width:0"></select><button id="snext" aria-label="次の駅" style="font-size:20px;min-width:44px">›</button></div>
 <div class="bar" style="padding-top:0"><div class="seg" id="sdirs" style="width:150px"><button data-sd="0" class="on">下り</button><button data-sd="1">上り</button></div><span id="smeta" class="mute"></span></div><div id="shb" class="bar" style="padding-top:0"></div><div id="sbody"></div></section>
 <section id="fv" class="hide"><div class="bar"><input id="fq" type="search" placeholder="編成番号・所属・車号で検索" aria-label="編成を検索" style="flex:1;min-width:0"><button id="fadm" class="hide">編成を管理</button></div><div id="fl" style="padding:0 14px 100px"></div></section>
@@ -220,7 +223,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <div class="bar" style="padding-top:2px;padding-bottom:0"><span id="pfrom" class="mute" style="white-space:nowrap"></span><input id="pslider" type="range" min="0" max="1000" value="500" step="10" aria-label="地点の位置"><span id="pto" class="mute" style="white-space:nowrap"></span></div>
 <div class="bar" style="padding-top:2px;padding-bottom:0"><input id="pkm" type="number" min="0" step="0.1" style="width:6em" aria-label="始発駅からの距離(km)"><span class="mute">km</span><span id="ppos" style="font-weight:700"></span><button id="gmopen" class="pri" style="margin-left:auto">地図で選ぶ</button></div>
 <div class="bar" id="pnotebar" style="padding-top:2px"><span id="pnote" class="mute"></span></div>
-<details class="pfilters"><summary>絞り込み（時刻・編成）</summary><div class="bar" style="padding:0 0 8px"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="pftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="pttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><div id="pfmc" class="fmcks" aria-label="編成で絞り込む" style="flex:1;min-width:0"></div><span id="pmeta" class="mute"></span></div></details>
+<details class="pfilters"><summary>絞り込み（時刻・編成）</summary><div class="bar" style="padding:0 0 8px;flex-direction:column;align-items:stretch;gap:8px"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="pftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="pttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><div id="pfmc" class="fmcks" aria-label="編成で絞り込む"></div><span id="pmeta" class="mute"></span></div></details>
 <div id="pbody" style="padding:0 14px 100px"></div></section>
 <div id="gm" class="hide"><div class="bar" style="padding-bottom:0"><button id="gmback">‹ 通過時刻表に戻る</button><b style="font-size:16px">地図から地点を選ぶ</b></div>
 <div id="gmap" style="height:62vh;min-height:340px;margin:8px 14px 0;border:1px solid var(--bd);border-radius:12px;overflow:hidden"></div>
@@ -321,6 +324,7 @@ function setup(root,name){
   // UI
   hidden.clear();hideTT.clear();selIds=new Set();cfgTypes();
   ptEdge=null;ptFrac=0.5;ptDir='all';ptFrom=null;ptTo=null;ptFms=null;ptFmsInit=false; // 通過時刻表の指定は、路線が変わったら最初から
+  rosterQ='';const rq=$('#rq');if(rq)rq.value=''; // 運用一覧の検索も、路線が変わったら最初から
   GEO.lines=null;GEO.mode='chord';if(gmMap){gmMap.remove();gmMap=null;gmLayer=null;gmPin=null;gmPick=null;gmTile=null}show('#gm',false); // 地図の状態も最初から
   show('#drop',false);
   selDate=svcDate();$('#dsel').value=$('#mdate').value=selDate;
@@ -470,13 +474,13 @@ function icon(g){ // 在線位置の列車: 上に運用番号、画像(上り�
   const fo=tr.op?fmOf(tr.op.key):null,img=esc(fmIconUrl(fo&&fo.f));
   const top=showOp&&tr.op?tr.op.name:'',fm=showFm&&fo?fo.f:'';
   const pill=showDest?[...M.st[tr.route[tr.ls].s].name].slice(0,5).join(''):showNo?(tr.name||(M.types[tr.ty]||{}).ab||''):'';
-  const pw=t=>Math.max(26,[...t].reduce((s,ch)=>s+(ch.charCodeAt(0)>0xff?1:0.55),0)*10.5+12); // 全角は1文字分、半角は0.55文字分の幅で札の幅を決める(行先が札からはみ出さないように)
+  const pw=t=>Math.max(26,[...t].reduce((s,ch)=>s+(ch.charCodeAt(0)>0xff?1:0.55),0)*9.5+12); // 全角は1文字分、半角は0.55文字分の幅で札の幅を決める(行先が札からはみ出さないように)
   let o=`<rect x="-24" y="-46" width="48" height="110" fill="transparent"/>`;
   if(sel)o+=`<rect x="-17" y="-22" width="34" height="44" rx="7" fill="none" stroke="${cc}" stroke-width="2.5"/>`;
   o+=`<image href="${img}" x="-13" y="-18" width="26" height="36" preserveAspectRatio="xMidYMid meet"${fo?'':' opacity=".6"'}/>`;
   o+=`<path d="${up?'M0 -27L6.5 -20H-6.5Z':'M0 27L6.5 20H-6.5Z'}" fill="${cc}"/>`;
   if(top){const w=pw(top);o+=`<rect x="${-w/2}" y="-45" width="${w}" height="14" rx="7" fill="var(--ink)"/><text y="-34.6" text-anchor="middle" font-size="10" font-weight="700" fill="var(--panel)">${esc(top)}</text>`}
-  if(pill){const w=pw(pill);o+=`<rect x="${-w/2}" y="30" width="${w}" height="15" rx="7.5" fill="${cc}"/><text y="41.2" text-anchor="middle" font-size="10.5" font-weight="700" fill="${ink(cc)}">${esc(pill)}</text>`}
+  if(pill){const w=pw(pill);o+=`<rect x="${-w/2}" y="30" width="${w}" height="14" rx="7" fill="${cc}"/><text y="40.2" text-anchor="middle" font-size="9.5" font-weight="700" fill="${ink(cc)}">${esc(pill)}</text>`}
   if(fm){const y=pill?58:42,t=esc(fm);o+=`<text y="${y}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--bg)" stroke="var(--bg)" stroke-width="3.5" stroke-linejoin="round">${t}</text><text y="${y}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${t}</text>`} // ふち取りの文字と、本体の文字を重ねる
   if(n>1)o+=`<text x="22" y="-13" font-size="12" font-weight="700" fill="var(--ink)">+${n-1}</text>`;
   return `<g data-ids="${g.trs.map(t=>t.id)}" transform="translate(${g.x} ${g.y})" style="cursor:pointer">${o}</g>`;
@@ -510,6 +514,16 @@ const statusOf=tr=>{const w=where(tr,T);return w?(w.wait?`${M.st[w.at].name} で
 function openSheet(o){sh=o;$('#sheet').classList.remove('hide');renderSheet()}
 function closeSheet(){sh=null;selIds=new Set();$('#sheet').classList.add('hide');draw()}
 function renderSheet(){
+  if(sh.type==='terms'){$('#sh').innerHTML=`<div><b style="font-size:18px">利用規約</b><div class="mute">最終更新: 2026年11月27日</div></div><button id="cls">閉じる</button>`;
+    $('#sb').innerHTML=`<div style="font-size:14px;line-height:1.8">
+    <h3>1. このアプリについて</h3><p>フクチカナビは、福岡市地下鉄空港線・箱崎線とJR筑肥線の時刻表をもとに、運用一覧・在線位置・駅時刻表・通過時刻表・編成表を見られるアプリです。個人が時刻表データをもとに作ったもので、福岡市交通局やJR九州の公式アプリではありません。</p>
+    <h3>2. アカウント連携</h3><p>XまたはGoogleのアカウントでログインして使います。ログインにはSupabaseの認証を使い、パスワードはこのアプリでは扱いません。ログインすると、編成の投稿やアカウント名の変更ができます。アカウント名は、編成を投稿したときに投稿者としてほかの利用者にも表示されます。本名やメールアドレスなど、個人が特定できる情報は入れないでください。空にして保存すると、初期の名前に戻ります。ログアウトは、いつでもメニューからできます。</p>
+    <h3>3. 個人情報について</h3><p>ログインに使うアカウントの情報（メールアドレスなど）や、編成の投稿の内容は、このアプリの運営のために使い、第三者に提供することはありません。ただし、法令に基づく開示請求を受けた場合など、法律で認められる場合は、この限りではありません。</p>
+    <h3>4. 使い方</h3><p>運用一覧ではその日の運用と列車を見られ、列車のマスをタップすると時刻、運用の行をタップするとその運用の列車一覧が見られます。在線位置では、時刻表から計算した列車の位置を路線図に表示します。列車をタップすると時刻と編成の投稿が見られます。駅時刻表では駅の時刻、通過時刻表では線路上の地点の時刻が見られます。編成表では編成を検索できます。編成の投稿は、今日の運用に入っている列車だけが対象です。</p>
+    <h3>5. 投稿について</h3><p>編成の投稿は、ほかの利用者にも表示されます。投稿した本人と管理者が取り消すことができます。事実と異なる投稿や、ほかの利用者の迷惑になる投稿は、管理者が削除することがあります。</p>
+    <h3>6. 時刻と位置について</h3><p>表示する時刻と列車の位置は、時刻表データから計算したものです。実際の運行とは異なる場合があります。遅れや運休には対応していません。乗車の際は、公式の時刻表や運行情報を確認してください。</p>
+    <h3>7. 禁止事項</h3><p>ほかの利用者の迷惑になる行為、アカウントの不正利用、アプリの仕組みを壊す行為はやめてください。</p>
+    <h3>8. 免責</h3><p>このアプリの情報を使って生じた損害について、作者は責任を負いません。この規約は、必要に応じて変更することがあります。</p></div>`;return}
   if(sh.type==='cfg'){renderCfg();return}
   if(sh.type==='inf'){renderInf();return}
   if(sh.type==='fmh'){renderFmh();return}
@@ -559,7 +573,7 @@ setInterval(()=>{if(M&&live&&!$('#mn').classList.contains('hide')){const m=Math.
 
 // ---- 運用一覧・運用の一覧・編成の投稿 ----
 const VIEWS=['#mctl','#mn','#info','#rs','#sv','#pv','#fv','#adm','#ov','#bnav','#sheet','#dbar','#pop','#svc'];
-let posts=[],postErr=false,me=null,lineFile='',curOp=0,postsSig='',postsDirty=false;
+let posts=[],postErr=false,me=null,lineFile='',curOp=0,postsSig='',postsDirty=false,rosterQ=''; // 運用一覧の検索(列車番号・運用名・編成)
 const kitenS=()=>M&&M.kiten?M.kiten:14400;
 const svcDate=()=>new Date(Date.now()+9*3600e3-kitenS()*1000).toISOString().slice(0,10); // 日本時間でダイヤの起点時刻(4時)に日付が変わる
 const postsOf=u=>posts.filter(p=>p.unit===u);
@@ -589,7 +603,7 @@ try{showTerm=localStorage.getItem('sTerm')!=='0'}catch(e){}
 let labelMode='no';try{labelMode=localStorage.getItem('sMode')==='dest'?'dest':'no'}catch(e){}
 showNo=labelMode==='no';showDest=labelMode==='dest'; // 列車番号か行先のどちらか1つ
 const cell=t=>{const c=ccol(t),a=t.route[t.fs],b=t.route[t.ls],tm=fmt(a.d),no=showNo&&t.name;
-  return `<td><button class="c" data-t="${t.id}" style="background:${c};color:${ink(c)}"><b>${esc(no?t.name:tm)}</b><small>${showDest?S(b.s)+'行':S(a.s)+(no?' '+tm:'')}</small></button></td>`};
+  return `<td><button class="c" data-t="${t.id}" style="background:${c};color:${ink(c)}"><b>${esc(no?t.name:tm)}</b><small>${showDest?S(a.s)+'→'+S(b.s):S(a.s)+(no?' '+tm:'')}</small></button></td>`};
 const gcol=new Set(); // たたんだグループ
 const curGroups=()=>((M.dias[M.cur]&&M.dias[M.cur].groupsEff)||(M.cfg&&M.cfg.common.groups)||[]); // いまのダイヤで使うグループ(ダイヤごとの設定 + 共通)
 const grpColor=nm=>((curGroups().find(g=>g.name===nm))||{}).color||null;
@@ -598,25 +612,28 @@ function groupNames(o){ // 運用のグループ分けがなければ []
   for(const x of o)if(x.group&&!names.includes(x.group))names.push(x.group);
   if(!names.length)return[];if(o.some(x=>!x.group))names.push('その他');return names}
 function opRow(x){const f=x.trains[0],l=x.trains[x.trains.length-1],fo=fmOf(x.key),gc=x.group&&grpColor(x.group);
-  return `<tr><td class="lf"><div class="lb" data-op="${x.i}"${gc?` style="border-left:5px solid ${gc}"`:''}>${fmCell(fo,18)}<div><span class="un">${esc(x.name)}</span>${x.custom?'<span class="rp">自作</span>':''}${x.warn.length?`<span class="wn" title="${esc(x.warn.join('\n'))}">!</span>`:''}<div class="io">${x.trains.length?S(f.route[f.fs].s)+' → '+S(l.route[l.ls].s):'列車なし'}</div>${fo&&fo.reg&&fo.reg.remark?`<div class="io">${esc(fo.reg.remark)}</div>`:''}${fo&&fo.remark?`<div class="io">${esc(fo.remark)}</div>`:''}</div></div></td>${x.trains.map(cell).join('')}</tr>`}
+  return `<tr><td class="lf"><div class="lb" data-op="${x.i}"${gc?` style="border-left:5px solid ${gc}"`:''}>${fmCell(fo,18)}<div><span class="un">${esc(x.name)}</span>${x.warn.length?`<span class="wn" title="${esc(x.warn.join('\n'))}">!</span>`:''}<div class="io">${x.trains.length?S(f.route[f.fs].s)+' → '+S(l.route[l.ls].s):'列車なし'}</div>${fo&&fo.reg&&fo.reg.remark?`<div class="io">${esc(fo.reg.remark)}</div>`:''}${fo&&fo.remark?`<div class="io">${esc(fo.remark)}</div>`:''}</div></div></td>${x.trains.map(cell).join('')}</tr>`}
 function renderRoster(){
   const o=cur.ops||[];
   $('#rmsg').textContent=postErr?'編成の投稿を読み込めませんでした':'運用の行をタップで運用の一覧、列車のマスをタップで時刻';
-  const names=groupNames(o),nc=1+Math.max(0,...o.map(x=>x.trains.length));let body='';
-  if(!names.length)body=o.map(opRow).join('');
-  else for(const nm of names){const L=o.filter(x=>(x.group||'その他')===nm);if(!L.length)continue;const c=gcol.has(nm),gc=grpColor(nm);
+  const q=rosterQ.trim(),ql=q.toLowerCase();
+  const list=q?o.filter(x=>x.name.toLowerCase().includes(ql)||x.trains.some(t=>(t.name||'').includes(q))||((fmOf(x.key)||{}).f||'').toLowerCase().includes(ql)):o;
+  const names=groupNames(list),nc=1+Math.max(0,...list.map(x=>x.trains.length));let body='';
+  if(!names.length)body=list.map(opRow).join('');
+  else for(const nm of names){const L=list.filter(x=>(x.group||'その他')===nm);if(!L.length)continue;const c=q?'':gcol.has(nm),gc=grpColor(nm); // 検索中はグループをたたまない
     body+=`<tr class="gh"><td colspan="${nc}"><button class="gb" data-g="${esc(nm)}" aria-expanded="${!c}">${gc?`<i style="background:${gc}"></i>`:''}${esc(nm)}<small>${L.length}運用</small><span aria-hidden="true">${c?'▸':'▾'}</span></button></td></tr>`;if(!c)body+=L.map(opRow).join('')}
-  const sl=$('#rt').scrollLeft;$('#rt').innerHTML=o.length?`<table class="ro">${body}</table>`:'<div class="mute" style="padding:20px 0">このダイヤには運用の情報が入っていません。別のダイヤを選んでください</div>';
+  const sl=$('#rt').scrollLeft;$('#rt').innerHTML=list.length?`<table class="ro">${body}</table>`:`<div class="mute" style="padding:20px 0">${q?`「${esc(q)}」に合う運用はありません`:'このダイヤには運用の情報が入っていません。別のダイヤを選んでください'}</div>`;
   $('#rt').scrollLeft=sl;
 }
+$('#rq').addEventListener('input',e=>{rosterQ=e.target.value;renderRoster()});
 function renderOp(){
   const o=(cur.ops||[])[curOp];if(!o){showView('roster');return}
-  const f=o.trains[0],l=o.trains[o.trains.length-1],fo=fmOf(o.key);
+  const f=o.trains[0],l=o.trains[o.trains.length-1],fo=fmOf(o.key),ro=selDate!==svcDate(); // 編成の投稿は今日の分だけ
   $('#ov').innerHTML=`<div class="wrap" style="padding:10px 14px"><div class="row" style="margin:0"><button id="bk">運用一覧へ</button><span class="un" style="font-size:18px">${esc(o.name)}</span>${fo?fmHtml(fo,22):'<span class="fm none" style="font-size:16px">編成未投稿</span>'}</div>
-  <div class="mute" style="margin:8px 0">${o.group?esc(o.group)+'、':''}${o.custom?'自作の運用、':''}${o.trains.length?`${S(f.route[f.fs].s)} 出庫、${S(l.route[l.ls].s)} 入庫、${o.trains.length}本`:'列車がまだ入っていません。管理者画面から列車を追加できます'}${fo&&fo.remark?'。'+esc(fo.remark):''}${fo?'。投稿 '+esc(nameOf(fo.by)):''}</div>
+  <div class="mute" style="margin:8px 0">${o.group?esc(o.group)+'、':''}${o.trains.length?`${S(f.route[f.fs].s)} 出庫、${S(l.route[l.ls].s)} 入庫、${o.trains.length}本`:'列車がまだ入っていません。管理者画面から列車を追加できます'}${fo&&fo.remark?'。'+esc(fo.remark):''}${fo?'。投稿 '+esc(nameOf(fo.by)):''}</div>
   ${o.warn.length?`<div class="wnote">${o.warn.map(esc).join('<br>')}</div>`:''}
-  ${o.trains.length?`<table><tr><th>発</th><th>列車</th><th>着</th><th>備考</th></tr>${o.trains.map(t=>{const a=t.route[t.fs],b=t.route[t.ls],c=ccol(t),ty=M.types[t.ty]||{ini:''};
-    return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td></tr>`}).join('')}</table>`:''}</div>`;
+  ${o.trains.length?`<table><tr><th>発</th><th>列車</th><th>着</th><th>備考</th>${ro?'':'<th></th>'}</tr>${o.trains.map(t=>{const a=t.route[t.fs],b=t.route[t.ls],c=ccol(t),ty=M.types[t.ty]||{ini:''};
+    return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td>${ro?'':`<td><button data-post="${t.id}" class="pri" style="min-height:36px;padding:0 10px;font-size:14px">投稿</button></td>`}</tr>`}).join('')}</table>`:''}</div>`;
 }
 function showView(v,i){
   for(const el of VIEWS)show(el,false);show('#gm',false);sh=null;selIds=new Set();show('#bnav',true);view=v;
@@ -683,7 +700,9 @@ $('#sheet').addEventListener('click',e=>{
   if(t&&sh&&sh.type==='st'){const id=+t.dataset.t;selIds=new Set([id]);lastHtml=null;openSheet({type:'tr',ids:[id],act:0,from:{type:'st',i:sh.i}});draw();return}
   const fv=e.target.closest('[data-fv]');if(fv){const n=fv.dataset.fv;closeSheet();showView('fv');$('#fq').value=n;renderFv();return}
   if(e.target.closest('[data-back]')&&sh&&sh.from){const f=sh.from;selIds=new Set();lastHtml=null;openSheet({...f});draw()}});
-const nav=e=>{const t=e.target.closest('[data-t]'),o=e.target.closest('[data-op]'),g=e.target.closest('[data-g]');
+const nav=e=>{const p=e.target.closest('[data-post]');
+  if(p){const tr=cur[+p.dataset.post];if(tr&&tr.op&&selDate===svcDate())openPop(tr,p);return} // 運用のながれから直接、編成を投稿する
+  const t=e.target.closest('[data-t]'),o=e.target.closest('[data-op]'),g=e.target.closest('[data-g]');
   if(g){const k=g.dataset.g;gcol.has(k)?gcol.delete(k):gcol.add(k);renderRoster();return}
   if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o)showView('op',+o.dataset.op);else if(e.target.closest('#bk'))showView('roster')};
 $('#rs').addEventListener('click',nav);$('#ov').addEventListener('click',nav);
@@ -1929,6 +1948,7 @@ function renderMenu(){
   <div class="seg" role="radiogroup" aria-label="表示テーマ">${[['auto','自動'],['light','ライト'],['dark','ダーク']].map(([k,l])=>`<button data-th="${k}" role="radio" aria-checked="${t===k}" class="${t===k?'on':''}">${l}</button>`).join('')}</div>
   <label class="opt" style="margin-top:6px"><input type="checkbox" data-mo="term" ${showTerm?'checked':''}>駅時刻表に、当駅止まりの列車を表示する</label>
   <h2>路線選択</h2><div id="mlines">${lineList===null?'<div class="mute">読み込み中…</div>':lineList.length?lineList.map(n=>`<button class="mi" data-line="${esc(n)}"${n===lineFile?' aria-current="true"':''}>${esc(n.replace(/\.oud2?$/i,''))}</button>`).join(''):'<div class="mute">路線がありません</div>'}</div>
+  <h2>アプリについて</h2><button class="mi" data-terms="1">利用規約</button>
   ${isAdmin?`<h2>管理者メニュー</h2>${M?TABS.map(([k,l])=>`<button class="mi" data-adm="${k}">管理者画面: ${l}</button>`).join('')+'<button class="mi" data-adm="cfg">この路線の設定の確認</button>':'<div class="mute">路線を選ぶと使えます</div>'}`:''}`}
 async function loadLines(){try{lineList=(await(await api('action=list')).json()).files}catch(e){if(e.message!=='auth')lineList=[]}if(menuOpen)renderMenu()}
 function openMenu(){menuOpen=true;show('#menu',true);show('#mbg',true);$('#mbtn').setAttribute('aria-expanded','true');renderMenu();if(lineList===null)loadLines();$('#mclose').focus()}
@@ -1938,6 +1958,7 @@ $('#menu').addEventListener('click',async e=>{const t=e.target.closest('button')
   if(t.id==='mclose'){closeMenu();return}
   if(t.id==='msave'){saveName();return}
   if(t.id==='mlogout'){closeMenu();await sb.auth.signOut();return}
+  if(t.dataset.terms){closeMenu();openSheet({type:'terms'});return}
   if(t.dataset.th){setTheme(t.dataset.th);renderMenu();return}
   if(t.dataset.line){const n=t.dataset.line;closeMenu();showList(true);openLine(n);return}
   if(t.dataset.adm){closeMenu();if(t.dataset.adm==='cfg')openSheet({type:'cfg'});else admOpen(t.dataset.adm)}});
