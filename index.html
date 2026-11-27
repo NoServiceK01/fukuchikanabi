@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; connect-src https://*.supabase.co; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src https://fonts.gstatic.com; img-src data: blob: https://*.tile.openstreetmap.org; connect-src https://*.supabase.co https://overpass-api.de; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#16427f">
 <title>フクチカナビ</title>
@@ -194,10 +194,14 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <section id="fv" class="hide"><div class="bar"><input id="fq" type="search" placeholder="編成番号・所属・車号で検索" aria-label="編成を検索" style="flex:1;min-width:0"><button id="fadm" class="hide">編成を管理</button></div><div id="fl" style="padding:0 14px 100px"></div></section>
 <section id="pv" class="hide"><div class="bar" style="padding-bottom:0"><select id="pedge" aria-label="区間" style="flex:1;min-width:0"></select><div class="seg" id="pdirs" style="width:190px"><button data-pd="all" class="on">両方</button><button data-pd="0">下り</button><button data-pd="1">上り</button></div></div>
 <div class="bar" style="padding-top:2px;padding-bottom:0"><span id="pfrom" class="mute" style="white-space:nowrap"></span><input id="pslider" type="range" min="0" max="1000" value="500" step="10" aria-label="地点の位置"><span id="pto" class="mute" style="white-space:nowrap"></span></div>
-<div class="bar" style="padding-top:2px;padding-bottom:0"><input id="pkm" type="number" min="0" step="0.1" style="width:6em" aria-label="始発駅からの距離(km)"><span class="mute">km</span><span id="ppos" style="font-weight:700"></span></div>
+<div class="bar" style="padding-top:2px;padding-bottom:0"><input id="pkm" type="number" min="0" step="0.1" style="width:6em" aria-label="始発駅からの距離(km)"><span class="mute">km</span><span id="ppos" style="font-weight:700"></span><button id="gmopen" style="margin-left:auto">地図で選ぶ</button></div>
 <div class="bar" id="pnotebar" style="padding-top:2px"><span id="pnote" class="mute"></span></div>
 <div class="bar" style="padding-top:0"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="pftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="pttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><select id="pfm" aria-label="編成で絞り込む" style="flex:1;min-width:0"></select><span id="pmeta" class="mute"></span></div>
 <div id="pbody" style="padding:0 14px 100px"></div></section>
+<div id="gm" class="hide"><div class="bar" style="padding-bottom:0"><button id="gmback">‹ 通過時刻表に戻る</button><b style="font-size:16px">地図から地点を選ぶ</b></div>
+<div id="gmap" style="height:62vh;min-height:340px;margin:8px 14px 0;border:1px solid var(--bd);border-radius:12px;overflow:hidden"></div>
+<div class="bar" style="padding-top:6px"><span id="gmmsg" class="mute">路線の上をタップすると、ピンを置きます</span></div>
+<div class="bar" style="padding-top:0;padding-bottom:100px"><button id="gmgo" class="pri" disabled>この地点の通過時刻表を見る</button><span id="gmdist" class="mute"></span></div></div>
 <section id="adm" class="hide"></section>
 <section id="ov" class="hide"></section>
 <main class="hide" id="mn"><div class="wrap"><svg id="map" role="img" aria-label="路線図"><g id="base"></g><g id="stp" style="pointer-events:none"></g><g id="trains"></g></svg></div></main>
@@ -293,6 +297,7 @@ function setup(root,name){
   // UI
   hidden.clear();hideTT.clear();selIds=new Set();cfgTypes();
   ptEdge=null;ptFrac=0.5;ptDir='all';ptFrom=null;ptTo=null;ptFm=''; // 通過時刻表の指定は、路線が変わったら最初から
+  GEO.lines=null;GEO.mode='chord';if(gmMap){gmMap.remove();gmMap=null;gmLayer=null;gmPin=null;gmPick=null}show('#gm',false); // 地図の状態も最初から
   show('#drop',false);
   selDate=svcDate();$('#dsel').value=$('#mdate').value=selDate;
   M.free=!M.dias.some(d=>/平日|土|休|日曜|祝/.test(d.name)); // ダイヤ名から曜日が分からない路線は、手動で選ぶ
@@ -590,7 +595,7 @@ function renderOp(){
     return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td></tr>`}).join('')}</table>`:''}</div>`;
 }
 function showView(v,i){
-  for(const el of VIEWS)show(el,false);sh=null;selIds=new Set();show('#bnav',true);view=v;
+  for(const el of VIEWS)show(el,false);show('#gm',false);sh=null;selIds=new Set();show('#bnav',true);view=v;
   applyDate();placeDbar(v);show('#svc',v!=='adm');renderSvc();setHH();
   if(v==='map'){for(const el of ['#mctl','#mn','#info'])show(el,true);lastHtml=null;goLive()}
   else if(v==='op'){curOp=i;show('#ov',true);renderOp();scrollTo(0,0)}
@@ -850,24 +855,27 @@ function pickPt(e){ // 地図のタップ位置を、路線図上の座標に直
   return nearestSeg((e.clientX-r.left)*vb.width/r.width,(e.clientY-r.top)*vb.height/r.height)}
 function renderPt(){
   if(!M)return;
-  const names=stNames(),E=edgeList();
+  const E=edgeList();
   const sel=$('#pedge');
   if(!ptEdge||!E.some(e=>e.key===ptEdge))ptEdge=E.length?E[0].key:null;
-  sel.innerHTML=E.map(e=>`<option value="${e.key}"${e.key===ptEdge?' selected':''}>${esc(names[e.a])} → ${esc(names[e.b])}</option>`).join('');
+  sel.innerHTML=E.map(e=>`<option value="${e.key}"${e.key===ptEdge?' selected':''}>${esc(stName(e.a))} → ${esc(stName(e.b))}</option>`).join('');
   const edge=E.find(e=>e.key===ptEdge);
+  const gmBtn=$('#gmopen');if(gmBtn){gmBtn.disabled=!geoInit();gmBtn.title=gmBtn.disabled?'この路線の駅の位置が分からないため、地図は使えません':'地図で地点を選ぶ'}
   document.querySelectorAll('#pdirs button').forEach(b=>b.classList.toggle('on',b.dataset.pd===ptDir));
   updatePtPos(edge);
   renderPtTable()}
 function updatePtPos(edge){
-  const names=stNames(),km=edge?segKmFor(edge):null;
+  const kmo=edge?ptKmFor(edge):{km:null,src:null},km=kmo.km;
   const sl=$('#pslider'),ki=$('#pkm'),nb=$('#pnotebar');
   if(!edge){$('#pfrom').textContent='';$('#pto').textContent='';$('#ppos').textContent='';$('#pnote').textContent='区間がありません';nb.style.display='';ki.disabled=true;return}
   const pct=Math.round(ptFrac*100);
-  $('#pfrom').textContent=names[edge.a];$('#pto').textContent=names[edge.b];
+  $('#pfrom').textContent=stName(edge.a);$('#pto').textContent=stName(edge.b);
   if(km){const v=+(ptFrac*km).toFixed(1);ki.disabled=false;ki.value=v;ki.max=km;
-    $('#ppos').textContent=`${names[edge.a]}から ${v} km（区間 ${km} km の ${pct}%）`;$('#pnote').textContent='';nb.style.display='none'}
+    $('#ppos').textContent=`${stName(edge.a)}から ${v} km（区間 ${km} km の ${pct}%）`;
+    if(kmo.src==='geo'){$('#pnote').textContent='地図から測った駅間の直線距離で計算しています。管理者画面の「駅間の距離」で実際の距離を入れると、そちらが使われます';nb.style.display=''}
+    else{$('#pnote').textContent='';nb.style.display='none'}}
   else{ki.disabled=true;ki.value='';
-    $('#ppos').textContent=`${names[edge.a]}から ${pct}%`;$('#pnote').textContent='この区間の距離が未設定のため、割合で指定しています。管理者画面の「駅間の距離」で距離を設定すると、km で指定できます';nb.style.display=''}}
+    $('#ppos').textContent=`${stName(edge.a)}から ${pct}%`;$('#pnote').textContent='この区間の距離が未設定のため、割合で指定しています。管理者画面の「駅間の距離」で距離を設定すると、km で指定できます';nb.style.display=''}}
 function renderPtTable(){
   const E=edgeList(),edge=E.find(e=>e.key===ptEdge);
   const body=$('#pbody'),fmSel=$('#pfm');
@@ -886,7 +894,7 @@ function renderPtTable(){
   body.innerHTML=`<table class="stt"><tr><th></th><th>時刻</th><th>方向</th><th>行先</th><th>列車</th><th>運用</th><th>編成</th></tr>${L.map(({t,tr})=>{
     const h=Math.floor(t/3600),first=h!==ph;ph=h;
     const o=tr.op,fo=o?fmOf(o.key):null;
-    return `<tr data-t="${tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(tr)}"><b>${String(Math.floor(t%3600/60)).padStart(2,'0')}</b></td><td>${tr.dir?'上り':'下り'}</td><td><span class="ab" style="background:${ccol(tr)};color:${ink(ccol(tr))}">${esc((M.types[tr.ty]||{ab:''}).ab)}</span>${esc(M.st[tr.route[tr.ls].s].name)}行</td><td>${esc(tr.name)}</td><td>${o?esc(o.name):''}</td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><b>${esc(fo.f)}</b></span>`:''}</td></tr>`}).join('')}</table>`}
+    return `<tr data-t="${tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(tr)}"><b>${String(Math.floor(t%3600/60)).padStart(2,'0')}:${String(Math.floor(t%60)).padStart(2,'0')}</b></td><td>${tr.dir?'上り':'下り'}</td><td><span class="ab" style="background:${ccol(tr)};color:${ink(ccol(tr))}">${esc((M.types[tr.ty]||{ab:''}).ab)}</span>${esc(M.st[tr.route[tr.ls].s].name)}行</td><td>${esc(tr.name)}</td><td>${o?esc(o.name):''}</td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><b>${esc(fo.f)}</b></span>`:''}</td></tr>`}).join('')}</table>`}
 const tmVal=v=>{const m=/^(\d{1,2}):(\d{2})/.exec(v||'');return m?+m[1]*60+ +m[2]:null};
 $('#pv').addEventListener('click',e=>{
   const d=e.target.closest('[data-pd]');if(d){ptDir=d.dataset.pd;renderPt();return}
@@ -897,10 +905,207 @@ $('#pv').addEventListener('change',e=>{
   if(t.id==='pftime'){ptFrom=tmVal(t.value);renderPtTable();return}
   if(t.id==='pttime'){ptTo=tmVal(t.value);renderPtTable();return}
   if(t.id==='pfm'){ptFm=t.value;renderPtTable();return}
-  if(t.id==='pkm'){const edge=edgeList().find(x=>x.key===ptEdge),km=edge?segKmFor(edge):null;
+  if(t.id==='pkm'){const edge=edgeList().find(x=>x.key===ptEdge),kmo=edge?ptKmFor(edge):null,km=kmo?kmo.km:null;
     if(km){const v=Math.max(0,Math.min(km,parseFloat(t.value)||0));ptFrac=v/km;$('#pslider').value=Math.round(ptFrac*1000);updatePtPos(edge);renderPtTable()}return}});
 $('#pv').addEventListener('input',e=>{
   if(e.target.id==='pslider'){ptFrac=+e.target.value/1000;const edge=edgeList().find(x=>x.key===ptEdge);updatePtPos(edge);renderPtTable()}});
+
+
+// ---- 本物の地図(Leaflet + OpenStreetMap)から地点を選ぶ ----
+// 駅の座標は OpenStreetMap(Nominatim) で調べたもの(天神・赤坂・福吉は隣の駅からの内挿)。
+// はじめは駅と駅を直線で結んだ折れ線で、駅間の距離は直線距離になる。
+// 地図を開いたときに OpenStreetMap(Overpass)から線路の形を取りに行って、取れたら線路に沿った距離に切り替える(取れなければ直線のまま)。
+const GEO_STATIONS={"貝塚":[33.6351339,130.4250583],"箱崎九大前":[33.6214621,130.4205338],"箱崎宮前":[33.6151878,130.4198606],"馬出九大病院前":[33.6099223,130.4198612],"千代県庁口":[33.6022343,130.4140797],"呉服町":[33.5979652,130.4097225],"中洲川端":[33.5948699,130.4062094],"福岡空港":[33.5973227,130.448182],"東比恵":[33.5898296,130.4312915],"博多":[33.5900413,130.4199026],"祇園":[33.5943367,130.4143171],"天神":[33.5903,130.402],"赤坂":[33.5902,130.3909],"大濠公園":[33.590105,130.3787604],"唐人町":[33.5902206,130.370243],"西新":[33.5837344,130.3594592],"藤崎":[33.5813608,130.3483351],"室見":[33.5806373,130.3400153],"姪浜":[33.5840695,130.3253471],"下山門":[33.5818916,130.3080639],"今宿":[33.5793544,130.2736272],"九大学研都市":[33.5781634,130.2598996],"周船寺":[33.5707876,130.24627],"波多江":[33.5641556,130.2268978],"糸島高校前":[33.5607018,130.2133204],"筑前前原":[33.5571401,130.1992925],"美咲が丘":[33.5499248,130.1855539],"加布里":[33.5433486,130.1763314],"一貴山":[33.5343647,130.1682121],"筑前深江":[33.5150331,130.1394483],"大入":[33.5088943,130.1060468],"福吉":[33.498,130.0799],"鹿家":[33.4843844,130.0474654],"浜崎":[33.4467721,130.0364636],"虹ノ松原":[33.4410618,130.0162027],"東唐津":[33.4394053,129.9968487],"和多田":[33.4369348,129.9807718],"唐津":[33.4462729,129.9677507],"西唐津":[33.4616571,129.9576107]};
+const GEO={lines:null,mode:'chord'};
+function geoCoord(i){const c=GEO_STATIONS[M.st[i].name];return c?{lat:c[0],lon:c[1]}:null}
+function havM(a,b){ // 2点間の距離(m)
+  const R=6371000,p1=a.lat*Math.PI/180,p2=b.lat*Math.PI/180,dp=p2-p1,dl=(b.lon-a.lon)*Math.PI/180;
+  const h=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
+function geoLineFromStations(){ // 駅の座標を結んだ折れ線。線路でつながっていない駅の組(分岐の切れ目)で線を分ける
+  const lines=[];let cur=[];
+  const flush=()=>{if(cur.length>1)lines.push(cur);cur=[]};
+  for(let i=0;i<M.st.length;i++){
+    const c=geoCoord(i);
+    if(!c){flush();continue}
+    cur.push({lat:c.lat,lon:c.lon,si:i});
+    if(i<M.st.length-1){const u=M.cn(i),v=M.cn(i+1);if(!(M.adj.get(u)||new Set()).has(v))flush()}}
+  flush();return lines}
+function geoCum(pts){ // 折れ線の各頂点までの、始点からの距離(m)
+  const cum=[0];for(let k=1;k<pts.length;k++)cum.push(cum[k-1]+havM(pts[k-1],pts[k]));return cum}
+function geoSetLines(ptsLines){GEO.lines=ptsLines.map(pts=>({pts,cum:geoCum(pts)}))}
+function geoInit(){if(!GEO.lines)geoSetLines(geoLineFromStations());return GEO.lines.length>0}
+function geoSnap(lat,lon){ // 地図上の点を、路線の一番近い場所に吸着させる。路線から300mより離れていたら null
+  if(!geoInit())return null;let best=null;
+  for(const L of GEO.lines){
+    for(let k=0;k<L.pts.length-1;k++){
+      const A=L.pts[k],B=L.pts[k+1];
+      const mx=(A.lat+B.lat)/2,kx=111320*Math.cos(mx*Math.PI/180),ky=110540;
+      const ax=A.lon*kx,ay=A.lat*ky,bx=B.lon*kx,by=B.lat*ky,px=lon*kx,py=lat*ky;
+      const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;if(!L2)continue;
+      let f=((px-ax)*dx+(py-ay)*dy)/L2;f=Math.max(0,Math.min(1,f));
+      const d=Math.hypot(px-(ax+dx*f),py-(ay+dy*f));
+      if(!best||d<best.d)best={d,lat:A.lat+(B.lat-A.lat)*f,lon:A.lon+(B.lon-A.lon)*f,along:L.cum[k]+(L.cum[k+1]-L.cum[k])*f,line:L}}}
+  if(!best||best.d>300)return null;
+  const L=best.line,sts=[];
+  for(let k=0;k<L.pts.length;k++){const si=L.pts[k].si;if(si==null||si<0)continue;
+    const u=M.cn(si);if(sts.length&&sts[sts.length-1].u===u)continue;sts.push({u,cum:L.cum[k]})}
+  if(sts.length<2)return null;
+  let i=-1;
+  for(let k=0;k<sts.length-1;k++)if(best.along>=sts[k].cum-1e-9&&best.along<=sts[k+1].cum+1e-9){i=k;break}
+  if(i<0)return null;
+  const segLen=sts[i+1].cum-sts[i].cum;if(segLen<=0)return null;
+  return{lat:best.lat,lon:best.lon,u:sts[i].u,v:sts[i+1].u,frac:(best.along-sts[i].cum)/segLen,distFromFirst:best.along-sts[i].cum,segLen}}
+function geoKmFor(edge){ // 地図から測った駅間の距離(km)。線路に沿った形が取れていれば、その距離。なければ直線距離
+  if(!geoInit())return null;
+  for(const L of GEO.lines){
+    let k1=-1,k2=-1;
+    for(let k=0;k<L.pts.length;k++){const si=L.pts[k].si;if(si==null||si<0)continue;const u=M.cn(si);
+      if(u===edge.u)k1=k;if(u===edge.v)k2=k}
+    if(k1>=0&&k2>=0&&k1!==k2)return +(Math.abs(L.cum[k2]-L.cum[k1])/1000).toFixed(1)}
+  return null}
+function ptKmFor(edge){ // 通過時刻表で使う区間の距離(km)と、その出どころ。管理者の設定が最優先
+  if(!edge)return{km:null,src:null};
+  const ak=segKmFor(edge);if(ak)return{km:ak,src:'admin'};
+  const gk=geoKmFor(edge);if(gk)return{km:gk,src:'geo'};
+  return{km:null,src:null}}
+// ---- 地図の表示 ----
+let gmMap=null,gmLayer=null,gmPin=null,gmPick=null;
+function gmLoadLeaflet(){ // Leafletを読み込む(初回だけ)
+  return new Promise(res=>{
+    if(window.L){res(true);return}
+    const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
+    sc.onload=()=>res(!!window.L);sc.onerror=()=>res(false);document.head.appendChild(sc);
+    const lk=document.createElement('link');lk.rel='stylesheet';lk.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(lk)})}
+function gmDraw(){ // 路線と駅を地図に描く
+  if(!gmMap)return;
+  if(gmLayer){gmMap.removeLayer(gmLayer);gmLayer=null}
+  gmLayer=L.layerGroup();
+  for(const Ln of GEO.lines){
+    const pts=Ln.pts.map(p=>[p.lat,p.lon]);
+    L.polyline(pts,{color:'#1976d2',weight:5,opacity:0.9}).addTo(gmLayer);
+    for(const p of Ln.pts)if(p.si!=null&&p.si>=0)
+      L.circleMarker([p.lat,p.lon],{radius:5,color:'#fff',weight:2,fillColor:'#1976d2',fillOpacity:1}).addTo(gmLayer).bindTooltip(M.st[p.si].name)}
+  gmLayer.addTo(gmMap)}
+async function gmOpen(){
+  show('#pv',false);show('#gm',true);
+  const msg=$('#gmmsg');
+  if(!geoInit()){msg.textContent='この路線の駅の位置が分からないため、地図を出せません';return}
+  if(!await gmLoadLeaflet()){msg.textContent='地図を読み込めませんでした(通信を確認してください)。スライダーで地点を選んでください';return}
+  if(!gmMap){
+    let all=[];for(const Ln of GEO.lines)for(const p of Ln.pts)all.push([p.lat,p.lon]);
+    gmMap=L.map('gmap',{zoomControl:true});
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(gmMap);
+    gmMap.fitBounds(L.latLngBounds(all).pad(0.1));
+    gmDraw();
+    gmMap.on('click',e=>gmTap(e.latlng));
+  }
+  setTimeout(()=>{if(gmMap)gmMap.invalidateSize()},60);
+  gmTryTrack()}
+function gmTap(ll){
+  const s=geoSnap(ll.lat,ll.lng),msg=$('#gmmsg'),go=$('#gmgo'),di=$('#gmdist');
+  if(!s){msg.textContent='路線の上をタップしてください(路線から300m以上離れています)';go.disabled=true;di.textContent='';gmPick=null;return}
+  const edge=edgeList().find(e=>(e.u===s.u&&e.v===s.v)||(e.u===s.v&&e.v===s.u));
+  if(!edge){msg.textContent='この場所は区間として選べません';go.disabled=true;di.textContent='';gmPick=null;return}
+  const frac=edge.u===s.u?s.frac:1-s.frac;
+  const distFromA=edge.u===s.u?s.distFromFirst:s.segLen-s.distFromFirst;
+  gmPick={edge:edge.key,frac};
+  if(gmPin)gmPin.setLatLng([s.lat,s.lon]);
+  else gmPin=L.marker([s.lat,s.lon],{icon:L.divIcon({className:'',html:'<div style="width:18px;height:18px;border-radius:50%;background:#d32f2f;border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.4)"></div>',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(gmMap);
+  const kmo=ptKmFor(edge);
+  const shownKm=kmo.km!=null?+(frac*kmo.km).toFixed(2):+(distFromA/1000).toFixed(2);
+  const segKm=kmo.km!=null?kmo.km:+(s.segLen/1000).toFixed(2);
+  msg.textContent=`${stName(edge.a)} → ${stName(edge.b)}：${stName(edge.a)}から ${shownKm} km（区間 ${segKm} km の ${Math.round(frac*100)}%）`;
+  di.textContent=GEO.mode==='track'?'線路に沿った距離で計算しています':'駅同士の直線距離で計算しています';
+  go.disabled=false}
+function gmGo(){
+  if(!gmPick)return;
+  ptEdge=gmPick.edge;ptFrac=gmPick.frac;
+  show('#gm',false);showView('pt')}
+function gmTrackEligible(){ // この路線の駅が、埋め込みの座標表と一致するときだけ、線路の形を取りに行く
+  return M&&M.st.every(s=>GEO_STATIONS[s.name])}
+async function gmTryTrack(){ // OpenStreetMap(Overpass)から線路の形を取りに行く。取れなければ直線のまま
+  if(GEO.mode==='track'||!gmTrackEligible())return;
+  try{
+    const key='fukuchika-track-v1';
+    try{const c=localStorage.getItem(key);if(c&&gmApplyTrack(JSON.parse(c)))return}catch(e){}
+    const q='[out:json][timeout:25];(relation["route"="subway"]["name"~"空港線|箱崎線"](33.4,129.9,33.7,130.5);relation["route"="train"]["name"~"筑肥線"](33.4,129.9,33.7,130.5););out geom;';
+    const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),12000);
+    const r=await fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(q),{signal:ctl.signal});
+    clearTimeout(to);if(!r.ok)return;
+    const j=await r.json();
+    if(gmApplyTrack(j)){try{localStorage.setItem(key,JSON.stringify(j))}catch(e){}}
+  }catch(e){/* 取れなければ直線のまま */}}
+function gmApplyTrack(j){ // Overpassの結果から、線路に沿った折れ線を作る。おかしな形なら false(直線のまま)
+  try{
+    const rels=(j.elements||[]).filter(e=>e.type==='relation');
+    if(!rels.length)return false;
+    const raw=[];
+    for(const rel of rels){
+      let pts=[];
+      for(const m of rel.members||[]){
+        if(m.type!=='way'||!Array.isArray(m.geometry)||m.geometry.length<2)continue;
+        let g=m.geometry.map(p=>({lat:p.lat,lon:p.lon,si:-1}));
+        if(pts.length){
+          const last=pts[pts.length-1];
+          if(havM(last,g[g.length-1])<havM(last,g[0]))g.reverse();
+          if(havM(last,g[0])>200)continue; // つながっていないwayは飛ばす
+          if(havM(last,g[0])<1)g.shift();
+        }
+        pts=pts.concat(g);
+      }
+      if(pts.length>=3)raw.push(pts);
+    }
+    if(!raw.length)return false;
+    const lines=[];
+    for(let pts of raw){
+      const stIdx=[];
+      for(let i=0;i<M.st.length;i++){
+        const c=geoCoord(i);if(!c)continue;
+        let best=-1,bd=1e9;
+        for(let k=0;k<pts.length;k++){const d=havM(c,pts[k]);if(d<bd){bd=d;best=k}}
+        if(bd<=150)stIdx.push({k:best,si:i});
+      }
+      stIdx.sort((a,b)=>a.k-b.k||a.si-b.si);
+      // 同じ点に複数の駅番号があるとき(分岐で重複する中洲川端など)は、前の駅の番号に一番近いものを残す
+      const ded=[];
+      for(let j=0;j<stIdx.length;j++){
+        const grp=[stIdx[j]];
+        while(j+1<stIdx.length&&stIdx[j+1].k===stIdx[j].k)grp.push(stIdx[++j]);
+        const prev=ded.length?ded[ded.length-1].si:null;
+        let pick=grp[0];
+        if(prev!=null)for(const g of grp)if(Math.abs(g.si-prev)<Math.abs(pick.si-prev))pick=g;
+        ded.push(pick);
+      }
+      if(ded.length<2)continue;
+      const cum=geoCum(pts);
+      ded.forEach(s=>s.along=cum[s.k]);
+      const asc=ded.every((s,k)=>k===0||s.si>ded[k-1].si);
+      const desc=ded.every((s,k)=>k===0||s.si<ded[k-1].si);
+      if(!asc&&!desc)continue;
+      if(desc){
+        pts=pts.slice().reverse();
+        const nc=geoCum(pts);
+        ded.forEach(s=>{s.k=pts.length-1-s.k;s.along=nc[s.k]});
+        ded.reverse();
+      }
+      for(const s of ded)pts[s.k].si=s.si;
+      lines.push(pts);
+    }
+    if(!lines.length)return false;
+    const onLine=new Set();
+    for(const pts of lines)for(const p of pts)if(p.si!=null&&p.si>=0)onLine.add(M.cn(p.si));
+    const need=new Set(M.st.map((s,i)=>M.cn(i)));
+    if(![...need].every(u=>onLine.has(u)))return false;
+    const chord=geoLineFromStations().reduce((t,L)=>t+geoCum(L).slice(-1)[0],0);
+    const track=lines.reduce((t,pts)=>t+geoCum(pts).slice(-1)[0],0);
+    if(!(track>chord*0.8&&track<chord*1.35))return false;
+    geoSetLines(lines);GEO.mode='track';
+    if(gmMap){gmDraw();const m=$('#gmdist');if(m&&gmPick)m.textContent='線路に沿った距離で計算しています'}
+    return true;
+  }catch(e){return false}}
+$('#gmopen').onclick=()=>gmOpen();
+$('#gmback').onclick=()=>{show('#gm',false);showView('pt')};
+$('#gmgo').onclick=gmGo;
 
 
 // ---- 路線ごとの詳細設定(<路線名>.config.json) ----
@@ -1151,6 +1356,10 @@ const scopeName=()=>!adm.scope||adm.scope==='common'?'全ダイヤ共通':adm.sc
 
 function admOpen(tab){if(!isAdmin||!M)return;if(!adm)admInit();if(adm.scope!=='common'&&!M.dias.some(d=>d.name===adm.scope))adm.scope=M.dias[M.cur].name;if(tab)adm.tab=tab;showView('adm')}
 function stNames(){const seen=new Set(),cnt=new Map(),out=[];M.st.forEach((s,i)=>{const u=M.cn(i);if(seen.has(u))return;seen.add(u);const k=(cnt.get(s.name)||0)+1;cnt.set(s.name,k);out.push(k>1?s.name+'#'+k:s.name)});return out}
+function stName(i){ // 駅番号から、その駅の表示名。stNames() は重複を除いた一覧なので、駅番号で引くと1駅ずれる(中洲川端の重複が原因)。同じ名前の駅が別々にあれば「名前#2」のように区別する
+  const name=M.st[i].name;let k=0;const seen=new Set();
+  for(let j=0;j<=i;j++){if(M.st[j].name!==name)continue;const u=M.cn(j);if(seen.has(u))continue;seen.add(u);k++}
+  return k>1?name+'#'+k:name}
 const curKeys=()=>(cur.ops||[]).map(o=>o.key);
 const diaKeys=dn=>{const d=M.dias.find(x=>x.name===dn);if(!d)return[];const ks=[];for(const t of d.trains||[])if(t.op&&!ks.includes(t.op.key))ks.push(t.op.key);return ks};
 const scopeKeys=()=>{const s=adm.scope;return !s||s==='common'?curKeys():diaKeys(s)};
@@ -1223,11 +1432,11 @@ function edgeList(){ // 路線図のつながりで、隣り合う駅の組(分�
     if(!(M.adj.get(u)||new Set()).has(v))continue;
     const k=ekey(u,v);if(seen.has(k))continue;seen.add(k);out.push({a:i,b:i+1,u,v,key:k})}
   return out}
-function admDist(){const names=stNames(),E=edgeList(),D=adm.draft.distances||[];
-  const val=(a,b)=>{const e=D.find(x=>x.from===names[a]&&x.to===names[b]);return e?e.km:''};
+function admDist(){const E=edgeList(),D=adm.draft.distances||[];
+  const val=(a,b)=>{const e=D.find(x=>x.from===stName(a)&&x.to===stName(b));return e?e.km:''};
   const tot=D.reduce((s,x)=>s+(+x.km||0),0);
-  return `<p class="mute">駅と駅のあいだの距離です。通過時刻表で、駅と駅のあいだの好きな地点の時刻を出すときに使います。距離を入れていない区間は、割合(%)で地点を指定します</p>
-  ${E.map(({a,b})=>`<div class="orow"><span style="flex:1;min-width:0">${esc(names[a])} → ${esc(names[b])}</span><input type="number" min="0" max="200" step="0.1" data-dk="${esc(names[a])}|${esc(names[b])}" value="${esc(val(a,b))}" placeholder="km" style="width:6.5em" aria-label="${esc(names[a])}から${esc(names[b])}までの距離(km)"><span class="mute">km</span></div>`).join('')||'<div class="mute">区間がありません</div>'}
+  return `<p class="mute">駅と駅のあいだの距離です。通過時刻表で、駅と駅のあいだの好きな地点の時刻を出すときに使います。距離を入れていない区間は、地図から測った直線距離で計算します</p>
+  ${E.map(({a,b})=>`<div class="orow"><span style="flex:1;min-width:0">${esc(stName(a))} → ${esc(stName(b))}</span><input type="number" min="0" max="200" step="0.1" data-dk="${esc(stName(a))}|${esc(stName(b))}" value="${esc(val(a,b))}" placeholder="km" style="width:6.5em" aria-label="${esc(stName(a))}から${esc(stName(b))}までの距離(km)"><span class="mute">km</span></div>`).join('')||'<div class="mute">区間がありません</div>'}
   <p class="mute">設定済みの合計: ${tot?tot.toFixed(1)+' km':'—'}</p>`}
 // ---- 運用(自作) ----
 let admIx=new Map();
