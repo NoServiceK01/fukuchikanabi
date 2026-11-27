@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src https://fonts.gstatic.com; img-src data: blob: https://*.tile.openstreetmap.org; connect-src https://*.supabase.co https://overpass-api.de; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; font-src https://fonts.gstatic.com; img-src data: blob: https://*.tile.openstreetmap.org https://*.basemaps.cartocdn.com; connect-src https://*.supabase.co https://overpass-api.de; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#16427f">
 <title>フクチカナビ</title>
@@ -112,6 +112,7 @@ header .pri{background:#fff;color:var(--hd);border-color:#fff}
 .stt th{font-size:11px;color:var(--mute);text-align:left;font-weight:400;padding:4px 6px}
 .stt td{padding:5px 6px;white-space:nowrap;vertical-align:top}.stt tr.hh td{border-top:2px solid var(--rule)}
 .stt td b{font-size:19px;font-variant-numeric:tabular-nums}.stt small{display:block;font-size:10px;color:var(--mute)}
+.gmpop{border-collapse:collapse;font-size:13px;margin-top:4px;width:100%}.gmpop th,.gmpop td{padding:2px 6px 2px 0;text-align:left;white-space:nowrap;font-weight:400}.gmpop th{color:var(--mute);font-size:11px}.gmpop td b{font-variant-numeric:tabular-nums}
 .ab{display:inline-block;min-width:2.4em;padding:0 5px;height:20px;border-radius:5px;text-align:center;font-size:11px;font-weight:700;line-height:20px;vertical-align:-3px;margin-right:4px;white-space:nowrap}
 #dbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:10px 14px}
 #dbar button{min-height:36px;min-width:36px;font-size:18px}#dbar #dtoday{font-size:14px}
@@ -200,7 +201,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <div id="pbody" style="padding:0 14px 100px"></div></section>
 <div id="gm" class="hide"><div class="bar" style="padding-bottom:0"><button id="gmback">‹ 通過時刻表に戻る</button><b style="font-size:16px">地図から地点を選ぶ</b></div>
 <div id="gmap" style="height:62vh;min-height:340px;margin:8px 14px 0;border:1px solid var(--bd);border-radius:12px;overflow:hidden"></div>
-<div class="bar" style="padding-top:6px"><span id="gmmsg" class="mute">路線の上をタップすると、ピンを置きます</span></div>
+<div class="bar" style="padding-top:6px"><span id="gmmsg" class="mute">路線の上をタップすると、ピンを置きます</span><button id="gmretry" class="hide">再試行する</button></div>
 <div class="bar" style="padding-top:0;padding-bottom:100px"><button id="gmgo" class="pri" disabled>この地点の通過時刻表を見る</button><span id="gmdist" class="mute"></span></div></div>
 <section id="adm" class="hide"></section>
 <section id="ov" class="hide"></section>
@@ -263,7 +264,7 @@ function setup(root,name){
   }
   st.forEach((_,i)=>{pos[i]={...node[cn(i)],copy:cn(i)!==i,id:cn(i)}});
     const types=(R.Ressyasyubetsu||[]).map(t=>({name:t.Syubetsumei,ini:[...(t.Ryakusyou||t.Syubetsumei||'?')][0],ab:t.Ryakusyou||[...(t.Syubetsumei||'?')][0],col:col(t.DiagramSenColor||t.JikokuhyouMojiColor)}));
-  M={st,pos,conn,rows,maxLane,types,adj,cn,dias:(R.Dia||[]).map(d=>({name:d.DiaName||'ダイヤ',d,trains:null})),name:name||R.Rosenmei||'',kiten:(()=>{const k=tm(R.KitenJikoku);return k>0?k:14400})()};
+  M={st,pos,conn,rows,maxLane,types,adj,cn,cut,dias:(R.Dia||[]).map(d=>({name:d.DiaName||'ダイヤ',d,trains:null})),name:name||R.Rosenmei||'',kiten:(()=>{const k=tm(R.KitenJikoku);return k>0?k:14400})()};
   // --- 駅名・停車種別の文字幅から各レーンの位置と全体の幅を決める(駅名と列車アイコンが重ならないように) ---
   // 本線(レーン0)の文字は線の左側、分岐レーンの文字は線の右側。列車アイコンは線から26pxの位置で、
   // 同じ駅に列車が重なって寄る場合は34pxさらに外側(合計で約78pxまで)に出る
@@ -842,6 +843,20 @@ function ptRows(edge,frac){ // 方向と時刻で絞ったあとの、(通過時
     else{if(ptFrom!=null&&m<ptFrom)continue;if(ptTo!=null&&m>ptTo)continue}
     out.push({t,tr})}
   out.sort((a,b)=>a.t-b.t);return out}
+function hhmmss(t){return String(Math.floor(t/3600)%24).padStart(2,'0')+':'+String(Math.floor(t%3600/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0')}
+function ptNext(edge,frac,n){ // 今から先の n 本の通過列車(両方向)。(時刻, 列車)。3時間先まで
+  const now=nowSvc().T,lim=now+3*3600,out=[];
+  for(const tr of cur){const t=ptPassTime(tr,edge,frac);if(t==null||t<now-60||t>lim)continue;out.push({t,tr})}
+  out.sort((a,b)=>a.t-b.t);return out.slice(0,n)}
+function ptPopupHtml(){ // 地図のピンに付けるポップアップ: この地点の、この先の通過時刻
+  if(!gmPick)return '地点が選ばれていません';
+  const edge=edgeList().find(e=>e.key===gmPick.edge);if(!edge)return '地点が選ばれていません';
+  const kmo=ptKmFor(edge);
+  const head=`<b>${esc(stName(edge.a))} → ${esc(stName(edge.b))}</b>${kmo.km?`（${esc(stName(edge.a))}から ${+(gmPick.frac*kmo.km).toFixed(1)} km）`:''}`;
+  const L=ptNext(edge,gmPick.frac,8);
+  if(!L.length)return head+'<div class="mute">この先3時間に通過する列車はありません</div>';
+  const rows=L.map(({t,tr})=>`<tr><td><b>${hhmmss(t)}</b></td><td>${tr.dir?'上り':'下り'}</td><td>${esc(M.st[tr.route[tr.ls].s].name)}行</td><td>${esc(tr.name)}</td></tr>`).join('');
+  return head+`<table class="gmpop"><tr><th>時刻</th><th>方向</th><th>行先</th><th>列車</th></tr>${rows}</table><button data-gmgo2 class="pri" style="margin-top:6px">通過時刻表を詳しく見る</button>`}
 function nearestSeg(px,py){ // 地図上の点に一番近い区間と、その区間の中での割合。路線から離れすぎているときは null
   let best=null;
   for(const e of edgeList()){const A=P(e.a),B=P(e.b),dx=B.x-A.x,dy=B.y-A.y,L2=dx*dx+dy*dy;
@@ -872,8 +887,8 @@ function updatePtPos(edge){
   $('#pfrom').textContent=stName(edge.a);$('#pto').textContent=stName(edge.b);
   if(km){const v=+(ptFrac*km).toFixed(1);ki.disabled=false;ki.value=v;ki.max=km;
     $('#ppos').textContent=`${stName(edge.a)}から ${v} km（区間 ${km} km の ${pct}%）`;
-    if(kmo.src==='geo'){$('#pnote').textContent='地図から測った駅間の直線距離で計算しています。管理者画面の「駅間の距離」で実際の距離を入れると、そちらが使われます';nb.style.display=''}
-    else{$('#pnote').textContent='';nb.style.display='none'}}
+    if(kmo.src==='admin'){$('#pnote').textContent='';nb.style.display='none'}
+    else{$('#pnote').textContent=geoModeText(kmo.src)+'。管理者画面の「駅間の距離」で実際の距離を入れると、そちらが使われます';nb.style.display=''}}
   else{ki.disabled=true;ki.value='';
     $('#ppos').textContent=`${stName(edge.a)}から ${pct}%`;$('#pnote').textContent='この区間の距離が未設定のため、割合で指定しています。管理者画面の「駅間の距離」で距離を設定すると、km で指定できます';nb.style.display=''}}
 function renderPtTable(){
@@ -917,34 +932,71 @@ $('#pv').addEventListener('input',e=>{
 // 地図を開いたときに OpenStreetMap(Overpass)から線路の形を取りに行って、取れたら線路に沿った距離に切り替える(取れなければ直線のまま)。
 const GEO_STATIONS={"貝塚":[33.6351339,130.4250583],"箱崎九大前":[33.6214621,130.4205338],"箱崎宮前":[33.6151878,130.4198606],"馬出九大病院前":[33.6099223,130.4198612],"千代県庁口":[33.6022343,130.4140797],"呉服町":[33.5979652,130.4097225],"中洲川端":[33.5948699,130.4062094],"福岡空港":[33.5973227,130.448182],"東比恵":[33.5898296,130.4312915],"博多":[33.5900413,130.4199026],"祇園":[33.5943367,130.4143171],"天神":[33.5903,130.402],"赤坂":[33.5902,130.3909],"大濠公園":[33.590105,130.3787604],"唐人町":[33.5902206,130.370243],"西新":[33.5837344,130.3594592],"藤崎":[33.5813608,130.3483351],"室見":[33.5806373,130.3400153],"姪浜":[33.5840695,130.3253471],"下山門":[33.5818916,130.3080639],"今宿":[33.5793544,130.2736272],"九大学研都市":[33.5781634,130.2598996],"周船寺":[33.5707876,130.24627],"波多江":[33.5641556,130.2268978],"糸島高校前":[33.5607018,130.2133204],"筑前前原":[33.5571401,130.1992925],"美咲が丘":[33.5499248,130.1855539],"加布里":[33.5433486,130.1763314],"一貴山":[33.5343647,130.1682121],"筑前深江":[33.5150331,130.1394483],"大入":[33.5088943,130.1060468],"福吉":[33.498,130.0799],"鹿家":[33.4843844,130.0474654],"浜崎":[33.4467721,130.0364636],"虹ノ松原":[33.4410618,130.0162027],"東唐津":[33.4394053,129.9968487],"和多田":[33.4369348,129.9807718],"唐津":[33.4462729,129.9677507],"西唐津":[33.4616571,129.9576107]};
 const GEO={lines:null,mode:'chord'};
-function geoCoord(i){const c=GEO_STATIONS[M.st[i].name];return c?{lat:c[0],lon:c[1]}:null}
+function geoCoord(i){const sc=M.cfg&&M.cfg.stationCoords&&M.cfg.stationCoords[M.st[i].name];if(sc)return{lat:sc[0],lon:sc[1]};const c=GEO_STATIONS[M.st[i].name];return c?{lat:c[0],lon:c[1]}:null}
 function havM(a,b){ // 2点間の距離(m)
   const R=6371000,p1=a.lat*Math.PI/180,p2=b.lat*Math.PI/180,dp=p2-p1,dl=(b.lon-a.lon)*Math.PI/180;
   const h=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;return 2*R*Math.asin(Math.sqrt(h))}
-function geoLineFromStations(){ // 駅の座標を結んだ折れ線。線路でつながっていない駅の組(分岐の切れ目)で線を分ける
+function geoProjOnLine(c,pts,cum){ // 点 c を折れ線(pts, 各頂点までの距離 cum)上に射影する。{線からの距離d, 始点からの距離along, 区間の番号k, 区間内の割合frac, 射影点の緯度経度}
+  let best=null;
+  for(let k=0;k<pts.length-1;k++){
+    const A=pts[k],B=pts[k+1];
+    const mx=(A.lat+B.lat)/2,kx=111320*Math.cos(mx*Math.PI/180),ky=110540;
+    const ax=A.lon*kx,ay=A.lat*ky,bx=B.lon*kx,by=B.lat*ky,px=c.lon*kx,py=c.lat*ky;
+    const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;if(!L2)continue;
+    let f=((px-ax)*dx+(py-ay)*dy)/L2;f=Math.max(0,Math.min(1,f));
+    const d=Math.hypot(px-(ax+dx*f),py-(ay+dy*f));
+    if(!best||d<best.d)best={d,along:cum[k]+(cum[k+1]-cum[k])*f,k,frac:f,lat:A.lat+(B.lat-A.lat)*f,lon:A.lon+(B.lon-A.lon)*f}}
+  return best}
+function geoModeText(src){return src==='custom'?'管理者が引いた線路に沿った距離で計算しています':src==='track'?'線路に沿った距離で計算しています':'駅同士の直線距離で計算しています'}
+function geoLineFromStations(){ // 駅の座標を結んだ折れ線。線路でつながっていない駅の組(分岐の切れ目)で線を分ける。切れ目は、駅リストの番号で見る(同じ駅の別々の番号が、別の区間でもつながっていることがあるため、駅のつながりだけでは分からない)
   const lines=[];let cur=[];
   const flush=()=>{if(cur.length>1)lines.push(cur);cur=[]};
   for(let i=0;i<M.st.length;i++){
     const c=geoCoord(i);
     if(!c){flush();continue}
     cur.push({lat:c.lat,lon:c.lon,si:i});
-    if(i<M.st.length-1){const u=M.cn(i),v=M.cn(i+1);if(!(M.adj.get(u)||new Set()).has(v))flush()}}
+    if(i<M.st.length-1){const u=M.cn(i),v=M.cn(i+1);if(!(M.adj.get(u)||new Set()).has(v)||(M.cut&&M.cut.has(i+'_'+(i+1))))flush()}}
   flush();return lines}
 function geoCum(pts){ // 折れ線の各頂点までの、始点からの距離(m)
   const cum=[0];for(let k=1;k<pts.length;k++)cum.push(cum[k-1]+havM(pts[k-1],pts[k]));return cum}
-function geoSetLines(ptsLines){GEO.lines=ptsLines.map(pts=>({pts,cum:geoCum(pts)}))}
-function geoInit(){if(!GEO.lines)geoSetLines(geoLineFromStations());return GEO.lines.length>0}
+function geoSetLines(ptsLines,src){GEO.lines=ptsLines.map(pts=>({pts,cum:geoCum(pts),src:src||'chord'}));GEO.mode=src||'chord'}
+function geoInit(){ // 管理者が引いた線があればそれを使う。なければ駅を直線で結んだ線
+  if(!GEO.lines){
+    const tl=M.cfg&&M.cfg.trackLines;
+    if(tl&&tl.some(x=>x&&x.length>=2))geoSetCustomLines(tl);
+    else geoSetLines(geoLineFromStations())}
+  return GEO.lines.length>0}
+function geoInsertStations(lines,coordFn){ // 管理者が引いた線(頂点に駅番号がない)に、駅の位置を頂点として入れる。lines は {pts,src} の配列(書き換える)
+  const done=new Set();
+  for(let i=0;i<M.st.length;i++){
+    const u=M.cn(i);if(done.has(u))continue;done.add(u);
+    const c=coordFn(i);if(!c)continue;
+    let best=null;
+    for(let li=0;li<lines.length;li++){
+      const L=lines[li];if(L.src!=='custom')continue;
+      const cum=geoCum(L.pts),pr=geoProjOnLine(c,L.pts,cum);
+      if(pr&&(!best||pr.d<best.d))best={...pr,li}}
+    if(!best)continue;
+    const pts=lines[best.li].pts;
+    let vi=-1;
+    for(let k=0;k<pts.length;k++)if(havM({lat:best.lat,lon:best.lon},pts[k])<1){vi=k;break}
+    if(vi>=0)pts[vi].si=i;
+    else pts.splice(best.k+1,0,{lat:best.lat,lon:best.lon,si:i})}
+  return lines}
+function geoSetCustomLines(raw){ // 管理者が引いた線を、路線の線にする。引いていない線は、駅を直線で結んだものを使う
+  const chord=geoLineFromStations();
+  const lines=chord.map((cl,li)=>{
+    const r=raw[li];
+    if(!r||r.length<2)return{pts:cl,src:'chord'};
+    return{pts:r.map(p=>({lat:p[0],lon:p[1],si:-1})),src:'custom'}});
+  geoInsertStations(lines,i=>geoCoord(i));
+  GEO.lines=lines.map(L=>({pts:L.pts,cum:geoCum(L.pts),src:L.src}));
+  GEO.mode='custom'}
 function geoSnap(lat,lon){ // 地図上の点を、路線の一番近い場所に吸着させる。路線から300mより離れていたら null
   if(!geoInit())return null;let best=null;
   for(const L of GEO.lines){
-    for(let k=0;k<L.pts.length-1;k++){
-      const A=L.pts[k],B=L.pts[k+1];
-      const mx=(A.lat+B.lat)/2,kx=111320*Math.cos(mx*Math.PI/180),ky=110540;
-      const ax=A.lon*kx,ay=A.lat*ky,bx=B.lon*kx,by=B.lat*ky,px=lon*kx,py=lat*ky;
-      const dx=bx-ax,dy=by-ay,L2=dx*dx+dy*dy;if(!L2)continue;
-      let f=((px-ax)*dx+(py-ay)*dy)/L2;f=Math.max(0,Math.min(1,f));
-      const d=Math.hypot(px-(ax+dx*f),py-(ay+dy*f));
-      if(!best||d<best.d)best={d,lat:A.lat+(B.lat-A.lat)*f,lon:A.lon+(B.lon-A.lon)*f,along:L.cum[k]+(L.cum[k+1]-L.cum[k])*f,line:L}}}
+    const pr=geoProjOnLine({lat,lon},L.pts,L.cum);
+    if(pr&&(!best||pr.d<best.d))best={...pr,line:L}}
   if(!best||best.d>300)return null;
   const L=best.line,sts=[];
   for(let k=0;k<L.pts.length;k++){const si=L.pts[k].si;if(si==null||si<0)continue;
@@ -955,27 +1007,54 @@ function geoSnap(lat,lon){ // 地図上の点を、路線の一番近い場所�
   if(i<0)return null;
   const segLen=sts[i+1].cum-sts[i].cum;if(segLen<=0)return null;
   return{lat:best.lat,lon:best.lon,u:sts[i].u,v:sts[i+1].u,frac:(best.along-sts[i].cum)/segLen,distFromFirst:best.along-sts[i].cum,segLen}}
-function geoKmFor(edge){ // 地図から測った駅間の距離(km)。線路に沿った形が取れていれば、その距離。なければ直線距離
+function geoKmFor(edge){ // 地図から測った駅間の距離(km)と、その出どころ。駅の位置を一番近い線に射影して、線に沿った距離を測る。線路に沿った形が取れていれば、その距離。なければ直線距離
   if(!geoInit())return null;
+  const cu=geoCoord(edge.a),cv=geoCoord(edge.b);
+  if(!cu||!cv)return null;
+  let best=null;
   for(const L of GEO.lines){
-    let k1=-1,k2=-1;
-    for(let k=0;k<L.pts.length;k++){const si=L.pts[k].si;if(si==null||si<0)continue;const u=M.cn(si);
-      if(u===edge.u)k1=k;if(u===edge.v)k2=k}
-    if(k1>=0&&k2>=0&&k1!==k2)return +(Math.abs(L.cum[k2]-L.cum[k1])/1000).toFixed(1)}
-  return null}
+    const pu=geoProjOnLine(cu,L.pts,L.cum),pv=geoProjOnLine(cv,L.pts,L.cum);
+    if(!pu||!pv)continue;
+    const score=pu.d+pv.d;
+    if(!best||score<best.score)best={score,L,au:pu.along,av:pv.along}}
+  if(!best||best.score>1000)return null;
+  return{km:+(Math.abs(best.av-best.au)/1000).toFixed(1),src:best.L.src||'chord'}}
 function ptKmFor(edge){ // 通過時刻表で使う区間の距離(km)と、その出どころ。管理者の設定が最優先
   if(!edge)return{km:null,src:null};
   const ak=segKmFor(edge);if(ak)return{km:ak,src:'admin'};
-  const gk=geoKmFor(edge);if(gk)return{km:gk,src:'geo'};
+  const gk=geoKmFor(edge);if(gk)return gk;
   return{km:null,src:null}}
 // ---- 地図の表示 ----
 let gmMap=null,gmLayer=null,gmPin=null,gmPick=null;
-function gmLoadLeaflet(){ // Leafletを読み込む(初回だけ)
-  return new Promise(res=>{
-    if(window.L){res(true);return}
-    const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';
-    sc.onload=()=>res(!!window.L);sc.onerror=()=>res(false);document.head.appendChild(sc);
-    const lk=document.createElement('link');lk.rel='stylesheet';lk.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(lk)})}
+let gmLeafletP=null;
+function gmLoadTag(tag,url,ms){ // script か stylesheet を、時間切れ付きで読み込む。読み込めた要素を返す。だめなら要素を消して失敗する
+  return new Promise((res,rej)=>{
+    const el=document.createElement(tag);
+    if(tag==='script')el.src=url;else{el.rel='stylesheet';el.href=url}
+    let done=false;
+    const to=setTimeout(()=>{if(!done){done=true;el.remove();rej(new Error('timeout'))}},ms);
+    el.onload=()=>{if(!done){done=true;clearTimeout(to);res(el)}};
+    el.onerror=()=>{if(!done){done=true;clearTimeout(to);el.remove();rej(new Error('load fail'))}};
+    document.head.appendChild(el)})}
+async function gmLoadLeaflet(){ // Leafletを読み込む(初回だけ)。jsdelivr がだめなら unpkg を試す。どちらもだめなら false(再試行できるように、失敗したときは覚えておかない)
+  if(window.L)return true;
+  if(gmLeafletP){if(await gmLeafletP)return true;gmLeafletP=null}
+  gmLeafletP=(async()=>{
+    for(const base of ['https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet','https://unpkg.com/leaflet@1.9.4/dist/leaflet']){
+      let lk=null;
+      try{
+        lk=await gmLoadTag('link',base+'.css',10000);
+        await gmLoadTag('script',base+'.js',15000);
+        if(window.L)return true;
+      }catch(e){if(lk)lk.remove()}
+    }
+    return false})();
+  return gmLeafletP}
+function gmTileLayer(onFb){ // OpenStreetMapのタイル。5回以上読み込めなかったら、別の地図(CARTO)に切り替える
+  const tl=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'});
+  let err=0,fb=false;
+  tl.on('tileerror',()=>{err++;if(!fb&&err>=5){fb=true;tl.setUrl('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png');if(onFb)onFb()}});
+  return tl}
 function gmDraw(){ // 路線と駅を地図に描く
   if(!gmMap)return;
   if(gmLayer){gmMap.removeLayer(gmLayer);gmLayer=null}
@@ -988,19 +1067,30 @@ function gmDraw(){ // 路線と駅を地図に描く
   gmLayer.addTo(gmMap)}
 async function gmOpen(){
   show('#pv',false);show('#gm',true);
-  const msg=$('#gmmsg');
+  const msg=$('#gmmsg'),retry=$('#gmretry');
+  if(retry)retry.classList.add('hide');
   if(!geoInit()){msg.textContent='この路線の駅の位置が分からないため、地図を出せません';return}
-  if(!await gmLoadLeaflet()){msg.textContent='地図を読み込めませんでした(通信を確認してください)。スライダーで地点を選んでください';return}
+  if(!window.L)msg.textContent='地図を読み込んでいます…';
+  if(!await gmLoadLeaflet()){msg.textContent='地図を読み込めませんでした。通信が遅いか、地図の読み込みがブロックされているかもしれません。通信環境をご確認のうえ、再試行してください';if(retry)retry.classList.remove('hide');return}
   if(!gmMap){
     let all=[];for(const Ln of GEO.lines)for(const p of Ln.pts)all.push([p.lat,p.lon]);
     gmMap=L.map('gmap',{zoomControl:true});
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(gmMap);
+    gmTileLayer(()=>{const d=$('#gmdist');if(d)d.textContent='地図の読み込みが遅いため、別の地図に切り替えました'}).addTo(gmMap);
     gmMap.fitBounds(L.latLngBounds(all).pad(0.1));
     gmDraw();
     gmMap.on('click',e=>gmTap(e.latlng));
   }
+  if(!gmPick)msg.textContent='路線の上をタップすると、ピンを置きます';
+  else{const pt=gmPickText();if(pt)msg.textContent=pt}
   setTimeout(()=>{if(gmMap)gmMap.invalidateSize()},60);
+  setTimeout(()=>{if(gmMap)gmMap.invalidateSize()},500);
   gmTryTrack()}
+function gmPickText(){ // 選んだ地点の説明文(gmPick だけから作る。再試行のあとにも使える)
+  if(!gmPick)return null;
+  const edge=edgeList().find(e=>e.key===gmPick.edge);if(!edge)return null;
+  const kmo=ptKmFor(edge);
+  if(kmo.km==null)return`${stName(edge.a)} → ${stName(edge.b)}（${Math.round(gmPick.frac*100)}%）`;
+  return`${stName(edge.a)} → ${stName(edge.b)}：${stName(edge.a)}から ${+(gmPick.frac*kmo.km).toFixed(2)} km（区間 ${kmo.km} km の ${Math.round(gmPick.frac*100)}%）`}
 function gmTap(ll){
   const s=geoSnap(ll.lat,ll.lng),msg=$('#gmmsg'),go=$('#gmgo'),di=$('#gmdist');
   if(!s){msg.textContent='路線の上をタップしてください(路線から300m以上離れています)';go.disabled=true;di.textContent='';gmPick=null;return}
@@ -1009,13 +1099,17 @@ function gmTap(ll){
   const frac=edge.u===s.u?s.frac:1-s.frac;
   const distFromA=edge.u===s.u?s.distFromFirst:s.segLen-s.distFromFirst;
   gmPick={edge:edge.key,frac};
-  if(gmPin)gmPin.setLatLng([s.lat,s.lon]);
-  else gmPin=L.marker([s.lat,s.lon],{icon:L.divIcon({className:'',html:'<div style="width:18px;height:18px;border-radius:50%;background:#d32f2f;border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.4)"></div>',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(gmMap);
+  if(!gmPin){
+    gmPin=L.marker([s.lat,s.lon],{icon:L.divIcon({className:'',html:'<div style="width:18px;height:18px;border-radius:50%;background:#d32f2f;border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.4)"></div>',iconSize:[18,18],iconAnchor:[9,9]})}).addTo(gmMap);
+    gmPin.bindPopup(()=>ptPopupHtml(),{maxWidth:320});
+    gmPin.on('popupopen',e=>{const b=e.popup.getElement().querySelector('[data-gmgo2]');if(b)b.onclick=()=>{gmMap.closePopup();gmGo()}})}
+  else gmPin.setLatLng([s.lat,s.lon]);
+  gmPin.openPopup();
   const kmo=ptKmFor(edge);
   const shownKm=kmo.km!=null?+(frac*kmo.km).toFixed(2):+(distFromA/1000).toFixed(2);
   const segKm=kmo.km!=null?kmo.km:+(s.segLen/1000).toFixed(2);
   msg.textContent=`${stName(edge.a)} → ${stName(edge.b)}：${stName(edge.a)}から ${shownKm} km（区間 ${segKm} km の ${Math.round(frac*100)}%）`;
-  di.textContent=GEO.mode==='track'?'線路に沿った距離で計算しています':'駅同士の直線距離で計算しています';
+  di.textContent=kmo.src==='admin'?'管理者画面で設定した駅間の距離で計算しています':geoModeText(kmo.src);
   go.disabled=false}
 function gmGo(){
   if(!gmPick)return;
@@ -1023,8 +1117,8 @@ function gmGo(){
   show('#gm',false);showView('pt')}
 function gmTrackEligible(){ // この路線の駅が、埋め込みの座標表と一致するときだけ、線路の形を取りに行く
   return M&&M.st.every(s=>GEO_STATIONS[s.name])}
-async function gmTryTrack(){ // OpenStreetMap(Overpass)から線路の形を取りに行く。取れなければ直線のまま
-  if(GEO.mode==='track'||!gmTrackEligible())return;
+async function gmTryTrack(){ // OpenStreetMap(Overpass)から線路の形を取りに行く。管理者が線を引いているときは、その線を使うので取りに行かない。取れなければ直線のまま
+  if(GEO.mode==='track'||GEO.mode==='custom'||!gmTrackEligible())return;
   try{
     const key='fukuchika-track-v1';
     try{const c=localStorage.getItem(key);if(c&&gmApplyTrack(JSON.parse(c)))return}catch(e){}
@@ -1099,11 +1193,12 @@ function gmApplyTrack(j){ // Overpassの結果から、線路に沿った折れ�
     const chord=geoLineFromStations().reduce((t,L)=>t+geoCum(L).slice(-1)[0],0);
     const track=lines.reduce((t,pts)=>t+geoCum(pts).slice(-1)[0],0);
     if(!(track>chord*0.8&&track<chord*1.35))return false;
-    geoSetLines(lines);GEO.mode='track';
-    if(gmMap){gmDraw();const m=$('#gmdist');if(m&&gmPick)m.textContent='線路に沿った距離で計算しています'}
+    geoSetLines(lines,'track');
+    if(gmMap){gmDraw();const m=$('#gmdist');if(m&&gmPick)m.textContent=geoModeText('track')}
     return true;
   }catch(e){return false}}
 $('#gmopen').onclick=()=>gmOpen();
+$('#gmretry').onclick=()=>gmOpen();
 $('#gmback').onclick=()=>{show('#gm',false);showView('pt')};
 $('#gmgo').onclick=gmGo;
 
@@ -1146,8 +1241,8 @@ function readCfg(text){ // 検証して、使える設定だけを取り出す�
   const res={cfg:null,errors:[],warns:[]},E=res.errors,W=res.warns;let j;
   try{j=JSON.parse(jsonLoose(text))}catch(e){E.push('JSONとして読めません: '+e.message);return res}
   if(!j||typeof j!=='object'||Array.isArray(j)){E.push('最上位は { } の形にしてください');return res}
-  for(const k of Object.keys(j))if(!['segments','types','distances','groups','operations','order','dias'].includes(k))W.push(`不明な項目「${k}」は無視します`);
-  const cfg={segments:[],types:{},distances:[],distKm:new Map(),common:{operations:[],groups:[],order:[]},dias:{}},arr=(o,k)=>o[k]==null?[]:Array.isArray(o[k])?o[k]:(W.push(`${k} は [ ] の形にしてください`),[]);
+  for(const k of Object.keys(j))if(!['segments','types','distances','groups','operations','order','dias','track','stationCoords'].includes(k))W.push(`不明な項目「${k}」は無視します`);
+  const cfg={segments:[],types:{},distances:[],distKm:new Map(),common:{operations:[],groups:[],order:[]},dias:{},trackLines:[],stationCoords:{}},arr=(o,k)=>o[k]==null?[]:Array.isArray(o[k])?o[k]:(W.push(`${k} は [ ] の形にしてください`),[]);
   const okName=x=>typeof x==='string'&&x.trim()&&x.length<=60;
   const bucket=()=>({operations:[],groups:[],order:[]});
   const parseGroups=(list,dst,lb)=>list.slice(0,100).forEach((g,n)=>{const L=`${lb}[${n+1}]`;
@@ -1178,6 +1273,28 @@ function readCfg(text){ // 検証して、使える設定だけを取り出す�
     const u=M.cn(a.i),v=M.cn(b.i);if(u===v){W.push(`${lb}: 同じ駅どうしの距離は使えません`);return}
     cfg.distances.push({from:String(g.from),to:String(g.to),km:Math.round(km*10)/10});
     cfg.distKm.set(ekey(u,v),Math.round(km*10)/10)}); // あとに書いたものが優先
+  const latlon=p=>Array.isArray(p)&&p.length>=2&&isFinite(+p[0])&&isFinite(+p[1])&&+p[0]>=-90&&+p[0]<=90&&+p[1]>=-180&&+p[1]<=180?[+p[0],+p[1]]:null;
+  if(j.track!=null){ // 管理者が地図で引いた線路の形。線ごとに [緯度, 経度] の並び。null の線は直線のまま
+    if(!Array.isArray(j.track))W.push('track は [ ] の形にしてください');
+    else{const chord=geoLineFromStations();
+      j.track.slice(0,20).forEach((L,li)=>{
+        if(L==null){cfg.trackLines[li]=null;return}
+        if(!Array.isArray(L)){W.push(`track[${li+1}] は [ ] の形にしてください`);cfg.trackLines[li]=null;return}
+        const pts=L.map(latlon).filter(Boolean);
+        if(pts.length<2){W.push(`track[${li+1}] は2点以上で書いてください`);cfg.trackLines[li]=null;return}
+        const cl=chord[li]; // 向きを、駅の並びに合わせる
+        if(cl&&cl.length>=2){
+          const a=geoCoord(cl[0].si),b=geoCoord(cl[cl.length-1].si);
+          if(a&&b){const d0=havM({lat:pts[0][0],lon:pts[0][1]},a)+havM({lat:pts[pts.length-1][0],lon:pts[pts.length-1][1]},b);
+            const d1=havM({lat:pts[0][0],lon:pts[0][1]},b)+havM({lat:pts[pts.length-1][0],lon:pts[pts.length-1][1]},a);
+            if(d1<d0)pts.reverse()}}
+        cfg.trackLines[li]=pts})}}
+  if(j.stationCoords!=null){ // 駅の位置の修正(駅名: [緯度, 経度])
+    if(typeof j.stationCoords!=='object'||Array.isArray(j.stationCoords))W.push('stationCoords は { } の形にしてください');
+    else for(const [k,v] of Object.entries(j.stationCoords)){
+      const p=latlon(v);if(!p){W.push(`stationCoords「${k}」は [緯度, 経度] の形にしてください`);continue}
+      if(!M.st.some(s=>s.name===k)){W.push(`stationCoords「${k}」という駅が見つかりません`);continue}
+      cfg.stationCoords[k]=p}}
   if(j.types!=null&&(typeof j.types!=='object'||Array.isArray(j.types)))W.push('types は { } の形にしてください');
   else for(const [k,v] of Object.entries(j.types||{})){const ids=tyFinds(k);
     if(!ids.length){W.push(`types: 種別「${k}」が見つかりません`);continue}
@@ -1259,8 +1376,8 @@ function loadCfg(){
 function cfgTypes(){if(!M.cfg)return;for(const [i,o] of Object.entries(M.cfg.types)){if(o.map===false)hidden.add(+i);if(o.timetable===false)hideTT.add(+i)}}
 const cfgFile=()=>lineFile.replace(/\.oud2?$/i,'')+'.config.json';
 function cfgStatus(){const I=M.cfgInfo||{status:'none'},c=M.cfg;
-  if(I.status==='ok'){const nOp=c.common.operations.length+Object.values(c.dias).reduce((a,b)=>a+b.operations.length,0),nGr=c.common.groups.length+Object.values(c.dias).reduce((a,b)=>a+b.groups.length,0);
-    return `読み込み済み(線の色 ${c.segments.length}区間、種別 ${Object.keys(c.types).length}、駅間距離 ${c.distances.length}区間、グループ ${nGr}、自作の運用 ${nOp})`+(I.warns.length?`。確認が必要な点が${I.warns.length}件あります`:'');}
+  if(I.status==='ok'){const nOp=c.common.operations.length+Object.values(c.dias).reduce((a,b)=>a+b.operations.length,0),nGr=c.common.groups.length+Object.values(c.dias).reduce((a,b)=>a+b.groups.length,0),nTr=(c.trackLines||[]).filter(x=>x).length,nSc=Object.keys(c.stationCoords||{}).length;
+    return `読み込み済み(線の色 ${c.segments.length}区間、種別 ${Object.keys(c.types).length}、駅間距離 ${c.distances.length}区間、グループ ${nGr}、自作の運用 ${nOp}${nTr?`、線路の形 ${nTr}線`:''}${nSc?`、駅の位置 ${nSc}駅`:''})`+(I.warns.length?`。確認が必要な点が${I.warns.length}件あります`:'');}
   if(I.status==='error')return 'エラーがあり、読み込めませんでした(oud の内容のまま表示しています)';
   if(I.status==='unreadable')return '設定ファイルを取得できませんでした';
   return '設定ファイルはありません(oud の内容のまま表示しています)'}
@@ -1279,6 +1396,11 @@ const CFG_EXAMPLE=String.raw`{
   "distances": [
     { "from": "姪浜", "to": "藤崎", "km": 1.2 }
   ],
+  // 管理者が地図で引いた線路の形(線ごとに [緯度, 経度] の並び。null の線は直線のまま)
+  //   ふつうは管理者画面の「地図の線路」タブで引きます。ここに直接書くこともできます
+  // "track": [ null, [[33.59,130.44],[33.59,130.43]] ],
+  // 駅の位置の修正(駅名: [緯度, 経度]。管理者画面の「地図の線路」タブで駅をドラッグしても直せます)
+  // "stationCoords": { "天神": [33.5903, 130.402] },
   // 運用のグループ分け(ops=運用名、match=正規表現。上に書いたグループが優先)
   "groups": [
     { "name": "市営地下鉄", "match": "^[3-5]\\d$", "color": "#ff8040" },
@@ -1323,9 +1445,10 @@ function setP(o,p,v){const ks=p.split('.'),last=ks.pop();let a=o;for(const k of 
 const hex6=c=>{c=String(c||'');if(/^#[0-9a-fA-F]{6}$/.test(c))return c;if(/^#[0-9a-fA-F]{3}$/.test(c))return '#'+c.slice(1).split('').map(x=>x+x).join('');return '#888888'};
 const hmS=s=>`${Math.floor(s/3600)%24}:${String(Math.floor(s%3600/60)).padStart(2,'0')}`;
 const ADM_NEW={segments:()=>({from:'',to:'',color:'#1d64c8',name:''}),groups:()=>({name:'',color:'#1d64c8',ops:[],match:''}),operations:()=>({name:'',group:'',trains:[]})};
-const TABS=[['fm','編成'],['seg','区間の色'],['dist','駅間の距離'],['ops','運用'],['grp','グループ・並び順'],['type','種別'],['txt','テキスト']];
+const TABS=[['fm','編成'],['seg','区間の色'],['dist','駅間の距離'],['track','地図の線路'],['ops','運用'],['grp','グループ・並び順'],['type','種別'],['txt','テキスト']];
 function admFix(d){ // 画面で扱いやすい形にそろえる。運用の設定は「共通(全ダイヤ)」と「ダイヤごと(dias)」に分ける
   const arr=a=>Array.isArray(a)?clone(a).filter(x=>x&&typeof x==='object'):[],str=x=>x==null?'':String(x);
+  const latlon=p=>Array.isArray(p)&&p.length>=2&&isFinite(+p[0])&&isFinite(+p[1])&&+p[0]>=-90&&+p[0]<=90&&+p[1]>=-180&&+p[1]<=180?[+p[0],+p[1]]:null;
   const op=o=>({name:str(o.name),group:str(o.group),trains:(Array.isArray(o.trains)?o.trains:[]).map(String)});
   const grp=g=>({name:str(g.name),color:str(g.color)||'#1d64c8',match:str(g.match),ops:(Array.isArray(g.ops)?g.ops:[]).map(String)});
   const o={segments:arr(d.segments).map(g=>({from:str(g.from),to:str(g.to),color:str(g.color)||'#1d64c8',name:str(g.name)})),
@@ -1339,6 +1462,10 @@ function admFix(d){ // 画面で扱いやすい形にそろえる。運用の設
   for(const g of arr(d.operations)){const oo=op(g),dn=str(g.dia);
     if(dn){if(!o.dias[dn])o.dias[dn]={operations:[],groups:[],order:[]};o.dias[dn].operations.push(oo)}
     else o.operations.push(oo)}
+  o.track=Array.isArray(d.track)?d.track.map(L=>{if(!Array.isArray(L))return null;const pts=L.map(latlon).filter(Boolean);return pts.length>=2?pts:null}):[];
+  o.stationCoords={};
+  if(d.stationCoords&&typeof d.stationCoords==='object'&&!Array.isArray(d.stationCoords))
+    for(const [k,v] of Object.entries(d.stationCoords)){const p=latlon(v);if(p)o.stationCoords[k]=p}
   if(d.dias&&typeof d.dias==='object'&&!Array.isArray(d.dias))for(const [dn,dv] of Object.entries(d.dias)){
     if(typeof dn!=='string'||!dn.trim()||dv==null||typeof dv!=='object'||Array.isArray(dv))continue;
     const b=o.dias[dn]||(o.dias[dn]={operations:[],groups:[],order:[]});
@@ -1372,14 +1499,16 @@ const mv=(l,i)=>`<span class="mvb"><button data-a="up" data-l="${l}" data-i="${i
 const admMsg=()=>`${adm.dirty?'<span class="cwarn">未保存の変更があります。</span> ':''}${esc(adm.msg)}${(M.cfgInfo.warns||[]).length?`<details><summary>設定の注意 ${M.cfgInfo.warns.length}件</summary><ul class="cl cwarn">${M.cfgInfo.warns.map(w=>`<li>${esc(w)}</li>`).join('')}</ul></details>`:''}`;
 function renderAdm(){
   const e=$('#adm');if(!e||!adm||!M)return;
+  edToken++;if(ed&&ed.map){try{ed.map.remove()}catch(err){}ed.map=null;ed.layer=null} // 地図の線路タブの地図は、画面を作り直すときに消す
   const scopes=[['common','共通(全ダイヤ)'],...M.dias.map(d=>[d.name,d.name])];
   const scopeBar=(adm.tab==='ops'||adm.tab==='grp')?`<div class="row" style="margin:0 0 8px;flex-wrap:wrap"><span class="mute">対象のダイヤ:</span><div class="seg" role="group" aria-label="対象のダイヤ" style="flex:1">${scopes.map(([k,l])=>`<button data-a="scope" data-s="${esc(k)}" class="${adm.scope===k?'on':''}" aria-pressed="${adm.scope===k}">${esc(l)}</button>`).join('')}</div></div>`:'';
   e.innerHTML=`<div class="wrap" style="padding:10px 14px 150px"><div class="row" style="margin:0 0 8px"><button data-a="back">‹ 戻る</button><b style="font-size:18px">管理者画面</b><span class="mute" style="margin-left:auto;font-size:12px">${esc(lineFile.replace(/\.oud2?$/i,''))}</span></div>${scopeBar}
   <div class="atabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" data-tab="${k}" class="${adm.tab===k?'on':''}" aria-selected="${adm.tab===k}">${t}</button>`).join('')}</div>
   <div id="apane">${admPane()}</div></div>${adm.tab!=='fm'?`<div class="abar"><div id="amsg" class="amsg">${admMsg()}</div><div class="row"><button class="pri" data-a="save">保存して反映</button><button data-a="reset">変更を破棄</button></div></div>`:''}`;
+  if(adm.tab==='track')setTimeout(edOpen,0);
 }
 const renderMsg=()=>{const m=$('#amsg');if(m)m.innerHTML=admMsg()};
-function admPane(){return {fm:admFm,seg:admSeg,dist:admDist,ops:admOps,grp:admGrp,type:admType,txt:admTxt}[adm.tab]()}
+function admPane(){return {fm:admFm,seg:admSeg,dist:admDist,track:admTrack,ops:admOps,grp:admGrp,type:admType,txt:admTxt}[adm.tab]()}
 // ---- 編成 ----
 function admFm(){
   if(adm.fm)return admFmForm();
@@ -1435,9 +1564,114 @@ function edgeList(){ // 路線図のつながりで、隣り合う駅の組(分�
 function admDist(){const E=edgeList(),D=adm.draft.distances||[];
   const val=(a,b)=>{const e=D.find(x=>x.from===stName(a)&&x.to===stName(b));return e?e.km:''};
   const tot=D.reduce((s,x)=>s+(+x.km||0),0);
-  return `<p class="mute">駅と駅のあいだの距離です。通過時刻表で、駅と駅のあいだの好きな地点の時刻を出すときに使います。距離を入れていない区間は、地図から測った直線距離で計算します</p>
+  return `<p class="mute">駅と駅のあいだの距離です。通過時刻表で、駅と駅のあいだの好きな地点の時刻を出すときに使います。距離を入れていない区間は、地図から測った距離(「地図の線路」タブで線を引いていれば線路に沿った距離、なければ駅同士の直線距離)で計算します</p>
   ${E.map(({a,b})=>`<div class="orow"><span style="flex:1;min-width:0">${esc(stName(a))} → ${esc(stName(b))}</span><input type="number" min="0" max="200" step="0.1" data-dk="${esc(stName(a))}|${esc(stName(b))}" value="${esc(val(a,b))}" placeholder="km" style="width:6.5em" aria-label="${esc(stName(a))}から${esc(stName(b))}までの距離(km)"><span class="mute">km</span></div>`).join('')||'<div class="mute">区間がありません</div>'}
   <p class="mute">設定済みの合計: ${tot?tot.toFixed(1)+' km':'—'}</p>`}
+// ---- 地図の線路(管理者が地図で線を引く) ----
+let ed=null,edToken=0; // ed={map,layer,lineIdx,drawing,lines,baseTrack,modified}
+function edLines(){ // 編集の出発点になる、生の線(緯度経度だけ)。管理者が引いた線があればそれ、なければ駅を直線で結んだもの
+  const chord=geoLineFromStations();
+  const tl=M.cfg&&M.cfg.trackLines;
+  return chord.map((cl,li)=>{
+    const r=tl&&tl[li];
+    if(r&&r.length>=2)return r.map(p=>({lat:p[0],lon:p[1]}));
+    return cl.map(p=>({lat:p.lat,lon:p.lon}))})}
+function edLineLabel(li){const chord=geoLineFromStations(),cl=chord[li];if(!cl||!cl.length)return '線'+(li+1);return stName(cl[0].si)+' → '+stName(cl[cl.length-1].si)}
+function edCoord(i){ // 編集画面での駅の位置。ドラッグで直したものがあればそれ、なければいまの設定
+  const sc=adm.draft.stationCoords&&adm.draft.stationCoords[M.st[i].name];
+  if(sc)return{lat:sc[0],lon:sc[1]};
+  return geoCoord(i)}
+function edDraftTrack(){ // 保存する形の track。引いていない線は、もとのまま(null か、前に引いた線)
+  return ed.lines.map((pts,li)=>ed.modified.has(li)?pts.map(p=>[+p.lat.toFixed(6),+p.lon.toFixed(6)]):(ed.baseTrack[li]||null))}
+function admTrack(){
+  const lines=edLines();
+  return `<p class="mute">地図の上で線路の形をなぞって線を引くと、その線に沿った距離で通過時刻を計算します。線を引いていない区間は、駅同士の直線のままです。駅は自動で線の上に置かれます。駅の位置がおかしいときは、駅のマーカーをドラッグして直してください(駅の位置を直すだけでも、直線距離の精度が上がります)</p>
+  <div class="row" style="flex-wrap:wrap"><span class="mute">引く線:</span><div class="seg" id="edlines" style="flex:1">${lines.map((_,li)=>`<button data-a="ed-line" data-i="${li}" class="${ed&&ed.lineIdx===li?'on':''}">${esc(edLineLabel(li))}</button>`).join('')}</div></div>
+  <div id="edmap" style="height:50vh;min-height:300px;margin:8px 0;border:1px solid var(--bd);border-radius:12px;overflow:hidden"></div>
+  <div class="row" style="flex-wrap:wrap"><button data-a="ed-draw" id="eddraw" class="${ed&&ed.drawing?'on':''}">線を引く</button><button data-a="ed-undo">1つ戻る</button><button data-a="ed-clear">この線をクリア</button><button data-a="ed-reset">線と駅の位置をリセット</button></div>
+  <div id="edmsg" class="mute" role="status"></div>
+  <p class="mute">保存は、下の「保存して反映」ボタンです。線の形と駅の位置は、路線の設定といっしょに保存されます</p>`}
+async function edOpen(){
+  const tok=++edToken;
+  if(!M||!adm||adm.tab!=='track')return;
+  if(!await gmLoadLeaflet()){if(tok!==edToken)return;const m=$('#edmsg');if(m)m.textContent='地図を読み込めませんでした。通信環境をご確認のうえ、タブを開き直してください';return}
+  if(tok!==edToken||!M||!adm||adm.tab!=='track')return;
+  if(ed&&ed.map){try{ed.map.remove()}catch(e){}}
+  ed={map:null,layer:null,lineIdx:0,drawing:false,lines:edLines(),baseTrack:clone(adm.draft.track||[]),modified:new Set()};
+  const el=$('#edmap');if(!el)return;
+  ed.map=L.map('edmap',{zoomControl:true});
+  gmTileLayer(()=>{const m=$('#edmsg');if(m)m.textContent='地図の読み込みが遅いため、別の地図に切り替えました'}).addTo(ed.map);
+  let all=[];for(const Ln of ed.lines)for(const p of Ln)all.push([p.lat,p.lon]);
+  if(all.length)ed.map.fitBounds(L.latLngBounds(all).pad(0.1));
+  ed.map.on('click',e=>edTap(e.latlng));
+  edDraw();
+  setTimeout(()=>{if(ed&&ed.map)ed.map.invalidateSize()},100);
+  document.querySelectorAll('#edlines button').forEach((b,i)=>b.classList.toggle('on',i===ed.lineIdx));
+  const db=$('#eddraw');if(db)db.classList.toggle('on',false);
+  const m=$('#edmsg');if(m)m.textContent='線を引く線を選んで、「線を引く」を押してから線路の上をタップしてください'}
+function edDraw(){ // 引いた線と、線の上の駅を描く
+  if(!ed||!ed.map)return;
+  if(ed.layer){ed.map.removeLayer(ed.layer);ed.layer=null}
+  ed.layer=L.layerGroup();
+  const chord=geoLineFromStations();
+  const eff=ed.lines.map((pts,li)=>pts.length>=2?pts:chord[li].map(p=>({lat:p.lat,lon:p.lon})));
+  const lines=eff.map(pts=>({pts:pts.map(p=>({lat:p.lat,lon:p.lon,si:-1})),src:'custom'}));
+  geoInsertStations(lines,i=>edCoord(i));
+  lines.forEach((Ln,li)=>{
+    const cl=chord[li];
+    if(cl&&cl.length>=2)L.polyline(cl.map(p=>[p.lat,p.lon]),{color:'#8593a3',weight:2,opacity:0.5,dashArray:'4 6'}).addTo(ed.layer); // 直線の目安
+    if(ed.lines[li].length>=2)L.polyline(ed.lines[li].map(p=>[p.lat,p.lon]),{color:'#1976d2',weight:li===ed.lineIdx?6:3,opacity:0.9}).addTo(ed.layer);
+    for(const p of Ln.pts)if(p.si!=null&&p.si>=0){
+      const mk=L.marker([p.lat,p.lon],{draggable:true,icon:L.divIcon({className:'',html:'<div style="width:16px;height:16px;border-radius:50%;background:#ef6c00;border:3px solid #fff;box-shadow:0 1px 6px rgba(0,0,0,.4)"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(ed.layer);
+      mk.bindTooltip(M.st[p.si].name);
+      mk._edSi=p.si;
+      mk.on('dragend',e=>edDragStation(e.target))}});
+  ed.layer.addTo(ed.map)}
+function edSelectLine(){
+  if(!ed)return;
+  document.querySelectorAll('#edlines button').forEach((b,i)=>b.classList.toggle('on',i===ed.lineIdx));
+  edDraw();
+  const m=$('#edmsg');if(m)m.textContent=`${edLineLabel(ed.lineIdx)} を引いています`}
+function edTap(ll){ // 線を引くモードのときだけ、タップした点を線に足す
+  if(!ed||!ed.drawing)return;
+  ed.lines[ed.lineIdx].push({lat:ll.lat,lon:ll.lon});
+  ed.modified.add(ed.lineIdx);
+  adm.draft.track=edDraftTrack();adm.dirty=true;renderMsg();
+  edDraw();
+  const m=$('#edmsg');if(m)m.textContent=`${edLineLabel(ed.lineIdx)} に ${ed.lines[ed.lineIdx].length}点目を追加しました`}
+function edUndo(){
+  if(!ed)return;
+  const pts=ed.lines[ed.lineIdx];if(!pts.length)return;
+  pts.pop();ed.modified.add(ed.lineIdx);
+  adm.draft.track=edDraftTrack();adm.dirty=true;renderMsg();
+  edDraw();
+  const m=$('#edmsg');if(m)m.textContent=`${edLineLabel(ed.lineIdx)} の最後の点を消しました(いま ${pts.length}点)`}
+function edClear(){
+  if(!ed)return;
+  ed.lines[ed.lineIdx]=[];ed.modified.add(ed.lineIdx);
+  adm.draft.track=edDraftTrack();adm.dirty=true;renderMsg();
+  edDraw();
+  const m=$('#edmsg');if(m)m.textContent=`${edLineLabel(ed.lineIdx)} をクリアしました(直線に戻ります)`}
+function edReset(){
+  if(!ed)return;
+  adm.draft.track=[];adm.draft.stationCoords={};
+  ed.lines=geoLineFromStations().map(cl=>cl.map(p=>({lat:p.lat,lon:p.lon})));
+  ed.baseTrack=[];ed.modified=new Set();
+  adm.dirty=true;renderMsg();
+  edDraw();
+  const m=$('#edmsg');if(m)m.textContent='線と駅の位置をリセットしました(保存すると反映されます)'}
+function edDragStation(mk){ // 駅のマーカーをドラッグして直す。一番近い線の上に吸着させて、駅の位置として覚える
+  const si=mk._edSi;if(si==null||!ed)return;
+  const ll=mk.getLatLng(),name=M.st[si].name;
+  let best=null;
+  for(let li=0;li<ed.lines.length;li++){
+    const pts=ed.lines[li];if(pts.length<2)continue;
+    const pr=geoProjOnLine(ll,pts,geoCum(pts));
+    if(pr&&(!best||pr.d<best.d))best=pr}
+  adm.draft.stationCoords[name]=best?[+best.lat.toFixed(6),+best.lon.toFixed(6)]:[+ll.lat.toFixed(6),+ll.lon.toFixed(6)];
+  adm.dirty=true;renderMsg();
+  edDraw();
+  const m=$('#edmsg');if(m)m.textContent=`${name} の位置を直しました`}
 // ---- 運用(自作) ----
 let admIx=new Map();
 function refIdx(dn){const d=M.dias.find(x=>x.name===dn)||M.dias[M.cur];if(admIx.has(d)&&admIx.get(d).n===d.trains.length)return admIx.get(d);
@@ -1488,6 +1722,8 @@ function admClean(draft){ // 保存する形に整える。列車の入ってい
   const d=clone(draft),dropped=[];
   d.segments=d.segments.filter(g=>g.from&&g.to);
   d.distances=(d.distances||[]).filter(g=>g.from&&g.to&&isFinite(g.km)&&g.km>0);
+  if(d.track){d.track=d.track.map(L=>Array.isArray(L)&&L.length>=2?L:null);if(!d.track.some(x=>x))delete d.track}
+  if(d.stationCoords&&!Object.keys(d.stationCoords).length)delete d.stationCoords;
   d.groups=d.groups.filter(g=>g.name);
   d.groups.forEach(g=>{if(!g.match)delete g.match});d.segments.forEach(g=>{if(!g.name)delete g.name});
   const cleanOps=(list,scope)=>list.filter(o=>!!o.name);
@@ -1528,6 +1764,11 @@ $('#adm').addEventListener('click',async e=>{
     case 'addtrain':scopeData(D,adm.scope).operations[i].trains.push(t.dataset.ref);rerender();return;
     case 'oup':case 'odown':{const L=orderKeys();if(swap(L,i,a==='oup'?i-1:i+1)){scopeData(D,adm.scope).order=L;rerender()}return}
     case 'reset':{const tb=adm.tab;admInit();adm.tab=tb;adm.msg='変更を破棄しました';renderAdm();return}
+    case 'ed-line':ed.lineIdx=+t.dataset.i;edSelectLine();return;
+    case 'ed-draw':if(!ed)return;ed.drawing=!ed.drawing;t.classList.toggle('on',ed.drawing);{const m=$('#edmsg');if(m)m.textContent=ed.drawing?'線路の上をタップして、点を増やしてください':'線を引くのをやめました'}return;
+    case 'ed-undo':edUndo();return;
+    case 'ed-clear':edClear();return;
+    case 'ed-reset':edReset();return;
     case 'save':admSave();return;
     case 'txapply':{const m=$('#txm');try{const j=JSON.parse(jsonLoose($('#atx').value));if(!j||typeof j!=='object'||Array.isArray(j))throw new Error('最上位は { } の形にしてください');adm.draft=admFix(j);adm.dirty=true;adm.msg='テキストの内容を取り込みました。「保存して反映」で保存されます';renderAdm()}catch(err){m.textContent='JSONとして読めません: '+err.message}return}
     case 'fm-new':adm.fm={isNew:true,number:t.dataset.n||'',owner:'',remark:'',stripe:'',iconData:'',icon:'',cars:[]};renderAdm();return;
