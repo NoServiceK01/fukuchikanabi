@@ -107,6 +107,22 @@ table.ro{border-collapse:separate;border-spacing:0;width:max-content}
 #bnav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #bnav button.on{color:var(--acc);font-weight:700}
 #bnav button.on:before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--acc);border-radius:0 0 3px 3px}
+#dgwrap{display:flex;flex-direction:column;height:calc(100dvh - var(--hh,54px) - 152px);min-height:320px;border-top:1px solid var(--rule);user-select:none;-webkit-user-select:none}
+#dgtop{display:flex;flex:none}
+#dgcorner{flex:none;width:112px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--panel);font-size:11px;font-weight:700;display:flex;align-items:center;padding:0 6px;white-space:nowrap;overflow:hidden}
+#dgthead{flex:1;overflow:hidden;border-bottom:1px solid var(--rule);background:var(--panel);position:relative;height:22px}
+#dgtheadIn{position:absolute;top:0;left:0;height:22px;transform-origin:0 0}
+#dgtheadIn span{position:absolute;top:2px;font-size:11px;font-weight:700;transform:translateX(-50%);white-space:nowrap}
+#dgmid{flex:1;display:flex;min-height:0}
+#dgside{flex:none;width:112px;overflow:hidden;border-right:1px solid var(--rule);background:var(--panel);position:relative}
+#dgsideIn{position:absolute;top:0;left:0;width:112px;transform-origin:0 0}
+#dgsideIn div{position:absolute;left:0;right:0;padding:0 6px;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:18px}
+#dgsideIn div b{font-weight:700}
+#dgscroll{flex:1;overflow:auto;position:relative;touch-action:pan-x pan-y}
+#dgzoom{transform-origin:0 0}
+#dgsvg{display:block}
+#dgwrap.nonum .dgnum{display:none}
+.dgnum{font-size:9px;font-weight:700}
 header .pri{background:#fff;color:var(--hd);border-color:#fff}
 #sbody{padding:0 14px 100px}
 .stt{width:100%;border-collapse:collapse}.stt tr[data-t]{cursor:pointer}.stt tr[data-t]:hover td{background:var(--band)}
@@ -229,6 +245,8 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <div class="bar" id="pnotebar" style="padding-top:2px"><span id="pnote" class="mute"></span></div>
 <details class="pfilters"><summary>絞り込み（時刻・編成）</summary><div class="bar" style="padding:0 0 8px;flex-direction:column;align-items:stretch;gap:8px"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="pftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="pttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><div id="pfmc" class="fmcks" aria-label="編成で絞り込む"></div><span id="pmeta" class="mute"></span></div></details>
 <div id="pbody" style="padding:0 14px 100px"></div></section></section>
+<section id="dg" class="hide"><div class="bar" style="padding-bottom:0"><button id="dgminus" aria-label="縮小" style="min-width:44px">－</button><button id="dgplus" aria-label="拡大" style="min-width:44px">＋</button><button id="dgreset">100%</button><button id="dgnow">今</button><button id="dgnum" aria-pressed="true">列車番号</button><span id="dgmeta" class="mute" style="margin-left:auto"></span></div>
+<div id="dgwrap"><div id="dgtop"><div id="dgcorner"></div><div id="dgthead"><div id="dgtheadIn"></div></div></div><div id="dgmid"><div id="dgside"><div id="dgsideIn"></div></div><div id="dgscroll"><div id="dgzoom"><svg id="dgsvg" role="img" aria-label="ダイヤグラム"></svg></div></div></div></div></section>
 <section id="fv" class="hide"><div class="bar"><input id="fq" type="search" placeholder="編成番号・所属・車号で検索" aria-label="編成を検索" style="flex:1;min-width:0"><button id="fadm" class="hide">編成を管理</button></div><div id="fl" style="padding:0 14px 100px"></div></section>
 <div id="gm" class="hide"><div class="bar" style="padding-bottom:0"><button id="gmback">‹ 通過時刻表に戻る</button><b style="font-size:16px">地図から地点を選ぶ</b></div>
 <div id="gmap" style="height:62vh;min-height:340px;margin:8px 14px 0;border:1px solid var(--bd);border-radius:12px;overflow:hidden"></div>
@@ -246,7 +264,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
   <div id="pm" class="mute" role="status"></div>
   <div class="row" style="justify-content:flex-end"><button id="pcx">キャンセル</button><button id="pb" class="pri">投稿</button></div>
 </div></div>
-<nav id="bnav" class="hide" aria-label="表示の切り替え"><button id="nr" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>運用一覧</button><button id="nm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>在線位置</button><button id="nt"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>時刻表</button><button id="nf"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="14" rx="3"/><path d="M9 21l1.5-4M15 21l-1.5-4M9 10h6M9.5 14h.01M14.5 14h.01"/></svg>編成表</button></nav>
+<nav id="bnav" class="hide" aria-label="表示の切り替え"><button id="nr" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>運用一覧</button><button id="nm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>在線位置</button><button id="nt"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>時刻表</button><button id="nd"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21 8 5l5 12 8-14"/><path d="M3 8h18M3 15h18" opacity=".4"/></svg>ダイヤグラム</button><button id="nf"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="14" rx="3"/><path d="M9 21l1.5-4M15 21l-1.5-4M9 10h6M9.5 14h.01M14.5 14h.01"/></svg>編成表</button></nav>
 <div id="mctl" class="hide"><button id="lmb" type="button"></button><button id="rtb" type="button" aria-pressed="true">リアルタイム</button><div class="mdt"><div id="mdia"></div><input id="mdate" type="date" aria-label="日付"><input id="tin" type="time" step="60" aria-label="時刻"></div></div>
 <div id="info" class="hide"><div class="wrap"><div id="inf"></div><div id="note">時刻表に基づく計算上の位置です。実際の運行とは異なる場合があります。路線をタップすると、その地点の通過時刻表が見られます</div></div></div>
 <script>
@@ -330,6 +348,7 @@ function setup(root,name){
   hidden.clear();hideTT.clear();selIds=new Set();cfgTypes();
   ptEdge=null;ptFrac=0.5;ptDir='all';ptFrom=null;ptTo=null;ptFms=null;ptFmsInit=false; // 通過時刻表の指定は、路線が変わったら最初から
   stFrom=null;stTo=null;stFms=null;stFmsInit=false;stFKey='';const sfa=$('#sftime'),sta=$('#sttime');if(sfa)sfa.value='';if(sta)sta.value=''; // 駅時刻表の絞り込みも、路線が変わったら最初から
+  dgSig='';dgOpened=false;dgK=1; // ダイヤグラムも、路線が変わったら最初から
   rosterQ='';const rq=$('#rq');if(rq)rq.value=''; // 運用一覧の検索も、路線が変わったら最初から
   GEO.lines=null;GEO.mode='chord';if(gmMap){gmMap.remove();gmMap=null;gmLayer=null;gmPin=null;gmPick=null;gmTile=null}show('#gm',false); // 地図の状態も最初から
   show('#drop',false);
@@ -578,7 +597,7 @@ let liveMin=-1; // リアルタイムで、最後に表示した「分」
 setInterval(()=>{if(M&&live&&!$('#mn').classList.contains('hide')){const m=Math.floor(nowSvc().T/60)*60;if(m!==liveMin){liveMin=m;T=(m>=M.lo&&m<=M.hi)?m:M.lo;draw()}}},1000); // 在線位置は1分ごとに更新する(分が変わったときだけ描き直す)
 
 // ---- 運用一覧・運用の一覧・編成の投稿 ----
-const VIEWS=['#mctl','#mn','#info','#rs','#tv','#sv','#pv','#fv','#adm','#ov','#bnav','#sheet','#dbar','#pop','#svc'];
+const VIEWS=['#mctl','#mn','#info','#rs','#tv','#sv','#pv','#dg','#fv','#adm','#ov','#bnav','#sheet','#dbar','#pop','#svc'];
 let posts=[],postErr=false,me=null,lineFile='',curOp=0,postsSig='',postsDirty=false,rosterQ=''; // 運用一覧の検索(列車番号・運用名・編成)
 const kitenS=()=>M&&M.kiten?M.kiten:14400;
 const svcDate=()=>new Date(Date.now()+9*3600e3-kitenS()*1000).toISOString().slice(0,10); // 日本時間でダイヤの起点時刻(4時)に日付が変わる
@@ -600,6 +619,7 @@ function refresh(){
   if(!$('#rs').classList.contains('hide'))renderRoster();
   if(!$('#ov').classList.contains('hide'))renderOp();
   if(!$('#pv').classList.contains('hide'))renderPt();
+  if(!$('#dg').classList.contains('hide'))renderDg();
   if(sh&&sh.type==='tr')renderPh(cur[sh.ids[sh.act]]);
   if(postsDirty){postsDirty=false;lastHtml=null;if(!$('#mn').classList.contains('hide'))draw();if(!$('#sv').classList.contains('hide'))renderSt();if(sh&&sh.type==='st')renderSheet()}
 }
@@ -648,10 +668,11 @@ function showView(v,i){
   if(v==='map'){for(const el of ['#mctl','#mn','#info'])show(el,true);lastHtml=null;goLive()}
   else if(v==='op'){curOp=i;show('#ov',true);renderOp();scrollTo(0,0)}
   else if(v==='tt'){show('#tv',true);showTt(ttMode)}
+  else if(v==='dg'){show('#dg',true);renderDg();scrollTo(0,0)}
   else if(v==='fv'){show('#fv',true);show('#fadm',isAdmin);renderFv()}
   else if(v==='adm'){show('#adm',true);renderAdm();scrollTo(0,0)}
   else{show('#rs',true);renderRoster()}
-  $('#nr').classList.toggle('on',v==='roster'||v==='op');$('#nm').classList.toggle('on',v==='map');$('#nt').classList.toggle('on',v==='tt');$('#nf').classList.toggle('on',v==='fv');
+  $('#nr').classList.toggle('on',v==='roster'||v==='op');$('#nm').classList.toggle('on',v==='map');$('#nt').classList.toggle('on',v==='tt');$('#nd').classList.toggle('on',v==='dg');$('#nf').classList.toggle('on',v==='fv');
 }
 let ttMode='st'; // 時刻表の表示(駅時刻表/通過時刻表)。下のナビでは最後に使ったほうで開く
 function showTt(m){ // 時刻表の、駅時刻表と通過時刻表の切り替え
@@ -662,6 +683,134 @@ function showTt(m){ // 時刻表の、駅時刻表と通過時刻表の切り替
   if(m==='st')renderSt();
   else{renderPt();if(!ptSkipMap&&geoInit())gmOpen();ptSkipMap=false}}
 $('#ttmode').onclick=e=>{const b=e.target.closest('[data-tt]');if(b)showTt(b.dataset.tt)};
+// ---- ダイヤグラム(時刻×駅・番線の折れ線図)。OuDia のダイヤグラムと同じ見た目 ----
+// 横=時刻、縦=駅の番線。列車は種別の色の折れ線で、停車は番線の行での水平線、通過は前後の時刻で内挿する
+const DG_PX_MIN=2, DG_ROW_H=18; // 基準の縮尺: 1分=2px、1行=18px
+let dgK=1, dgSig='', dgOpened=false, dgNum=true;
+function dgRows(){ // 駅ごとに番線の行を作る(番線の情報がなければ駅1行)。rowOf[駅][番線] → 行番号
+  const rows=[],rowOf=[];
+  M.st.forEach((s,i)=>{
+    const trs=s.tracks||[],n=trs.length||1;rowOf[i]=[];
+    for(let k=0;k<n;k++){rowOf[i][k]=rows.length;
+      rows.push({s:i,tk:trs.length?k:null,label:trs.length?(k===0?`<b>${esc(s.name)}</b> ${esc(trs[k].TrackName||trs[k].TrackRyakusyou||'')}`:esc(trs[k].TrackName||trs[k].TrackRyakusyou||'')):esc(s.name)})}
+  });
+  return{rows,rowOf}}
+function dgTrainPts(tr,rowOf){ // 列車の折れ線の点。点=[時刻(秒),y]。停車は着・発の2点、通過は前後の時刻で内挿
+  const R=tr.route,times=R.map(x=>x.d!=null?x.d:x.a);
+  let i=0;
+  while(i<times.length){
+    if(times[i]!=null){i++;continue}
+    let j=i;while(j<times.length&&times[j]==null)j++;
+    const tA=i>0?times[i-1]:null,tB=j<times.length?times[j]:null;
+    if(tA!=null&&tB!=null)for(let k=i;k<j;k++)times[k]=tA+(tB-tA)*(k-i+1)/(j-i+1);
+    else for(let k=i;k<j;k++)times[k]=tA??tB;
+    i=j}
+  const pts=[];
+  for(let k=0;k<R.length;k++){
+    const x=R[k],t=times[k];if(t==null)continue;
+    const rows=rowOf[x.s];if(!rows||!rows.length)continue;
+    const r=rows[Math.min(x.tk??0,rows.length-1)],y=r*DG_ROW_H+DG_ROW_H/2;
+    if(x.a!=null&&x.d!=null&&x.d>x.a)pts.push([x.a,y],[x.d,y]);
+    else pts.push([t,y])}
+  return pts.filter((p,idx)=>idx===0||p[0]!==pts[idx-1][0]||p[1]!==pts[idx-1][1])}
+function dgX(t){return (t-M.lo)/60*DG_PX_MIN}
+function renderDg(){
+  if(!M)return;
+  const sig=M.name+'|'+M.cur+'|'+[...hideTT].sort().join(',')+'|'+cur.length;
+  const now=selDate===svcDate()?nowSvc().T:null,nowOn=now!=null&&now>=M.lo&&now<=M.hi;
+  if(sig===dgSig){ // 変わっていなければ描き直さない(拡大・スクロールを保つ)。現在時刻の線だけ動かす
+    const nl=document.querySelector('#dgnow');
+    if(nowOn&&nl){const x=dgX(now);nl.setAttribute('x1',x);nl.setAttribute('x2',x);return}
+    if(!nowOn&&!nl)return;
+    // 現在時刻の線の有無が変わったときだけ描き直す
+  }
+  dgSig=sig;
+  const {rows,rowOf}=dgRows();
+  const W=Math.ceil((M.hi-M.lo)/60*DG_PX_MIN),H=rows.length*DG_ROW_H;
+  let g='';
+  for(let m=Math.ceil(M.lo/600)*600;m<=M.hi;m+=600){const hr=m%3600===0;
+    g+=`<line x1="${dgX(m)}" y1="0" x2="${dgX(m)}" y2="${H}" stroke="var(--bd)" stroke-width="${hr?1.2:0.6}" opacity="${hr?0.9:0.45}"/>`}
+  rows.forEach((r,i)=>{g+=`<line x1="0" y1="${i*DG_ROW_H}" x2="${W}" y2="${i*DG_ROW_H}" stroke="var(--bd)" stroke-width="${r.tk===0?1:0.5}" opacity="${r.tk===0?0.7:0.3}"/>`});
+  if(nowOn)g+=`<line id="dgnow" x1="${dgX(now)}" y1="0" x2="${dgX(now)}" y2="${H}" stroke="#d32f2f" stroke-width="1.5"/>`;
+  let trs='';
+  for(const tr of cur){
+    if(hideTT.has(tr.ty))continue;
+    const pts=dgTrainPts(tr,rowOf);if(pts.length<2)continue;
+    const c=ccol(tr),d='M'+pts.map(p=>`${dgX(p[0]).toFixed(1)} ${p[1].toFixed(1)}`).join('L');
+    trs+=`<path d="${d}" fill="none" stroke="${c}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    trs+=`<path d="${d}" fill="none" stroke="transparent" stroke-width="14" stroke-linecap="round" data-t="${tr.id}"><title>${esc(tr.name||'')}</title></path>`;
+    if(tr.name){
+      let bi=0,bl=-1;
+      for(let k=0;k<pts.length-1;k++){const dx=dgX(pts[k+1][0])-dgX(pts[k][0]),dy=pts[k+1][1]-pts[k][1],L=Math.hypot(dx,dy);if(L>bl){bl=L;bi=k}}
+      const a=pts[bi],b=pts[bi+1],mx=(dgX(a[0])+dgX(b[0]))/2,my=(a[1]+b[1])/2,ang=Math.atan2(b[1]-a[1],dgX(b[0])-dgX(a[0]))*180/Math.PI;
+      trs+=`<text class="dgnum" x="${mx.toFixed(1)}" y="${(my-3).toFixed(1)}" fill="${c}" text-anchor="middle" transform="rotate(${ang.toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)})">${esc(tr.name)}</text>`}
+  }
+  const svg=$('#dgsvg');
+  svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.innerHTML=g+trs;
+  const z=$('#dgzoom');z.style.width=W+'px';z.style.height=H+'px';
+  let th='';
+  for(let h=Math.ceil(M.lo/3600);h<=Math.floor(M.hi/3600);h++)th+=`<span style="left:${dgX(h*3600)}px">${h}</span>`;
+  $('#dgtheadIn').innerHTML=th;$('#dgtheadIn').style.width=W+'px';
+  $('#dgsideIn').innerHTML=rows.map((r,i)=>`<div style="top:${i*DG_ROW_H}px">${r.label}</div>`).join('');
+  $('#dgsideIn').style.height=H+'px';
+  $('#dgcorner').textContent=M.dias[M.cur].name;
+  $('#dgmeta').textContent=`${M.dias[M.cur].name} ${cur.length}本`;
+  dgApplyZoom();
+  if(!dgOpened){dgOpened=true;dgGoNow()}
+  else dgSyncHeads()}
+function dgApplyZoom(){const z=$('#dgzoom');if(!z)return;z.style.transform=`scale(${dgK})`;dgSyncHeads()}
+function dgSyncHeads(){ // 時刻の見出し・駅の見出しを、ダイヤのスクロールに合わせる
+  const sc=$('#dgscroll');if(!sc)return;
+  const th=$('#dgtheadIn'),sd=$('#dgsideIn');
+  if(th)th.style.transform=`translateX(${-sc.scrollLeft}px) scale(${dgK})`;
+  if(sd)sd.style.transform=`translateY(${-sc.scrollTop}px) scale(${dgK})`}
+function dgSetZoom(k,fx,fy){ // fx,fy: 枠の中での指の位置。その点を中心に拡大・縮小する
+  const sc=$('#dgscroll');if(!sc)return;
+  const k0=dgK;k=Math.max(0.4,Math.min(8,k));if(k===k0)return;
+  const cx=(sc.scrollLeft+(fx??sc.clientWidth/2))/k0,cy=(sc.scrollTop+(fy??sc.clientHeight/2))/k0;
+  dgK=k;dgApplyZoom();
+  sc.scrollLeft=cx*k-(fx??sc.clientWidth/2);
+  sc.scrollTop=cy*k-(fy??sc.clientHeight/2);
+  dgSyncHeads()}
+function dgGoNow(){ // 現在時刻のあたりにスクロールする
+  const sc=$('#dgscroll');if(!sc||!M)return;
+  const now=selDate===svcDate()?nowSvc().T:null;
+  const t=now!=null&&now>=M.lo&&now<=M.hi?now:(M.lo+M.hi)/2;
+  sc.scrollLeft=Math.max(0,dgX(t)*dgK-sc.clientWidth/2);
+  dgSyncHeads()}
+$('#dgplus').onclick=()=>dgSetZoom(dgK*1.4);
+$('#dgminus').onclick=()=>dgSetZoom(dgK/1.4);
+$('#dgreset').onclick=()=>{dgK=1;dgApplyZoom();const sc=$('#dgscroll');sc.scrollLeft=0;sc.scrollTop=0;dgSyncHeads()};
+$('#dgnow').onclick=dgGoNow;
+$('#dgnum').onclick=e=>{dgNum=!dgNum;$('#dgwrap').classList.toggle('nonum',!dgNum);e.currentTarget.setAttribute('aria-pressed',String(dgNum))};
+const dgPtrs=new Map();let dgPinch0=null,dgDown=null; // ピンチ(2本指)とタップの区別
+$('#dgscroll').addEventListener('pointerdown',e=>{
+  dgPtrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(dgPtrs.size===1)dgDown={x:e.clientX,y:e.clientY,t:Date.now()};
+  else dgDown=null;
+  if(dgPtrs.size===2){const [a,b]=[...dgPtrs.values()];dgPinch0={d:Math.hypot(a.x-b.x,a.y-b.y),k:dgK}}});
+$('#dgscroll').addEventListener('pointermove',e=>{
+  if(!dgPtrs.has(e.pointerId))return;
+  dgPtrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(dgPtrs.size===2&&dgPinch0){
+    const [a,b]=[...dgPtrs.values()],d=Math.hypot(a.x-b.x,a.y-b.y),r=$('#dgscroll').getBoundingClientRect();
+    dgSetZoom(dgPinch0.k*d/dgPinch0.d,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top)}});
+const dgPtrEnd=e=>{
+  dgPtrs.delete(e.pointerId);
+  if(e.type==='pointerup'&&dgDown&&Date.now()-dgDown.t<600&&Math.hypot(e.clientX-dgDown.x,e.clientY-dgDown.y)<12){
+    const g=e.target.closest&&e.target.closest('[data-t]');
+    if(g)openSheet({type:'tr',ids:[+g.dataset.t],act:0})}
+  if(dgPtrs.size<2)dgPinch0=null;
+  if(dgPtrs.size===0)dgDown=null};
+$('#dgscroll').addEventListener('pointerup',dgPtrEnd);
+$('#dgscroll').addEventListener('pointercancel',e=>{dgPtrs.delete(e.pointerId);dgDown=null;dgPinch0=null});
+$('#dgscroll').addEventListener('scroll',dgSyncHeads,{passive:true});
+$('#dgscroll').addEventListener('wheel',e=>{ // Ctrl+ホイール(トラックパッドのピンチ)で拡大・縮小
+  if(!(e.ctrlKey||e.metaKey))return;
+  e.preventDefault();
+  const r=$('#dgscroll').getBoundingClientRect();
+  dgSetZoom(dgK*Math.exp(-e.deltaY*0.0012),e.clientX-r.left,e.clientY-r.top)},{passive:false});
 function renderPost(tr){
   const e=$('#pst');if(!e)return;const o=tr.op,bk=tr.bikou?`<div class="mute">備考 ${esc(tr.bikou)}</div>`:'',back=sh&&sh.from?'<button data-back style="margin-bottom:8px">‹ 駅の時刻表へ戻る</button>':'',ro=selDate!==svcDate();
   if(!o){e.innerHTML=`<div class="pp">${back}${bk}<div class="mute">この列車は運用に入っていないため、編成を投稿できません</div></div>`;return}
@@ -727,7 +876,7 @@ const nav=e=>{const pp=e.target.closest('[data-oppost]');
   if(g){const k=g.dataset.g;gcol.has(k)?gcol.delete(k):gcol.add(k);renderRoster();return}
   if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o)showView('op',+o.dataset.op);else if(e.target.closest('#bk'))showView('roster')};
 $('#rs').addEventListener('click',nav);$('#ov').addEventListener('click',nav);
-$('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');$('#nt').onclick=()=>showView('tt');$('#nf').onclick=()=>showView('fv');
+$('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');$('#nt').onclick=()=>showView('tt');$('#nd').onclick=()=>showView('dg');$('#nf').onclick=()=>showView('fv');
 setInterval(async()=>{if(authed&&M&&!document.hidden){loadNotices();await loadPosts();refresh()}},60000);
 
 // 日本の祝日(2007〜2099年)。振替休日と国民の休日を含む
@@ -775,7 +924,7 @@ const shiftDate=n=>{const [y,m,d]=ymd(selDate);return new Date(Date.UTC(y,m-1,d+
 function setDate(v){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return;selDate=v;$('#dsel').value=$('#mdate').value=v;
   if(view==='map'){live=false;applyDate();posts=[];postsSig='';lastHtml=null;draw();loadPosts().then(refresh);return} // 在線位置: 選んだ日付で静止表示
-  showView(view==='tt'?'tt':'roster');                    // 運用の番号が変わるので、運用の一覧などは開き直す
+  showView(view==='tt'?'tt':view==='dg'?'dg':'roster');                    // 運用の番号が変わるので、運用の一覧などは開き直す
   posts=[];postsSig='';loadPosts().then(refresh);
 }
 $('#dsel').onchange=e=>setDate(e.target.value);$('#mdate').onchange=e=>setDate(e.target.value);
@@ -2016,7 +2165,7 @@ $('#rtb').onclick=()=>{if(live){live=false;syncMctl()}else goLive()};
 function toggleLabel(){labelMode=labelMode==='no'?'dest':'no';showNo=labelMode==='no';showDest=!showNo;try{localStorage.setItem('sMode',labelMode)}catch(e){}lastHtml=null;syncMctl();if(view==='map')draw();refresh()}
 $('#lmb').onclick=toggleLabel;$('#lmb2').onclick=toggleLabel;
 // ---- 運用一覧・駅時刻表の日付バーは、ページの一番上に埋め込む ----
-function placeDbar(v){const h=v==='roster'?$('#rs'):v==='tt'?$(ttMode==='st'?'#sv':'#pv'):null;if(h){h.prepend($('#dbar'));show('#dbar',true)}else show('#dbar',false)}
+function placeDbar(v){const h=v==='roster'?$('#rs'):v==='tt'?$(ttMode==='st'?'#sv':'#pv'):v==='dg'?$('#dg'):null;if(h){h.prepend($('#dbar'));show('#dbar',true)}else show('#dbar',false)}
 
 // ---- アカウント名(編成を投稿したとき、投稿者として表示される名前) ----
 const NAMES=new Map();let nameDraft=null;
