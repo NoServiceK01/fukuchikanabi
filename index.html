@@ -122,6 +122,9 @@ table.ro{border-collapse:separate;border-spacing:0;width:max-content}
 #dgsvg{display:block}
 #dgwrap.nonum .dgnum{display:none}
 .dgnum{font-size:9px;font-weight:700}
+#dgnum.on,#dgfull.on{background:var(--acc);color:var(--accf);border-color:var(--acc)} /* ONのときは色がつく */
+#dg:fullscreen{display:flex;flex-direction:column;background:var(--bg)}
+#dg:fullscreen #dgwrap{flex:1;height:auto;min-height:0}
 header .pri{background:#fff;color:var(--hd);border-color:#fff}
 #sbody{padding:0 14px 100px}
 .stt{width:100%;border-collapse:collapse}.stt tr[data-t]{cursor:pointer}.stt tr[data-t]:hover td{background:var(--band)}
@@ -243,7 +246,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <div class="bar" id="pnotebar" style="padding-top:2px"><span id="pnote" class="mute"></span></div>
 <details class="pfilters"><summary>絞り込み（時刻・編成）</summary><div class="bar" style="padding:0 0 8px;flex-direction:column;align-items:stretch;gap:8px"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="pftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="pttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><div id="pfmc" class="fmcks" aria-label="編成で絞り込む"></div><span id="pmeta" class="mute"></span></div></details>
 <div id="pbody" style="padding:0 14px 100px"></div></section></section>
-<section id="dg" class="hide"><div class="bar" style="padding-bottom:0"><button id="dgminus" aria-label="横を縮小" style="min-width:44px">横－</button><button id="dgplus" aria-label="横を拡大" style="min-width:44px">横＋</button><button id="dgminusv" aria-label="縦を縮小" style="min-width:44px">縦－</button><button id="dgplusv" aria-label="縦を拡大" style="min-width:44px">縦＋</button><button id="dgreset">100%</button><button id="dgnow">今</button><button id="dgnum" aria-pressed="true">列車番号</button><span id="dgmeta" class="mute" style="margin-left:auto"></span></div>
+<section id="dg" class="hide"><div class="bar" style="padding-bottom:0"><button id="dgminus" aria-label="横を縮小" style="min-width:44px">横－</button><button id="dgplus" aria-label="横を拡大" style="min-width:44px">横＋</button><button id="dgminusv" aria-label="縦を縮小" style="min-width:44px">縦－</button><button id="dgplusv" aria-label="縦を拡大" style="min-width:44px">縦＋</button><button id="dgreset">100%</button><button id="dgnow">今</button><button id="dgnum" class="on" aria-pressed="true">列車番号</button><button id="dgfull">全画面</button><span id="dgmeta" class="mute" style="margin-left:auto"></span></div>
 <div id="dgwrap"><div id="dgtop"><div id="dgcorner"></div><div id="dgthead"><div id="dgtheadIn"></div></div></div><div id="dgmid"><div id="dgside"><div id="dgsideIn"></div></div><div id="dgscroll"><div id="dgzoom"><svg id="dgsvg" role="img" aria-label="ダイヤグラム"></svg></div></div></div></div></section>
 <section id="fv" class="hide"><div class="bar"><input id="fq" type="search" placeholder="編成番号・所属・車号で検索" aria-label="編成を検索" style="flex:1;min-width:0"><button id="fadm" class="hide">編成を管理</button></div><div id="fl" style="padding:0 14px 100px"></div></section>
 <div id="gm" class="hide"><div class="bar" style="padding-bottom:0"><button id="gmback">‹ 通過時刻表に戻る</button><b style="font-size:16px">地図から地点を選ぶ</b></div>
@@ -679,7 +682,7 @@ function showTt(m){ // 時刻表の、駅時刻表と通過時刻表の切り替
   placeDbar('tt');scrollTo(0,0);
   if(m==='st')renderSt();
   else{renderPt();if(!ptSkipMap&&geoInit())gmOpen();ptSkipMap=false}}
-$('#ttback').onclick=()=>showView('map'); // 時刻表の上のボタンは、地図の画面に戻る
+$('#ttback').onclick=()=>showView('tt','pt'); // 時刻表の上のボタンは、通過時刻表の地図に戻る
 // ---- ダイヤグラム(時刻×駅・番線の折れ線図)。OuDia のダイヤグラムと同じ見た目 ----
 // 横=時刻、縦=駅の番線。列車は種別の色の折れ線で、停車は番線の行での水平線、通過は前後の時刻で内挿する
 const DG_PX_MIN=2, DG_ROW_H=18; // 基準の縮尺: 1分=2px、駅間=18px(最短走行時間に比例して区間ごとに変わる)
@@ -737,7 +740,7 @@ function dgRows(){ // 駅ごとに1行(番線は出さない)。rowOf[駅] → �
   const rows=[],rowOf=[];
   M.st.forEach((s,i)=>{rowOf[i]=rows.length;rows.push({s:i,label:esc(s.name)})});
   return{rows,rowOf}}
-function dgTrainPts(tr,rowOf){ // 列車の折れ線の点。点=[時刻(秒),y]。停車は着・発の2点、通過は前後の時刻で内挿
+function dgTrainPts(tr,rowOf){ // 列車の折れ線の点。点=[時刻(秒),y,駅番号]。停車は着・発の2点、通過は前後の時刻で内挿
   const R=tr.route,times=R.map(x=>x.d!=null?x.d:x.a);
   let i=0;
   while(i<times.length){
@@ -752,9 +755,31 @@ function dgTrainPts(tr,rowOf){ // 列車の折れ線の点。点=[時刻(秒),y]
     const x=R[k],t=times[k];if(t==null)continue;
     const r=rowOf[x.s];if(r==null)continue;
     const y=dgY(r);
-    if(x.a!=null&&x.d!=null&&x.d>x.a)pts.push([x.a,y],[x.d,y]);
-    else pts.push([t,y])}
+    if(x.a!=null&&x.d!=null&&x.d>x.a)pts.push([x.a,y,x.s],[x.d,y,x.s]);
+    else pts.push([t,y,x.s])}
   return pts.filter((p,idx)=>idx===0||p[0]!==pts[idx-1][0]||p[1]!==pts[idx-1][1])}
+function dgSegs(pts){ // 折れ線を、駅のジャンプ(隣り合わない駅への移動。中洲川端の分岐側→空港線側など)で区切る
+  const segs=[];let cur=[];
+  for(const p of pts){
+    if(cur.length&&Math.abs(p[2]-cur[cur.length-1][2])>1){segs.push(cur);cur=[]}
+    cur.push(p)}
+  if(cur.length)segs.push(cur);
+  return segs}
+function dgPathD(pts){ // 列車の線の path。駅のジャンプでは線をつながず、端を線の向きに少し(10px)伸ばすだけにする
+  const EXT=10;
+  const ext=(p,q)=>{ // p を、q から遠ざかる向きに EXT px 伸ばす
+    const dx=dgX(p[0])-dgX(q[0]),dy=p[1]-q[1],L=Math.hypot(dx,dy);
+    if(L<0.01)return[dgX(p[0]),p[1]];
+    return[dgX(p[0])+dx/L*EXT,p[1]+dy/L*EXT]};
+  let d='';
+  const segs=dgSegs(pts);
+  for(let si=0;si<segs.length;si++){
+    const s=segs[si];if(s.length<2)continue;
+    const xy=s.map(p=>[dgX(p[0]),p[1]]);
+    if(si>0)xy.unshift(ext(s[0],s[1])); // ジャンプのあとの始点は、来た方向に少し伸ばす
+    if(si<segs.length-1)xy.push(ext(s[s.length-1],s[s.length-2])); // ジャンプの手前の終点は、行く方向に少し伸ばす
+    d+='M'+xy.map(p=>`${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('L')}
+  return d}
 function renderDg(){
   if(!M)return;
   const sig=M.name+'|'+M.cur+'|'+dgKx+'|'+dgKy+'|'+[...hideTT].sort().join(',')+'|'+cur.length;
@@ -779,9 +804,10 @@ function renderDg(){
     if(hideTT.has(tr.ty))continue;
     const pts=dgTrainPts(tr,rowOf);if(pts.length<2)continue;
     ptsById.set(tr.id,pts);
-    const c=ccol(tr),d='M'+pts.map(p=>`${dgX(p[0]).toFixed(1)} ${p[1].toFixed(1)}`).join('L');
-    trs+=`<path d="${d}" fill="none" stroke="${c}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>`;
-    trs+=`<path d="${d}" fill="none" stroke="transparent" stroke-width="14" stroke-linecap="round" data-t="${tr.id}"><title>${esc(tr.name||'')}</title></path>`;
+    const c=ccol(tr),d=dgPathD(pts); // 駅のジャンプでは線をつながず、端を少し伸ばす
+    if(d){
+      trs+=`<path d="${d}" fill="none" stroke="${c}" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+      trs+=`<path d="${d}" fill="none" stroke="transparent" stroke-width="14" stroke-linecap="round" data-t="${tr.id}"><title>${esc(tr.name||'')}</title></path>`}
     // 出庫列車は出庫駅に〇、入庫列車は入庫駅に△
     // (出区・入区の記述がある列車はそれを使い、なければ運用の最初・最後の列車を出庫・入庫とする。土曜・日祝ダイヤには出区・入区の記述がないため)
     const isOut=tr.B&&tr.B.depot||(tr.op&&tr.oi===0&&tr.op.trains.length>1);
@@ -790,10 +816,10 @@ function renderDg(){
     if(isOut)trs+=`<text class="dgdep" x="${dgX(o[0]).toFixed(1)}" y="${o[1].toFixed(1)}" fill="${c}" font-size="12" text-anchor="middle" dominant-baseline="central" style="paint-order:stroke;stroke:var(--panel);stroke-width:3px">〇</text>`;
     if(isIn)trs+=`<text class="dgarr" x="${dgX(l[0]).toFixed(1)}" y="${l[1].toFixed(1)}" fill="${c}" font-size="12" text-anchor="middle" dominant-baseline="central" style="paint-order:stroke;stroke:var(--panel);stroke-width:3px">△</text>`;
     if(tr.name){
-      let bi=0,bl=-1;
-      for(let k=0;k<pts.length-1;k++){const dx=dgX(pts[k+1][0])-dgX(pts[k][0]),dy=pts[k+1][1]-pts[k][1],L=Math.hypot(dx,dy);if(L>bl){bl=L;bi=k}}
-      const a=pts[bi],b=pts[bi+1],mx=(dgX(a[0])+dgX(b[0]))/2,my=(a[1]+b[1])/2,ang=Math.atan2(b[1]-a[1],dgX(b[0])-dgX(a[0]))*180/Math.PI;
-      trs+=`<text class="dgnum" x="${mx.toFixed(1)}" y="${(my-3).toFixed(1)}" fill="${c}" text-anchor="middle" transform="rotate(${ang.toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)})">${esc(tr.name)}</text>`}
+      let ba=null,bb=null,bl=-1;
+      for(const s of dgSegs(pts))for(let k=0;k<s.length-1;k++){const a=s[k],b=s[k+1],dx=dgX(b[0])-dgX(a[0]),dy=b[1]-a[1],L=Math.hypot(dx,dy);if(L>bl){bl=L;ba=a;bb=b}} // 番号は、ジャンプをまたがない一番長い区間に出す
+      if(ba&&bb){const mx=(dgX(ba[0])+dgX(bb[0]))/2,my=(ba[1]+bb[1])/2,ang=Math.atan2(bb[1]-ba[1],dgX(bb[0])-dgX(ba[0]))*180/Math.PI;
+      trs+=`<text class="dgnum" x="${mx.toFixed(1)}" y="${(my-3).toFixed(1)}" fill="${c}" text-anchor="middle" transform="rotate(${ang.toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)})">${esc(tr.name)}</text>`}}
   }
   // 運用でつながる列車同士を、）をのっけたような弧でつなぐ
   for(const tr of cur){
@@ -807,7 +833,7 @@ function renderDg(){
     let up=false;
     for(let k=p1.length-2;k>=0;k--){if(p1[k][1]!==a[1]){up=p1[k][1]>a[1];break}}
     const dip=rh*0.8,cy=up?y-dip:y+dip;
-    trs+=`<path class="dglnk" d="M${x1.toFixed(1)} ${y.toFixed(1)} Q${mx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="${ccol(tr)}" stroke-width="1.5" stroke-linecap="round"/>`}
+    trs+=`<path class="dglnk" d="M${x1.toFixed(1)} ${y.toFixed(1)} Q${mx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y.toFixed(1)}" fill="none" stroke="${ccol(tr)}" stroke-width="1" stroke-linecap="round"/>`}
   const svg=$('#dgsvg');
   svg.setAttribute('width',W);svg.setAttribute('height',H);svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
   svg.innerHTML=g+trs;
@@ -851,7 +877,13 @@ $('#dgplusv').onclick=()=>dgSetZoom(dgKx,dgKy*1.4);
 $('#dgminusv').onclick=()=>dgSetZoom(dgKx,dgKy/1.4);
 $('#dgreset').onclick=()=>{dgKx=1;dgKy=1;renderDg();const sc=$('#dgscroll');sc.scrollLeft=0;sc.scrollTop=0;dgSyncHeads()};
 $('#dgnow').onclick=dgGoNow;
-$('#dgnum').onclick=e=>{dgNum=!dgNum;$('#dgwrap').classList.toggle('nonum',!dgNum);e.currentTarget.setAttribute('aria-pressed',String(dgNum))};
+$('#dgnum').onclick=e=>{dgNum=!dgNum;$('#dgwrap').classList.toggle('nonum',!dgNum);e.currentTarget.classList.toggle('on',dgNum);e.currentTarget.setAttribute('aria-pressed',String(dgNum))};
+function dgToggleFull(){ // ダイヤグラムを全画面で表示する(もう一度押すと戻る)
+  const el=$('#dg');if(!el)return;
+  if(document.fullscreenElement){if(document.exitFullscreen)document.exitFullscreen()}
+  else if(el.requestFullscreen)el.requestFullscreen()}
+$('#dgfull').onclick=dgToggleFull;
+document.addEventListener('fullscreenchange',()=>{const b=$('#dgfull');if(b)b.classList.toggle('on',!!document.fullscreenElement)});
 const dgPtrs=new Map();let dgPinch0=null,dgDown=null; // ピンチ(2本指)とタップの区別
 $('#dgscroll').addEventListener('pointerdown',e=>{
   dgPtrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -945,7 +977,7 @@ const nav=e=>{const pp=e.target.closest('[data-oppost]');
   if(g){const k=g.dataset.g;gcol.has(k)?gcol.delete(k):gcol.add(k);renderRoster();return}
   if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o)showView('op',+o.dataset.op);else if(e.target.closest('#bk'))showView('roster')};
 $('#rs').addEventListener('click',nav);$('#ov').addEventListener('click',nav);
-$('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');$('#nt').onclick=()=>showView('tt');$('#nd').onclick=()=>showView('dg');$('#nf').onclick=()=>showView('fv');
+$('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');$('#nt').onclick=()=>showView('tt','pt');$('#nd').onclick=()=>showView('dg');$('#nf').onclick=()=>showView('fv'); // 時刻表は、まず通過時刻表の地図から開く
 setInterval(async()=>{if(authed&&M&&!document.hidden){loadNotices();await loadPosts();refresh()}},60000);
 
 // 日本の祝日(2007〜2099年)。振替休日と国民の休日を含む
