@@ -1,0 +1,1527 @@
+<!doctype html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; connect-src https://*.supabase.co; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#16427f">
+<title>フクチカナビ</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+:root{--bg:#f3f7fd;--panel:#fff;--band:#e4edf9;--ink:#14263d;--mute:#5b6f87;--car:#2f7fd0;--line:#b2c4da;--rule:#d6e2f1;--acc:#1d64c8;--accf:#fff;--lc:#2a78d6;--stn:#8593a3;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1522;--panel:#142132;--band:#1a2b42;--ink:#e2ecf8;--mute:#8aa0ba;--car:#4f93e0;--line:#3a5272;--rule:#233750;--acc:#6cacf5;--accf:#06203f;--lc:#4f93e0;--stn:#9aa8b8}}
+:root[data-theme="dark"]{--bg:#0c1522;--panel:#142132;--band:#1a2b42;--ink:#e2ecf8;--mute:#8aa0ba;--car:#4f93e0;--line:#3a5272;--rule:#233750;--acc:#6cacf5;--accf:#06203f;--lc:#4f93e0;--stn:#9aa8b8}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Zen Kaku Gothic New",system-ui,sans-serif}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--panel);border-bottom:1px solid var(--rule);padding:10px 14px}
+.wrap{max-width:560px;margin:0 auto}
+h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.02em}
+.row{display:flex;gap:8px;align-items:center;margin-top:8px}
+#sb .row{flex-wrap:wrap}
+button,select,.btn,input[type=time],input[type=email],input[type=password],input[type=text],input[type=date]{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;min-height:40px;padding:0 12px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+select{padding-right:6px}
+.ib{width:40px;padding:0}
+.pri,.seg button.on{background:var(--acc);color:var(--accf);border-color:var(--acc)}
+.seg{display:inline-flex;flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{flex:1;min-width:0;border:0;border-radius:0;min-height:38px;padding:0 4px;background:var(--bg);border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.acts{display:flex;gap:6px;flex:none}
+button:focus-visible,select:focus-visible,input:focus-visible,.btn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.clock{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;min-width:5.6ch}
+input[type=range]{flex:1;min-width:140px;accent-color:var(--acc)}
+.chip{display:inline-flex;gap:6px;align-items:center;padding:3px 10px;border-radius:99px;border:1px solid var(--line);background:var(--bg)}
+.chip i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.chip.off{opacity:.4}
+#drop{max-width:760px;margin:0 auto;padding:22px 14px}
+#drop h2{margin:0 0 14px;font-size:18px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.tile{flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:0;min-height:92px;padding:12px 14px;text-align:left;font-size:17px;font-weight:700;line-height:1.3;border-radius:10px;background:var(--panel);border:1px solid var(--rule);border-left:6px solid var(--acc)}
+.tile:hover{background:var(--band)}
+main{padding:0 0 160px}
+#mn .wrap{max-width:none;overflow-x:auto}
+input[type=time]{font-size:20px;font-weight:700;width:7.8em;font-variant-numeric:tabular-nums;cursor:text}
+.ic{display:inline-block;width:20px;height:20px;border-radius:5px;text-align:center;font-size:12px;font-weight:700;line-height:20px;vertical-align:-3px}
+input[type=checkbox]{width:24px;height:24px;accent-color:var(--acc)}
+#map{display:block;width:100%;height:auto;max-width:480px;margin:0 auto}
+svg{flex:none}
+.ib svg{width:20px;height:20px;display:block}
+#shp button{flex-direction:column;gap:2px;padding:6px 4px;min-height:64px;white-space:nowrap}
+#shp svg{width:26px;height:30px;display:block}
+.nm{font-size:17px;font-weight:700;fill:var(--ink)}
+.nm.sub{font-size:15px}
+#info{position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom,0px));background:var(--band);border-top:1px solid var(--rule);padding:8px 14px;z-index:5}
+#info .wrap{min-height:30px}
+#note{font-size:12px;color:var(--mute);display:flex;gap:6px;align-items:center}
+#note:before{content:"";width:10px;height:10px;border-radius:50%;background:var(--mute)}
+.ln{margin-bottom:4px}
+.mute{color:var(--mute)}
+.hide{display:none!important}
+.sw{width:32px;height:32px;min-height:0;border-radius:50%;padding:0;border:2px solid var(--panel);box-shadow:0 0 0 1px var(--line)}
+.sw.on{box-shadow:0 0 0 2px var(--ink)}
+#lcs input[type=color]{width:44px;height:36px;padding:2px;border:1px solid var(--line);border-radius:8px;background:none}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:8;background:var(--panel);border-top:1px solid var(--rule);border-radius:14px 14px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.2);max-height:80vh;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px)}
+#sh{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid var(--rule)}
+#sb{overflow:auto;padding:4px 14px 16px}
+table{border-collapse:collapse;width:100%}
+td,th{padding:6px;border-bottom:1px solid var(--rule);text-align:left;font-variant-numeric:tabular-nums;vertical-align:top}
+th{font-weight:400;color:var(--mute);font-size:12px}
+tr.past{opacity:.4}tr.now{background:var(--band);font-weight:700}tr.next{box-shadow:inset 3px 0 0 var(--lc)}
+.hr{width:2.3em;font-weight:700;font-size:22px}
+.m{display:inline-flex;flex-direction:column;align-items:center;margin:0 12px 10px 0;line-height:1.15}.m b{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums}.m small{font-size:11px;color:var(--mute);white-space:nowrap}
+h3{margin:14px 0 4px;font-size:14px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+
+
+:root{--hd:#16427f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--hd:#0f2a4f}}
+:root[data-theme="dark"]{--hd:#0f2a4f}
+header{background:var(--hd);color:#fff;border-bottom:0}
+header h1{color:#fff}
+header button,header .btn{background:transparent;color:#fff;border-color:rgba(255,255,255,.4)}
+header .seg button{color:var(--ink)}
+.bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 14px}
+#rt{overflow:auto;padding:0 14px 100px;cursor:grab;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+#rt.drag{cursor:grabbing;user-select:none}
+#ov{padding-bottom:90px}
+table.ro{border-collapse:separate;border-spacing:0;width:max-content}
+.ro td{padding:2px;border:0;vertical-align:middle}
+.ro td.lf{padding:1px 4px 1px 0}
+.lb{display:flex;align-items:center;gap:6px;width:150px;min-height:42px;background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:3px 8px;cursor:pointer}
+.fm{min-width:1.8em;text-align:center;font-size:18px;font-weight:700;color:var(--acc);font-variant-numeric:tabular-nums}
+.fm.none{color:var(--line);font-weight:400}
+.un{display:inline-block;background:var(--hd);color:#fff;border-radius:99px;padding:0 8px;font-size:13px;font-weight:700}
+.io{font-size:10px;color:var(--mute);line-height:1.3}
+.c{flex-direction:column;justify-content:center;gap:0;width:72px;min-height:40px;border:0;border-radius:5px;padding:2px 3px;line-height:1.2;font-variant-numeric:tabular-nums}
+.c b{font-size:15px}.c small{font-size:10px;max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp{padding:8px 0 10px;border-bottom:1px solid var(--rule);margin-bottom:6px}
+.po{display:flex;gap:8px;align-items:center;padding:4px 0;border-top:1px solid var(--rule)}
+.po b{font-size:18px;min-width:2.2em}.po span{flex:1;min-width:0}
+.opt{display:flex;align-items:center;gap:10px;padding:10px 0;font-size:15px}
+#bnav{position:fixed;left:0;right:0;bottom:0;z-index:6;display:grid;grid-template-columns:repeat(5,1fr);background:var(--panel);border-top:1px solid var(--rule);padding-bottom:env(safe-area-inset-bottom,0px)}
+#bnav button{flex-direction:column;gap:2px;border:0;border-radius:0;background:transparent;min-height:56px;font-size:12px;color:var(--mute);position:relative}
+#bnav svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#bnav button.on{color:var(--acc);font-weight:700}
+#bnav button.on:before{content:"";position:absolute;top:0;left:22%;right:22%;height:3px;background:var(--acc);border-radius:0 0 3px 3px}
+header .pri{background:#fff;color:var(--hd);border-color:#fff}
+#sbody{padding:0 14px 100px}
+.stt{width:100%;border-collapse:collapse}.stt tr[data-t]{cursor:pointer}.stt tr[data-t]:hover td{background:var(--band)}
+.stt th{font-size:11px;color:var(--mute);text-align:left;font-weight:400;padding:4px 6px}
+.stt td{padding:5px 6px;white-space:nowrap;vertical-align:top}.stt tr.hh td{border-top:2px solid var(--rule)}
+.stt td b{font-size:19px;font-variant-numeric:tabular-nums}.stt small{display:block;font-size:10px;color:var(--mute)}
+.ab{display:inline-block;min-width:2.4em;padding:0 5px;height:20px;border-radius:5px;text-align:center;font-size:11px;font-weight:700;line-height:20px;vertical-align:-3px;margin-right:4px;white-space:nowrap}
+#dbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:10px 14px}
+#dbar button{min-height:36px;min-width:36px;font-size:18px}#dbar #dtoday{font-size:14px}
+#dinfo{flex-basis:100%;font-size:13px;color:var(--mute)}
+#mdia{font-size:11px;color:var(--mute);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pop{position:fixed;inset:0;z-index:20;background:rgba(10,20,40,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+#pop.hide{display:none}
+.pc{background:var(--panel);color:var(--ink);border-radius:12px;padding:18px;width:min(420px,100%);max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:12px;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+.pc h3{margin:0;font-size:18px}.fl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute)}.fl input{font-size:16px}
+.fmw{display:inline-flex;flex-direction:column;align-items:center;line-height:1.1}
+.pv{font-size:10px;color:var(--mute);text-decoration:line-through;line-height:1.1}
+.rp{display:inline-block;font-size:10px;font-weight:700;padding:0 5px;border-radius:4px;background:var(--band);color:var(--acc)}
+#ph{margin-top:10px}#popen{margin-top:2px}
+.wn{display:inline-block;margin-left:4px;width:15px;height:15px;border-radius:50%;background:#e8a317;color:#fff;font-size:11px;font-weight:700;line-height:15px;text-align:center;vertical-align:1px}
+.wnote{margin:0 0 8px;padding:6px 10px;border-left:4px solid #e8a317;background:var(--band);font-size:12px}
+.gh td{padding:14px 0 4px}
+.gb{display:flex;align-items:center;gap:8px;min-height:30px;padding:0 4px;border:0;background:transparent;font-size:14px;font-weight:700;position:sticky;left:0}
+.gb i{width:12px;height:12px;border-radius:3px;display:inline-block}.gb small{color:var(--mute);font-weight:400;font-size:12px}
+.cl{margin:6px 0;padding-left:18px;font-size:13px}.cerr{color:#e0524a}.cwarn{color:#c98a00}
+.cx{margin:8px 0;padding:8px;background:var(--band);border-radius:6px;font-size:11px;line-height:1.5;overflow:auto;white-space:pre}
+.cx2{margin:6px 0;font-size:12px;line-height:1.7;color:var(--mute)}
+details{margin:8px 0}summary{cursor:pointer;font-weight:700;font-size:14px}
+.lb{width:196px}
+.fi{object-fit:contain;flex:none}.fi.gh0{opacity:.4}
+.fct{display:inline-flex;align-items:center;gap:4px}
+.fc{display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--panel);border:1px solid var(--rule);border-radius:10px;margin-bottom:8px}
+.tp{display:inline-block;min-width:3.2em;padding:4px 10px;border-radius:8px;font-size:18px;font-weight:700;text-align:center}
+.fk{flex:1;min-width:0}
+.fr{padding:10px 0;border-bottom:1px solid var(--rule)}.fh{display:flex;align-items:center;gap:10px}
+.fno{font-size:20px;min-width:2.2em;color:var(--acc)}.fcs{overflow:auto;flex:1;min-width:0;padding:2px 0}
+.fn{margin-top:4px;font-size:12px;color:var(--mute);text-align:center}
+.pfw{font-size:12px;min-height:1.4em}.pfw.ok{color:var(--acc);display:flex;align-items:center;gap:6px}.pfw.warn{color:#c98a00}
+.atabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px;padding-bottom:2px}
+.atabs button{flex:none;padding:0 12px}.atabs button.on{background:var(--acc);color:var(--accf);border-color:var(--acc)}
+.abar{position:fixed;left:0;right:0;bottom:calc(56px + env(safe-area-inset-bottom,0px));z-index:5;background:var(--panel);border-top:1px solid var(--rule);padding:8px 14px;max-height:40vh;overflow:auto}
+.amsg{font-size:12px;margin-bottom:6px}.abar .row{margin:0}
+.ac{padding:10px;margin:10px 0;background:var(--panel);border:1px solid var(--rule);border-radius:10px;display:flex;flex-direction:column;gap:8px}
+.ac h3{margin:0}.ac .row{margin:0;flex-wrap:wrap}
+.orow{display:flex;align-items:center;gap:8px;padding:4px 0;border-top:1px solid var(--rule)}
+.mvb{display:inline-flex;gap:4px;margin-left:auto}.mvb button{min-width:36px;padding:0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:var(--band);border-radius:99px;font-size:13px}
+.sr{display:flex;flex-direction:column;gap:4px}.sr button{justify-content:flex-start;text-align:left;font-size:13px}
+.atb{width:100%;border-collapse:collapse}.atb td,.atb th{padding:6px 4px;text-align:left;font-size:13px}
+.xb{gap:8px;background:#000;color:#fff;border-color:#000}.xb svg{width:15px;height:15px;fill:#fff;flex:none}
+header .top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;padding:0 10px}
+#mbg{position:fixed;inset:0;z-index:9;background:rgba(10,20,40,.38);border:0;border-radius:0;padding:0;min-height:0}
+#menu{position:fixed;right:0;top:0;bottom:0;z-index:10;width:min(360px,100vw);background:var(--panel);color:var(--ink);box-shadow:-8px 0 28px rgba(0,0,0,.28);overflow-y:auto;padding:calc(10px + env(safe-area-inset-top,0px)) 16px calc(24px + env(safe-area-inset-bottom,0px))}
+#menu h2{font-size:13px;color:var(--mute);letter-spacing:.06em;margin:22px 0 8px;font-weight:700}
+.mi{display:flex;width:100%;justify-content:flex-start;text-align:left;min-height:44px;margin:4px 0}
+.mi[aria-current="true"]{border-color:var(--acc);background:var(--band);font-weight:700}
+.mrow{display:flex;align-items:center;gap:10px;padding:6px 0}
+#mctl{position:fixed;right:10px;bottom:calc(56px + env(safe-area-inset-bottom,0px) + 10px);z-index:6;display:flex;flex-direction:column;gap:6px;width:150px}
+#mctl button{min-height:34px;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+#mctl button[aria-pressed="true"]{background:var(--acc);color:var(--accf);border-color:var(--acc)}
+.mdt{display:flex;flex-direction:column;gap:3px;padding:6px;background:var(--panel);border:1px solid var(--rule);border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.mdt input{min-height:30px;font-size:13px;padding:0 6px}
+#info{padding-right:172px}
+.gb2{gap:10px;background:#fff;color:#1f1f1f;border:1px solid #dadce0}.gb2 svg{width:18px;height:18px;flex:none}
+#svc{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hh,54px));z-index:4}
+.svb{width:100%;display:flex;align-items:center;gap:8px;justify-content:flex-start;text-align:left;min-height:38px;border:0;border-radius:0;padding:6px 14px;font-size:13px}
+.svb b{font-size:12px;opacity:.9;flex:none}.svt{font-weight:700;flex:none}.svn{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sva{flex:none;font-size:12px;opacity:.9}
+.sbd{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;font-weight:700;flex:none}
+.svo{display:flex;flex-direction:column;gap:6px}
+.svr{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--rule);border-radius:8px;cursor:pointer;background:var(--panel)}.svr input{margin:0}.svr.on{border-color:var(--acc);background:var(--band)}
+.hbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 8px}.hbar select{min-width:7em}
+</style>
+</head>
+<body>
+<header id="hd" class="hide"><div class="top"><h1 id="ttl">フクチカナビ</h1><button id="mbtn" class="mb" aria-label="メニュー" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div></header>
+<div id="svc" class="hide" role="status"></div>
+<button id="mbg" class="hide" aria-label="メニューを閉じる" tabindex="-1"></button>
+<nav id="menu" class="hide" aria-label="メニュー"></nav>
+<div id="auth" class="wrap" style="padding:84px 20px;text-align:center"><h1 style="font-size:28px;color:var(--hd);margin:0">フクチカナビ</h1><p class="mute" style="margin:12px 0 26px">XまたはGoogleのアカウントでログインすると、運用や列車の位置を見られます</p><button id="xlogin" type="button" class="xb" style="margin:0 auto;min-width:250px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>Xでログイン</button><button id="glogin" type="button" class="gb2" style="margin:10px auto 0;min-width:250px"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Googleでログイン</button><div id="aerr" class="mute" role="alert" style="margin-top:14px"></div></div>
+<div id="dbar" class="hide"><button id="dprev" aria-label="前の日">‹</button><input id="dsel" type="date" aria-label="日付"><button id="dnext" aria-label="次の日">›</button><button id="dtoday">今日</button><select id="ddia" class="hide" aria-label="ダイヤ"></select><span id="dinfo"></span></div>
+<div id="drop" class="hide"><h2>路線を選んでください</h2><div id="lines" class="tiles"></div><div id="lmsg" class="mute" style="margin-top:12px"></div></div>
+<section id="rs" class="hide"><div class="bar"><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span></div><div id="rt"></div></section>
+<section id="sv" class="hide"><div class="bar"><button id="sprev" aria-label="前の駅" style="font-size:20px;min-width:44px">‹</button><select id="sstn" aria-label="駅" style="flex:1;min-width:0"></select><button id="snext" aria-label="次の駅" style="font-size:20px;min-width:44px">›</button></div>
+<div class="bar" style="padding-top:0"><div class="seg" id="sdirs" style="width:150px"><button data-sd="0" class="on">下り</button><button data-sd="1">上り</button></div><span id="smeta" class="mute"></span></div><div id="shb" class="bar" style="padding-top:0"></div><div id="sbody"></div></section>
+<section id="fv" class="hide"><div class="bar"><input id="fq" type="search" placeholder="編成番号・所属・車号で検索" aria-label="編成を検索" style="flex:1;min-width:0"><button id="fadm" class="hide">編成を管理</button></div><div id="fl" style="padding:0 14px 100px"></div></section>
+<section id="pv" class="hide"><div class="bar" style="padding-bottom:0"><select id="pedge" aria-label="区間" style="flex:1;min-width:0"></select><div class="seg" id="pdirs" style="width:190px"><button data-pd="all" class="on">両方</button><button data-pd="0">下り</button><button data-pd="1">上り</button></div></div>
+<div class="bar" style="padding-top:2px;padding-bottom:0"><span id="pfrom" class="mute" style="white-space:nowrap"></span><input id="pslider" type="range" min="0" max="1000" value="500" step="10" aria-label="地点の位置"><span id="pto" class="mute" style="white-space:nowrap"></span></div>
+<div class="bar" style="padding-top:2px;padding-bottom:0"><input id="pkm" type="number" min="0" step="0.1" style="width:6em" aria-label="始発駅からの距離(km)"><span class="mute">km</span><span id="ppos" style="font-weight:700"></span></div>
+<div class="bar" id="pnotebar" style="padding-top:2px"><span id="pnote" class="mute"></span></div>
+<div class="bar" style="padding-top:0"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="pftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="pttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><select id="pfm" aria-label="編成で絞り込む" style="flex:1;min-width:0"></select><span id="pmeta" class="mute"></span></div>
+<div id="pbody" style="padding:0 14px 100px"></div></section>
+<section id="adm" class="hide"></section>
+<section id="ov" class="hide"></section>
+<main class="hide" id="mn"><div class="wrap"><svg id="map" role="img" aria-label="路線図"><g id="base"></g><g id="stp" style="pointer-events:none"></g><g id="trains"></g></svg></div></main>
+<div id="sheet" class="hide"><div id="sh"></div><div id="sb"></div></div>
+<div id="pop" class="hide" role="dialog" aria-modal="true" aria-labelledby="ptt"><div class="pc">
+  <h3 id="ptt">編成を投稿</h3><div id="pw" class="mute"></div><div id="pwho" class="mute" style="font-size:12px"></div>
+  <label class="fl">編成<input id="pf" type="text" maxlength="20" placeholder="例 06" autocomplete="off" list="fmlist"></label><datalist id="fmlist"></datalist><div id="pfw" class="pfw" role="status"></div>
+  <label class="opt"><input id="pc" type="checkbox">差替(直前の編成から差し替えた)</label>
+  <label class="fl">備考(任意)<input id="pr" type="text" maxlength="100" placeholder="例 側面:3段帯" autocomplete="off"></label>
+  <div id="pm" class="mute" role="status"></div>
+  <div class="row" style="justify-content:flex-end"><button id="pcx">キャンセル</button><button id="pb" class="pri">投稿</button></div>
+</div></div>
+<nav id="bnav" class="hide" aria-label="表示の切り替え"><button id="nr" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>運用一覧</button><button id="nm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>在線位置</button><button id="ns"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>駅時刻表</button><button id="np"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a5 5 0 0 1 5 5c0 3.6-5 8.2-5 8.2S7 11.6 7 8a5 5 0 0 1 5-5z"/><circle cx="12" cy="8" r="1.8"/><path d="M3 20.5h18"/></svg>通過時刻表</button><button id="nf"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="14" rx="3"/><path d="M9 21l1.5-4M15 21l-1.5-4M9 10h6M9.5 14h.01M14.5 14h.01"/></svg>編成表</button></nav>
+<div id="mctl" class="hide"><button id="lmb" type="button"></button><button id="rtb" type="button" aria-pressed="true">リアルタイム</button><div class="mdt"><div id="mdia"></div><input id="mdate" type="date" aria-label="日付"><input id="tin" type="time" step="60" aria-label="時刻"></div></div>
+<div id="info" class="hide"><div class="wrap"><div id="inf"></div><div id="note">時刻表に基づく計算上の位置です。実際の運行とは異なる場合があります。路線をタップすると、その地点の通過時刻表が見られます</div></div></div>
+<script>
+const $=s=>document.querySelector(s);
+let LX=[170,330];const X=l=>LX[l]??LX[LX.length-1], Y=r=>60+r*176, BC=["#d98c00","#2f8fd0","#a14fb8"];
+let M=null,T=0,live=true,selIds=new Set(),hidden=new Set(),hideTT=new Set(),cur=[],lastHtml='';
+
+function parseOud(t){const root={},stack=[root];for(const l of t.split('\n')){const c=stack[stack.length-1];if(l==='.'){if(stack.length>1)stack.pop();continue}const q=l.indexOf('=');if(q<0){if(l.endsWith('.')){const o={};(c[l.slice(0,-1)]??=[]).push(o);stack.push(o)}continue}c[l.slice(0,q)]=l.slice(q+1)}return root}
+const tm=s=>{if(!s)return null;s=s.trim();if(!/^\d{3,6}$/.test(s))return null;const L=s.length;if(L<=4)return +s.slice(0,L-2)*3600+ +s.slice(-2)*60;return +s.slice(0,L-4)*3600+ +s.slice(-4,-2)*60+ +s.slice(-2)};
+const fmt=(t,s)=>{t=Math.floor(t)%86400;return String(t/3600|0).padStart(2,'0')+':'+String(t%3600/60|0).padStart(2,'0')+(s?':'+String(t%60).padStart(2,'0'):'')};
+// OuDiaの色は BBGGRR 順
+const col=c=>{c=(c||'00000000').slice(-6);if(!/^[0-9a-fA-F]{6}$/.test(c))c='000000';const h='#'+c.slice(4,6)+c.slice(2,4)+c.slice(0,2);return h==='#000000'?'var(--ink)':h};
+
+function setup(root,name){
+  const R=root.Rosen[0];
+  const st=R.Eki.map((e,i)=>({name:e.Ekimei,major:e.Ekikibo==='Ekikibo_Syuyou',core:e.BrunchCoreEkiIndex!=null?+e.BrunchCoreEkiIndex:null,tracks:e.EkiTrack2Cont?.[0]?.EkiTrack2||[]}));
+  // --- 駅の接続関係を作る ---
+  // BrunchCoreEkiIndex を持つ駅は、指された駅と同じ駅(分岐駅)。駅リストの隣同士は基本的につながるが、
+  // 分岐駅とその相手の間にある側の隣接だけは、実際の線路ではないので外す
+  const n=st.length,par=st.map((_,i)=>i),find=x=>par[x]===x?x:(par[x]=find(par[x]));
+  const cut=new Set();
+  st.forEach((e,i)=>{if(e.core==null||e.core<0||e.core>=n)return;const a=find(i),b=find(e.core);if(a<b)par[b]=a;else par[a]=b;cut.add(i<e.core?i+'_'+(i+1):(i-1)+'_'+i)});
+  const cn=i=>find(i),adj=new Map();
+  st.forEach((_,i)=>{if(cn(i)===i)adj.set(i,new Set())});
+  const fwd=new Set();
+  for(let i=0;i<n-1;i++){if(cut.has(i+'_'+(i+1)))continue;const u=cn(i),v=cn(i+1);if(u!==v){adj.get(u).add(v);adj.get(v).add(u);fwd.add(u+'>'+v)}}
+  // fwd: 下り列車がu→vへ進む向き。本線は下り向きに一方通行で最も長くたどれる経路にする
+  const dn=(u,x)=>fwd.has(u+'>'+x),pos=[],lanes=[],conn=[],node={};let rows=0,maxLane=1;
+  const longest=(u,up,vis=new Set([u]))=>{let best=[];for(const x of adj.get(u)){if(node[x]||vis.has(x)||!(up?dn(x,u):dn(u,x)))continue;vis.add(x);const p=longest(x,up,vis);if(p.length>best.length)best=p}return [u,...best]};
+  for(;;){
+    let main=[];for(const u of adj.keys())if(!node[u]){const p=longest(u,false);if(p.length>main.length)main=p}
+    if(!main.length)break;
+    const comp=[],cs=[];lanes.length=0;
+    main.forEach((u,i)=>{node[u]={lane:0,row:i};comp.push(u)});
+    const todo=[...main];
+    while(todo.length){const v=todo.shift(),pv=node[v];
+      for(const w of adj.get(v)){if(node[w])continue;
+        // 下り列車が分岐線から駅へ入ってくる(合流)なら分岐線は駅の上側、駅から出ていくなら下側に伸ばす
+        const up=dn(w,v)&&!dn(v,w),P=longest(w,up),r0=pv.row,len=P.length,lo=up?r0-len:r0+1,hi=up?r0-1:r0+len;
+        let lane=1;while(lane===pv.lane||(lanes[lane]&&lanes[lane].some(([x,y])=>!(hi<x||lo>y))))lane++;
+        (lanes[lane]??=[]).push([lo,hi]);maxLane=Math.max(maxLane,lane);
+        P.forEach((u,k)=>{node[u]={lane,row:up?r0-1-k:r0+1+k};comp.push(u);todo.push(u)});
+        const c={from:pv,lane,top:lo,bot:hi,up,end:P[len-1]};conn.push(c);cs.push(c)}}
+    const rs=comp.map(u=>node[u].row),mn=Math.min(...rs),mx=Math.max(...rs),sh=rows-mn;
+    comp.forEach(u=>node[u].row+=sh);cs.forEach(c=>{c.top+=sh;c.bot+=sh});rows+=mx-mn+1;
+  }
+  st.forEach((_,i)=>{pos[i]={...node[cn(i)],copy:cn(i)!==i,id:cn(i)}});
+    const types=(R.Ressyasyubetsu||[]).map(t=>({name:t.Syubetsumei,ini:[...(t.Ryakusyou||t.Syubetsumei||'?')][0],ab:t.Ryakusyou||[...(t.Syubetsumei||'?')][0],col:col(t.DiagramSenColor||t.JikokuhyouMojiColor)}));
+  M={st,pos,conn,rows,maxLane,types,adj,cn,dias:(R.Dia||[]).map(d=>({name:d.DiaName||'ダイヤ',d,trains:null})),name:name||R.Rosenmei||'',kiten:(()=>{const k=tm(R.KitenJikoku);return k>0?k:14400})()};
+  // --- 駅名・停車種別の文字幅から各レーンの位置と全体の幅を決める(駅名と列車アイコンが重ならないように) ---
+  // 本線(レーン0)の文字は線の左側、分岐レーンの文字は線の右側。列車アイコンは線から26pxの位置で、
+  // 同じ駅に列車が重なって寄る場合は34pxさらに外側(合計で約78pxまで)に出る
+  M.dias.forEach(d=>{if(!d.trains)d.trains=build(d);d.stops=stopMap(d)});
+  loadCfg(); // 路線ごとの詳細設定(<路線名>.config.json)
+  const wl=[];
+  st.forEach((e,i)=>{const p=pos[i];if(p.copy)return;let nc=0;for(const d of M.dias)nc=Math.max(nc,(d.stops.get(pk(i))||new Set()).size);
+    const fs=p.lane?15:17,nw=[...e.name].reduce((a,c)=>a+(c.charCodeAt(0)>255?1:.58)*fs,0);wl[p.lane]=Math.max(wl[p.lane]||0,nw,nc*19)});
+  LX=[12+(wl[0]||0)+6+96];LX[1]=LX[0]+190;
+  for(let l=2;l<=maxLane;l++)LX[l]=LX[l-1]+96+(wl[l-1]||0)+8+96;
+  const W=Math.ceil(Math.max(480,LX[Math.max(1,maxLane)]+82+(wl[Math.max(1,maxLane)]||0)+12));
+  // 路線図(静的部分)
+  let h='';
+  for(let r=0;r<rows;r++)h+=`<rect x="0" y="${Y(r)-26}" width="${W}" height="52" fill="var(--band)"/>`;
+  // 本線(レーン0)の線
+  const l0=Object.values(node).filter(p=>p.lane===0).map(p=>p.row);
+  if(l0.length){const ms=st.map((_,i)=>i).filter(i=>!pos[i].copy&&pos[i].lane===0).sort((a,b)=>pos[a].row-pos[b].row);
+    if(!M.cfg||!M.cfg.segments.length||ms.length<2)h+=`<line x1="${X(0)}" y1="${Y(Math.min(...l0))-40}" x2="${X(0)}" y2="${Y(Math.max(...l0))}" stroke="var(--lc)" stroke-width="9" stroke-linecap="round"/>`;
+    else for(let k=0;k<ms.length-1;k++)h+=`<line x1="${X(0)}" y1="${Y(pos[ms[k]].row)-(k?0:40)}" x2="${X(0)}" y2="${Y(pos[ms[k+1]].row)}" stroke="${edgeCol(ms[k],ms[k+1])||'var(--lc)'}" stroke-width="9" stroke-linecap="round"/>`}
+  // 分岐線は駅と駅の間でカーブを描いて本線から分かれる。分岐駅までの区間は、分岐先の線を本線の上(手前)に重ねて描く
+  for(const c of conn){const f=c.from,R=26,x0=X(f.lane),x1=X(c.lane),mx=(x0+x1)/2,sg=Math.sign(x1-x0)||1;let d,hy;
+    if(!c.up){const yA=Y(f.row)+56;hy=yA+R;d=`M${x0} ${Y(f.row)}V${yA}Q${x0} ${hy} ${x0+sg*R} ${hy}H${x1-sg*R}Q${x1} ${hy} ${x1} ${yA+2*R}V${Y(c.bot)}`}
+    else{const yJ=Y(f.row)-56;hy=yJ-R;d=`M${x1} ${Y(c.top)}V${yJ-2*R}Q${x1} ${hy} ${x1-sg*R} ${hy}H${x0+sg*R}Q${x0} ${hy} ${x0} ${yJ}V${Y(f.row)}`}
+    h+=`<path d="${d}" fill="none" stroke="${segCol(c.end)||'var(--lc)'}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>`;
+    const nm=st[c.end].name+'方面',w=nm.length*14+28;
+    h+=`<rect x="${mx-w/2}" y="${hy-40}" width="${w}" height="28" rx="14" fill="var(--panel)" stroke="var(--line)"/><text x="${mx}" y="${hy-21}" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">${esc(nm)}</text>`}
+  st.forEach((s,i)=>{const p=pos[i];if(p.copy)return;const x=X(p.lane),y=Y(p.row);
+    h+=`<g data-st="${i}" style="cursor:pointer"><rect x="${p.lane?x-16:0}" y="${y-26}" width="${p.lane?W-x+16:x+16}" height="52" fill="transparent"/><circle cx="${x}" cy="${y}" r="${s.major?9:7.5}" fill="var(--panel)" stroke="var(--stn)" stroke-width="5"/>`;
+    h+=p.lane===0?`<text class="nm" x="12" y="${y-2}">${esc(s.name)}</text></g>`:`<text class="nm sub" x="${x+82}" y="${y-2}">${esc(s.name)}</text></g>`});
+  const H=Y(rows)+10;$('#map').setAttribute('viewBox',`0 0 ${W} ${H}`);$('#map').style.maxWidth=W+'px';$('#map').style.minWidth=(maxLane>1||W>520)?W+'px':'';$('#base').innerHTML=h;
+  // UI
+  hidden.clear();hideTT.clear();selIds=new Set();cfgTypes();
+  ptEdge=null;ptFrac=0.5;ptDir='all';ptFrom=null;ptTo=null;ptFm=''; // 通過時刻表の指定は、路線が変わったら最初から
+  show('#drop',false);
+  selDate=svcDate();$('#dsel').value=$('#mdate').value=selDate;
+  M.free=!M.dias.some(d=>/平日|土|休|日曜|祝/.test(d.name)); // ダイヤ名から曜日が分からない路線は、手動で選ぶ
+  $('#ddia').innerHTML=M.dias.map((d,i)=>`<option value="${i}">${esc(d.name)}</option>`).join('');show('#ddia',M.free);
+  useDia(M.free?0:diaFor(dayType(selDate)).i,true);showView('roster');loadPosts().then(refresh);loadNotices();if(afterSetup){const f=afterSetup;afterSetup=null;f()}
+}
+
+function build(d){
+  const n=M.st.length,out=[];
+  for(const [sec,dir] of [['Kudari',0],['Nobori',1]])for(const r of (d.d[sec]?.[0]?.Ressya||[])){
+    const route=[];
+    (r.EkiJikoku||'').split(',').forEach((e,j)=>{
+      if(!e)return;const m=e.match(/^(\d)(?:;([^$]*))?/);if(!m)return;const ty=+m[1];if(ty!==1&&ty!==2)return;
+      // 上り列車の時刻は駅順が逆(末尾が最初の駅)で記録されている
+      const s=dir?n-1-j:j;let a=null,dd=null;
+      if(m[2]!=null){const p=m[2].split('/');a=tm(p[0]);dd=tm(p[1]);if(a==null)a=dd;if(dd==null)dd=a}
+      route.push({s,a,d:dd,ps:ty===2,tk:(e.match(/\$(\d+)/)||[])[1]});
+    });
+    const si=[];route.forEach((x,i)=>{if(x.a!=null)si.push(i)});
+    const stp=si.filter(i=>!route[i].ps);if(stp.length<2)continue;
+    let off=route[si[0]].a<M.kiten?86400:0,prev=-1; // 起点時刻より前の時刻は翌日(24時以降)として扱う
+    for(const i of si){const x=route[i];let a=x.a+off;if(a<prev){off+=86400;a+=86400}let dd=x.d+off;if(dd<a){off+=86400;dd+=86400}x.a=a;x.d=dd;prev=dd}
+    out.push({dir,ty:+r.Syubetsu||0,name:[r.Ressyabangou,r.Ressyamei].filter(Boolean).join(' '),route,si,fs:stp[0],ls:stp[stp.length-1],t0:route[si[0]].a,t1:route[si[si.length-1]].d,id:out.length,bikou:r.Bikou||'',opk:Object.fromEntries(Object.entries(r).filter(([k])=>/^Operation\d+[AB]$/.test(k)))});
+  }
+  linkOps(out);return out;
+}
+
+// 最小費用の割り当て(ハンガリー法)。C は正方行列で、行iに割り当てる列を配列で返す
+function assign(C){
+  const N=C.length,u=new Float64Array(N+1),v=new Float64Array(N+1),p=new Int32Array(N+1),way=new Int32Array(N+1);
+  for(let i=1;i<=N;i++){p[0]=i;let j0=0;const minv=new Float64Array(N+1).fill(Infinity),used=new Uint8Array(N+1);
+    do{used[j0]=1;const i0=p[j0];let d=Infinity,j1=0;
+      for(let j=1;j<=N;j++)if(!used[j]){const c=C[i0-1][j-1]-u[i0]-v[j];if(c<minv[j]){minv[j]=c;way[j]=j0}if(minv[j]<d){d=minv[j];j1=j}}
+      for(let j=0;j<=N;j++){if(used[j]){u[p[j]]+=d;v[j]-=d}else minv[j]-=d}
+      j0=j1}while(p[j0]!==0);
+    do{const j1=way[j0];p[j0]=p[j1];j0=j1}while(j0)}
+  const r=new Int32Array(N);for(let j=1;j<=N;j++)r[p[j]-1]=j-1;return r}
+// 運用の連なり。OperationNB=始発側 / OperationNA=終着側。値は「,」区切りで
+//   5/…                      前後の列車と接続
+//   3/時刻$連携コード/運用名    出区(始発側)・入区(終着側)。同じ連携コードの入区と出区は、車庫を経由してつながる
+//   0/種類$開始/終了$番線       駅作業(入換など)。作業のあと、車両は指定の番線に移る
+// つなぎ方: ①連携コードの一致 ②同じ駅ごとの最適な割り当て(駅作業の時刻と番線も考慮)
+function linkOps(out){
+  const K=M.kiten,sh=v=>v!=null&&v<K?v+86400:v; // 起点時刻より前は翌日
+  const pv=v=>{const o={conn:false,depot:null,works:[]};
+    for(const it of v.split(',')){
+      if(it.startsWith('5/'))o.conn=true;
+      else if(it.startsWith('3/')){const m=it.match(/^3\/([^$]*)\$([^/]*)(?:\/(.*))?$/);if(m)o.depot={t:sh(tm(m[1])),code:m[2],name:m[3]||''}}
+      else if(it.startsWith('0/')){const m=it.match(/^0\/(\d*)\$([^/]*)\/([^$]*)\$(\d*)$/);if(m)o.works.push({s:sh(tm(m[2])),e:sh(tm(m[3])),tk:m[4]||null})}}
+    return o};
+  let any=false;
+  for(const t of out){t.A={conn:false,depot:null,works:[]};t.B={conn:false,depot:null,works:[]};t.op=null;t.pv=t.nx=null;
+    for(const k in t.opk){any=true;t[k.slice(-1)]=pv(t.opk[k])}
+    const a=t.route[t.fs],b=t.route[t.ls];t.dep=a.d;t.arr=b.a;t.tkS=a.tk;
+    const w=t.A.works.filter(x=>x.tk!=null);t.tkEff=w.length?w[w.length-1].tk:b.tk;              // 駅作業のあとの番線
+    t.workEnd=Math.max(t.arr,...t.A.works.map(x=>x.e??0));
+    t.workStart=t.B.works.length?Math.min(...t.B.works.map(x=>x.s??Infinity)):Infinity}
+  out.ops=[];if(!any)return;
+  // ① 入出区連携コード
+  const As=new Map(),Bs=new Map(),add=(m,c,t)=>{if(!m.has(c))m.set(c,[]);m.get(c).push(t)};
+  for(const t of out){if(t.A.depot&&t.A.depot.code)add(As,t.A.depot.code,t);if(t.B.depot&&t.B.depot.code)add(Bs,t.B.depot.code,t)}
+  for(const [c,al] of As){const bl=(Bs.get(c)||[]).sort((p,q)=>p.dep-q.dep),used=new Set();
+    for(const a of al.sort((p,q)=>p.arr-q.arr)){const b=bl.find(x=>!used.has(x)&&x.dep>=a.arr);if(b){used.add(b);a.nx=b;b.pv=a}}}
+  // ② 同じ駅ごとに、到着列車と出発列車の組み合わせ全体が最適になるように割り当てる
+  //    (時刻が合う・駅作業が終わっている・同じ番線(駅作業のあとの番線)を優先し、待ち時間が短いほど良い)
+  const arr=new Map(),dep=new Map();
+  for(const t of out){if(t.A.conn&&!t.nx)add(arr,t.route[t.ls].s,t);if(t.B.conn&&!t.pv)add(dep,t.route[t.fs].s,t)}
+  for(const [s,A] of arr){const D=dep.get(s);if(!D)continue;
+    const n=A.length,m=D.length,N=n+m,INF=1e9,C=Array.from({length:N},()=>new Array(N).fill(0));
+    for(let a=0;a<n;a++){const x=A[a];
+      for(let b=0;b<m;b++){const y=D[b],ok=x.workEnd<=y.dep&&!(y.B.works.length&&y.workStart<x.arr);
+        C[a][b]=!ok?INF:((y.B.works.length||x.tkEff===y.tkS)?0:5000)+Math.min((y.dep-x.arr)/60,1000)}
+      for(let b=0;b<n;b++)C[a][m+b]=a===b?20000:INF}               // 相手が見つからない到着列車
+    for(let a=0;a<m;a++)for(let b=0;b<m;b++)C[n+a][b]=a===b?20000:INF;  // 相手が見つからない出発列車
+    const as=assign(C);
+    for(let a=0;a<n;a++){const b=as[a];if(b<m&&C[a][b]<INF){A[a].nx=D[b];D[b].pv=A[a]}}}
+  // 連なりを運用にまとめる(運用名は最初の列車の出区に書かれた名前)。つながりが不完全なものには警告をつける
+  let un=0;
+  for(const t of out){if(t.pv)continue;const tr=[t];while(tr[tr.length-1].nx)tr.push(tr[tr.length-1].nx);
+    const f=tr[0],l=tr[tr.length-1],nm=f.B.depot&&f.B.depot.name||'',warn=[];
+    if(f.B.conn)warn.push('最初の列車に、前の列車が見つかりません');else if(f.B.depot&&f.B.depot.code)warn.push(`連携コード${f.B.depot.code}の入区が見つかりません`);else if(!f.B.depot)warn.push('出区の記述がありません');
+    if(l.A.conn)warn.push('最後の列車が次の列車に接続のままです(つながる列車が見つかりません)');else if(l.A.depot&&l.A.depot.code)warn.push(`連携コード${l.A.depot.code}の出区が見つかりません`);else if(!l.A.depot)warn.push('入区の記述がありません');
+    out.ops.push({name:nm||'運用'+(++un),named:!!nm,trains:tr,warn})}
+  out.ops.sort((a,b)=>(a.named?0:1)-(b.named?0:1)||a.name.localeCompare(b.name,'ja',{numeric:true}));
+  const cnt=new Map();for(const o of out.ops)cnt.set(o.name,(cnt.get(o.name)||0)+1);
+  const kk=new Map();
+  for(const o of out.ops){const f=o.trains[0];o.key=cnt.get(o.name)>1?`${o.name}(${M.st[f.route[f.fs].s].name})`:o.name;kk.set(o.key,(kk.get(o.key)||0)+1)}
+  for(const o of out.ops)if(kk.get(o.key)>1){const f=o.trains[0],h=f.dep;o.key=`${o.key.slice(0,-1)} ${String(Math.floor(h/3600)%24).padStart(2,'0')}:${String(Math.floor(h%3600/60)).padStart(2,'0')})`} // 運用名の重複(同じ運用名・同じ始発駅)は時刻も付けて区別
+  out.ops.forEach((o,i)=>{o.i=i;o.trains.forEach((t,k)=>{t.op=o;t.oi=k})});
+}
+
+
+function useDia(i,first){
+  const d=M.dias[i];M.cur=i;if(!d.trains)d.trains=build(d);cur=d.trains;selIds=new Set();
+  const lo=Math.floor(Math.min(...cur.map(t=>t.t0))/900)*900,hi=Math.ceil(Math.max(...cur.map(t=>t.t1))/900)*900;
+  M.lo=isFinite(lo)?lo:0;M.hi=isFinite(hi)?hi:86400;
+    if(first||T<M.lo||T>M.hi){const now=new Date();const n=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();T=(n>=M.lo&&n<=M.hi)?n:M.lo}
+  drawStops();draw();
+}
+
+const P=s=>{const p=M.pos[s];return{x:X(p.lane),y:Y(p.row)}};
+// 分岐側の駅(コピー)は本線の駅と同じ位置
+const pp=P;
+const poly=nodes=>nodes.map(z=>pp(z.s));
+// 本線と分岐線をまたぐ区間は、縦方向の距離だけ進み、区間の半分(2/4)を過ぎたところで分岐先の線路へワープする
+function along(pts,f,q){const ls=[];let L=0;for(let i=1;i<pts.length;i++){const a=pts[i-1],b=pts[i],l=a.x!==b.x?Math.abs(b.y-a.y):Math.hypot(b.x-a.x,b.y-a.y);ls.push(l);L+=l}
+  if(!L)return q<3?pts[0]:pts[pts.length-1];let t=f*L;
+  for(let i=0;i<ls.length;i++){if(ls[i]>0&&t<=ls[i]){const k=t/ls[i],a=pts[i],b=pts[i+1];return{x:a.x!==b.x?(k<.5?a.x:b.x):a.x,y:a.y+(b.y-a.y)*k}}t-=ls[i]}
+  return pts[pts.length-1]}
+// 駅間を4分割し、区間ごとに段階的に進む。出発直後と到着直前は、その駅に別の番線の列車がいる場合だけ番線側へ寄る
+function where(tr,t){
+  if(t<tr.t0){ // 前の列車と駅でつながっているなら、前の列車が終着に着いてから出発まで、始発駅で次の列車として待機する(入出庫の連携は車庫に入るので表示しない)
+    const p=tr.pv;if(p&&p.nx===tr&&!(p.A.depot&&p.A.depot.code)&&t>p.t1){const x=tr.route[tr.si[0]];return{p:pp(x.s),at:x.s,tk:x.tk,k:0,sp:pp(x.s),stk:x.tk,ss:x.s,ta:p.t1,wait:true}}
+    return null}
+  if(t>tr.t1)return null;const R=tr.route,si=tr.si;
+  for(let k=0;k<si.length;k++){const x=R[si[k]];
+    if(t>=x.a&&t<=x.d){if(!x.ps)return{p:pp(x.s),at:x.s,tk:x.tk,k,sp:pp(x.s),stk:x.tk,ss:x.s,ta:x.a};
+      const nx=R[si[k+1]];return{p:pp(x.s),from:x.s,next:nx?nx.s:x.s,k,q:1,sp:null}}
+    if(k+1<si.length){const y=R[si[k+1]];
+      if(t>x.d&&t<y.a){const q=Math.min(3,4*(t-x.d)/(y.a-x.d)|0);
+        return{p:along(poly(R.slice(si[k],si[k+1]+1)),(q+.5)/4,q),from:x.s,next:y.s,k,q,sp:q===0&&!x.ps?pp(x.s):q===3&&!y.ps?pp(y.s):null,stk:q===0?x.tk:y.tk,ss:q===0?x.s:y.s,ta:q===0?x.a:y.a}}}}
+  return null;
+}
+
+const ink=c=>{if(c[0]!=='#')return'var(--panel)';const v=parseInt(c.slice(1),16),r=v>>16,g=v>>8&255,b=v&255;return(r*299+g*587+b*114)/1000>185?'#111':'#fff'}; // 橙(#ff8040など)は白文字、黄色や薄い色は黒文字
+// 各駅に停車する種別(ダイヤごと)
+function stopMap(d){const m=new Map();for(const tr of d.trains)for(const j of tr.si){if(tr.route[j].ps)continue;const k=pk(tr.route[j].s);if(!m.has(k))m.set(k,new Set());m.get(k).add(tr.ty)}return m}
+const stops=()=>{const d=M.dias[M.cur];return d.stops||(d.stops=stopMap(d))};
+function drawStops(){let h='';const m=stops();
+  M.st.forEach((s,i)=>{const p=M.pos[i];if(p.copy)return;const x0=p.lane?X(p.lane)+82:12,y=Y(p.row)+5;
+    [...(m.get(pk(i))||[])].filter(t=>!hidden.has(t)).sort((a,b)=>a-b).forEach((t,k)=>{const ty=M.types[t]||{col:'var(--mute)',ini:'?'},x=x0+k*19;
+      h+=`<rect x="${x}" y="${y}" width="17" height="17" rx="4" fill="${ty.col}"/><text x="${x+8.5}" y="${y+13}" text-anchor="middle" font-size="11" font-weight="700" fill="${ink(ty.col)}">${ty.ini}</text>`})});
+  $('#stp').innerHTML=h}
+const tcol=tr=>(M.types[tr.ty]||{col:'var(--mute)'}).col;
+const SHAPES=[['std','標準'],['pan','形A'],['rnd','形B']];
+let shape='std';
+// 列車アイコンの形。pan=パンタグラフ付き、rnd=丸みのある四角+足
+function shapeSvg(k,c,tc,ini){
+  const t=y=>ini?`<text y="${y}" text-anchor="middle" font-size="14" font-weight="700" fill="${tc}">${ini}</text>`:'';
+  if(k==='pan')return `<g transform="scale(.9)"><path d="M-9-17H9M-8.5-17v3M8.5-17v3M-4-16v5M4-16v5" fill="none" stroke="${c}" stroke-width="2.2" stroke-linecap="round"/><path d="M-7-12H7Q10-8 10-2V8Q10 14 6 14H-6Q-10 14-10 8V-2Q-10-8-7-12Z" fill="${c}"/><path d="M-6 14v3.5M6 14v3.5" stroke="${c}" stroke-width="3"/>${t(5)}</g>`;
+  if(k==='rnd')return `<g transform="scale(.9)"><path d="M-6-15H6Q11-15 11-8V9Q11 14 7 14H-7Q-11 14-11 9V-8Q-11-15-6-15Z" fill="${c}"/><path d="M-6.5 14v3.5M6.5 14v3.5" stroke="${c}" stroke-width="3"/>${t(4.5)}</g>`;
+  return `<rect x="-12" y="-13" width="24" height="26" rx="8" fill="${c}"/>${ini?`<text y="5.5" text-anchor="middle" font-size="15" font-weight="700" fill="${tc}">${ini}</text>`:''}`;
+}
+function icon(g){ // 在線位置の列車: 上に運用番号、画像(上りは上、下りは下に矢印)、色つきの札(列車番号か行先)、その下に編成
+  const tr=g.trs[0],cc=ccol(tr),up=g.side<0,sel=g.trs.some(t=>selIds.has(t.id)),n=g.trs.length;
+  const fo=tr.op?fmOf(tr.op.key):null,img=esc(fmIconUrl(fo&&fo.f));
+  const top=showOp&&tr.op?tr.op.name:'',fm=showFm&&fo?fo.f:'';
+  const pill=showDest?[...M.st[tr.route[tr.ls].s].name].slice(0,5).join(''):showNo?(tr.name||(M.types[tr.ty]||{}).ab||''):'';
+  const pw=t=>Math.max(24,[...t].length*6.6+10);
+  let o=`<rect x="-24" y="-46" width="48" height="110" fill="transparent"/>`;
+  if(sel)o+=`<rect x="-17" y="-22" width="34" height="44" rx="7" fill="none" stroke="${cc}" stroke-width="2.5"/>`;
+  o+=`<image href="${img}" x="-13" y="-18" width="26" height="36" preserveAspectRatio="xMidYMid meet"${fo?'':' opacity=".6"'}/>`;
+  o+=`<path d="${up?'M0 -27L6.5 -20H-6.5Z':'M0 27L6.5 20H-6.5Z'}" fill="${cc}"/>`;
+  if(top){const w=pw(top);o+=`<rect x="${-w/2}" y="-45" width="${w}" height="14" rx="7" fill="var(--ink)"/><text y="-34.6" text-anchor="middle" font-size="10" font-weight="700" fill="var(--panel)">${esc(top)}</text>`}
+  if(pill){const w=pw(pill);o+=`<rect x="${-w/2}" y="30" width="${w}" height="15" rx="7.5" fill="${cc}"/><text y="41.2" text-anchor="middle" font-size="10.5" font-weight="700" fill="${ink(cc)}">${esc(pill)}</text>`}
+  if(fm){const y=pill?58:42,t=esc(fm);o+=`<text y="${y}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--bg)" stroke="var(--bg)" stroke-width="3.5" stroke-linejoin="round">${t}</text><text y="${y}" text-anchor="middle" font-size="11" font-weight="700" fill="var(--ink)">${t}</text>`} // ふち取りの文字と、本体の文字を重ねる
+  if(n>1)o+=`<text x="22" y="-13" font-size="12" font-weight="700" fill="var(--ink)">+${n-1}</text>`;
+  return `<g data-ids="${g.trs.map(t=>t.id)}" transform="translate(${g.x} ${g.y})" style="cursor:pointer">${o}</g>`;
+}
+function draw(){syncMctl();
+  if(!M)return;
+  const cnt=M.types.map(()=>0),stopped=new Map(),moving=[],items=[],slots=new Map();
+  for(const tr of cur){const w=where(tr,T);if(!w)continue;cnt[tr.ty]=(cnt[tr.ty]||0)+1;if(hidden.has(tr.ty))continue;
+    const side=tr.dir?-1:1;items.push({tr,w,side});
+    if(w.sp){const k=w.sp.x+'_'+w.sp.y+'_'+side;if(!slots.has(k))slots.set(k,[]);slots.get(k).push([w.ta,tr.id])}}
+  // 駅ごとに、先に着いていた列車ほど線の近く、あとから来た列車ほど外側に入る(番線が決まっていても同じ)。1本だけならまっすぐのまま
+  const order=new Map();
+  // 並ぶ列車は、列車番号(なければ運用番号)の若い順に左から並べる。右側(下り)は線に近い方が左、左側(上り)は外側が左
+  for(const [k,a] of slots){const ids=a.sort((p,q)=>numCmp(cur[p[1]],cur[q[1]])||p[0]-q[0]||p[1]-q[1]).map(z=>z[1]);order.set(k,k.endsWith('_-1')?ids.reverse():ids)}
+  for(const {tr,w,side} of items){
+    const lst=w.sp?order.get(w.sp.x+'_'+w.sp.y+'_'+side):null,ox=lst?28+40*lst.indexOf(tr.id):28,x=w.p.x+side*ox,y=w.p.y;
+    if(w.at!=null){const k=x+'_'+y;if(!stopped.has(k))stopped.set(k,{trs:[],x,y,side});stopped.get(k).trs.push(tr)}
+    else moving.push({tr,x,y,side})}
+  const groups=[...stopped.values()];
+  moving.sort((a,b)=>a.x-b.x||a.y-b.y);
+  let hd=null;
+  for(const m of moving){if(hd&&hd.x===m.x&&m.y-hd.y<40)hd.trs.push(m.tr);else{hd={x:m.x,y:m.y,side:m.side,trs:[m.tr]};groups.push(hd)}}
+  const html=groups.map(icon).join('');if(html!==lastHtml){$('#trains').innerHTML=html;lastHtml=html}
+  const ti=$('#tin');if(document.activeElement!==ti)ti.value=fmt(T);
+  info();
+}
+const esc=x=>String(x??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pk=i=>M.pos[i].lane+'_'+M.pos[i].row,S=i=>esc(M.st[i].name);
+let sh=null,ttDir=0;
+const statusOf=tr=>{const w=where(tr,T);return w?(w.wait?`${M.st[w.at].name} で待機中(${fmt(tr.t0)}発)`:w.at!=null?`${M.st[w.at].name} に停車中`:`${M.st[w.from].name} → ${M.st[w.next].name} 走行中`):(T<tr.t0?'運転前':'運転終了')};
+function openSheet(o){sh=o;$('#sheet').classList.remove('hide');renderSheet()}
+function closeSheet(){sh=null;selIds=new Set();$('#sheet').classList.add('hide');draw()}
+function renderSheet(){
+  if(sh.type==='cfg'){renderCfg();return}
+  if(sh.type==='inf'){renderInf();return}
+  if(sh.type==='fmh'){renderFmh();return}
+  if(sh.type==='tr'){
+    const trs=sh.ids.map(i=>cur[i]),tr=trs[sh.act],R=tr.route,ty=M.types[tr.ty]||{name:'',col:'var(--ink)'},a=R[tr.fs],b=R[tr.ls];
+    const rows=[];tr.si.forEach((i,k)=>{const x=R[i],l=rows[rows.length-1];if(l&&!l.ps&&!x.ps&&pk(l.s)===pk(x.s)){l.d=x.d;l.b=k}else rows.push({s:x.s,a:x.a,d:x.d,ps:x.ps,tk:x.tk,ka:k,b:k})});
+    $('#sh').innerHTML=`<div><div><b style="color:${ty.col}">${esc(ty.name)}</b> ${esc(tr.name)} ${tr.dir?'上り':'下り'}</div><div class="mute">${S(a.s)} ${fmt(a.d)} → ${S(b.s)} ${fmt(b.a)}</div><div id="sst"></div>${trs.length>1?'<div class="tabs">'+trs.map((t,i)=>`<button data-act="${i}" ${i===sh.act?'style="border-color:var(--acc)"':''}>${esc((M.types[t.ty]||{}).name)} ${esc(t.name)||fmt(t.t0)}</button>`).join('')+'</div>':''}</div><button id="cls">閉じる</button>`;
+    $('#sb').innerHTML=`<div id="pst"></div><table><tr><th>駅</th><th>番線</th><th>着</th><th>発</th></tr>${rows.map((r,i)=>r.ps?`<tr data-a="${r.ka}" data-b="${r.b}"><td class="mute">${S(r.s)}</td><td class="mute" colspan="3">通過 ${fmt(r.a)}</td></tr>`:`<tr data-a="${r.ka}" data-b="${r.b}"><td>${S(r.s)}</td><td>${esc(trkS(r.s,r.tk))}</td><td>${i?fmt(r.a):''}</td><td>${i<rows.length-1?fmt(r.d):''}</td></tr>`).join('')}</table>`;
+    markRows();renderPost(tr);
+  }else{
+    const i=sh.i,key=pk(i),T2=stTable(key,ttDir,ttHr);ttHrs=T2.hrs;
+    const tset=[...(stops().get(key)||[])].filter(t=>!hideTT.has(t)).sort((a,b)=>a-b);
+    $('#sh').innerHTML=`<div style="flex:1;min-width:0"><b style="font-size:18px">${S(i)}</b><div class="mute">${tset.length?'停車: '+tset.map(t=>{const ty=M.types[t]||{name:'',col:'var(--ink)'};return `<b style="color:${ty.col}">${esc(ty.name)}</b>`}).join(' '):'停車する列車なし'}</div><div class="seg" id="dirs" style="margin-top:8px;max-width:240px"><button data-dir="0" class="${ttDir?'':'on'}">下り</button><button data-dir="1" class="${ttDir?'on':''}">上り</button></div></div><button id="cls">閉じる</button>`;
+    $('#sb').innerHTML=hourBar()+T2.html;
+  }
+}
+function markRows(){
+  if(!sh||sh.type!=='tr')return;const tr=cur[sh.ids[sh.act]],w=where(tr,T);
+  const e=$('#sst');if(e)e.innerHTML=`<span class="mute">${esc(statusOf(tr))}</span>`;
+  document.querySelectorAll('#sb tr[data-a]').forEach(r=>{const a=+r.dataset.a,b=+r.dataset.b;let c='';
+    if(w){const k=w.k;if(w.at!=null){c=(a<=k&&k<=b)?'now':(b<k?'past':'')}else{c=(a<=k&&k+1<=b)?'now':(b<=k?'past':((a<=k+1&&k+1<=b)?'next':''))}}else if(T>tr.t1)c='past';
+    r.className=c});
+}
+function info(){markRows()}
+$('#sheet').addEventListener('click',e=>{if(e.target.closest('#cls'))closeSheet();const dd=e.target.closest('[data-dir]');if(dd&&sh&&sh.type==='st'){ttDir=+dd.dataset.dir;renderSheet();$('#sb').scrollTop=0}const t=e.target.closest('[data-act]');if(t){sh.act=+t.dataset.act;selIds=new Set([sh.ids[sh.act]]);renderSheet();draw()}});
+try{const t=localStorage.getItem('thm');if(t==='dark'||t==='light')document.documentElement.dataset.theme=t;else if(t==='auto')document.documentElement.removeAttribute('data-theme')}catch(e){}
+
+function loadFile(f){
+  const rd=new FileReader();
+  rd.onload=()=>{let t;const u=new Uint8Array(rd.result);
+    try{t=new TextDecoder('utf-8',{fatal:true}).decode(u)}catch(e){t=new TextDecoder('shift_jis').decode(u)}
+    t=t.replace(/^\uFEFF/,'').replace(/\r/g,'');
+    try{const root=parseOud(t);if(!root.Rosen)throw new Error('Rosen');setup(root,f.name.replace(/\.[^.]+$/,''))}
+    catch(e){alert('このファイルは読み込めませんでした。OuDiaSecond形式(.oud2)のファイルを選んでください。')}};
+  rd.readAsArrayBuffer(f);
+}
+$('#tin').onchange=e=>{const m=e.target.value.match(/^(\d+):(\d+)(?::(\d+))?$/);if(!m||!M)return;let t=+m[1]*3600+ +m[2]*60+(+m[3]||0);if(t<M.lo&&t+86400<=M.hi)t+=86400;T=Math.min(Math.max(t,M.lo),M.hi);live=false;e.target.blur();draw()};
+let pd=null;
+$('#map').addEventListener('pointerdown',e=>{pd={x:e.clientX,y:e.clientY}});
+$('#map').addEventListener('pointerup',e=>{if(!pd)return;const mv=Math.hypot(e.clientX-pd.x,e.clientY-pd.y);pd=null;if(mv>10)return;
+  const t=document.elementFromPoint(e.clientX,e.clientY),g=t&&t.closest('[data-ids]');
+  if(g){const ids=g.dataset.ids.split(',').map(Number);selIds=new Set([ids[0]]);lastHtml=null;openSheet({type:'tr',ids,act:0});draw();return}
+  const q=t&&t.closest('[data-st]');if(q){selIds=new Set();lastHtml=null;openSheet({type:'st',i:+q.dataset.st});draw();return}
+  const pick=pickPt(e);if(pick){ptEdge=pick.edge.key;ptFrac=pick.frac;showView('pt')}});
+let liveMin=-1; // リアルタイムで、最後に表示した「分」
+setInterval(()=>{if(M&&live&&!$('#mn').classList.contains('hide')){const m=Math.floor(nowSvc().T/60)*60;if(m!==liveMin){liveMin=m;T=(m>=M.lo&&m<=M.hi)?m:M.lo;draw()}}},1000); // 在線位置は1分ごとに更新する(分が変わったときだけ描き直す)
+
+// ---- 運用一覧・運用の一覧・編成の投稿 ----
+const VIEWS=['#mctl','#mn','#info','#rs','#sv','#pv','#fv','#adm','#ov','#bnav','#sheet','#dbar','#pop','#svc'];
+let posts=[],postErr=false,me=null,lineFile='',curOp=0,postsSig='',postsDirty=false;
+const kitenS=()=>M&&M.kiten?M.kiten:14400;
+const svcDate=()=>new Date(Date.now()+9*3600e3-kitenS()*1000).toISOString().slice(0,10); // 日本時間でダイヤの起点時刻(4時)に日付が変わる
+const postsOf=u=>posts.filter(p=>p.unit===u);
+let fmCache=new Map(),fmFor=null;
+function fmOf(u){ // その運用の現在の編成。差替なら直前の編成も
+  if(fmFor!==posts){fmFor=posts;fmCache=new Map()}
+  if(!fmCache.has(u)){const L=postsOf(u),c=L[0];fmCache.set(u,c?{f:c.formation,prev:c.replaced&&L[1]?L[1].formation:'',remark:c.remark||'',reg:fmReg(c.formation),by:c.user_id}:null)}
+  return fmCache.get(u)}
+const fmHtml=(fo,sz)=>`<span class="fmw"><span class="fm" style="font-size:${sz}px">${esc(fo.f)}${FM.size&&!fo.reg?'<span class="wn" title="編成表に登録されていません">?</span>':''}</span>${fo.prev?`<small class="pv">${esc(fo.prev)}</small>`:''}</span>`;
+async function loadPosts(){
+  if(!M||!lineFile)return;
+  const {data,error}=await sb.from('formation_posts').select('*').eq('file',lineFile).eq('service_date',selDate).order('created_at',{ascending:false});
+  postErr=!!error;posts=error?[]:data;await refreshNames(posts.map(p=>p.user_id));
+  const sig=posts.map(p=>p.id+':'+(NAMES.get(p.user_id)||'')).join();postsDirty=sig!==postsSig;postsSig=sig;
+}
+function refresh(){
+  if(!M)return;
+  if(!$('#rs').classList.contains('hide'))renderRoster();
+  if(!$('#ov').classList.contains('hide'))renderOp();
+  if(!$('#pv').classList.contains('hide'))renderPt();
+  if(sh&&sh.type==='tr')renderPh(cur[sh.ids[sh.act]]);
+  if(postsDirty){postsDirty=false;lastHtml=null;if(!$('#mn').classList.contains('hide'))draw();if(!$('#sv').classList.contains('hide'))renderSt();if(sh&&sh.type==='st')renderSheet()}
+}
+const ccol=t=>{const c=tcol(t);return c==='var(--ink)'?'var(--car)':c}; // 種別の色が黒(未設定)のときは落ち着いたスレート色
+let showNo=true,showDest=false,showOp=true,showTerm=true,showFm=true; // 編成と運用番号は常に表示
+try{showTerm=localStorage.getItem('sTerm')!=='0'}catch(e){}
+let labelMode='no';try{labelMode=localStorage.getItem('sMode')==='dest'?'dest':'no'}catch(e){}
+showNo=labelMode==='no';showDest=labelMode==='dest'; // 列車番号か行先のどちらか1つ
+const cell=t=>{const c=ccol(t),a=t.route[t.fs],b=t.route[t.ls],tm=fmt(a.d),no=showNo&&t.name;
+  return `<td><button class="c" data-t="${t.id}" style="background:${c};color:${ink(c)}"><b>${esc(no?t.name:tm)}</b><small>${showDest?S(b.s)+'行':S(a.s)+(no?' '+tm:'')}</small></button></td>`};
+const gcol=new Set(); // たたんだグループ
+const curGroups=()=>((M.dias[M.cur]&&M.dias[M.cur].groupsEff)||(M.cfg&&M.cfg.common.groups)||[]); // いまのダイヤで使うグループ(ダイヤごとの設定 + 共通)
+const grpColor=nm=>((curGroups().find(g=>g.name===nm))||{}).color||null;
+function groupNames(o){ // 運用のグループ分けがなければ []
+  const names=[];for(const g of curGroups())if(!names.includes(g.name))names.push(g.name);
+  for(const x of o)if(x.group&&!names.includes(x.group))names.push(x.group);
+  if(!names.length)return[];if(o.some(x=>!x.group))names.push('その他');return names}
+function opRow(x){const f=x.trains[0],l=x.trains[x.trains.length-1],fo=fmOf(x.key),gc=x.group&&grpColor(x.group);
+  return `<tr><td class="lf"><div class="lb" data-op="${x.i}"${gc?` style="border-left:5px solid ${gc}"`:''}>${fmCell(fo,18)}<div><span class="un">${esc(x.name)}</span>${x.custom?'<span class="rp">自作</span>':''}${x.warn.length?`<span class="wn" title="${esc(x.warn.join('\n'))}">!</span>`:''}<div class="io">${x.trains.length?S(f.route[f.fs].s)+' → '+S(l.route[l.ls].s):'列車なし'}</div>${fo&&fo.reg&&fo.reg.remark?`<div class="io">${esc(fo.reg.remark)}</div>`:''}${fo&&fo.remark?`<div class="io">${esc(fo.remark)}</div>`:''}</div></div></td>${x.trains.map(cell).join('')}</tr>`}
+function renderRoster(){
+  const o=cur.ops||[];
+  $('#rmsg').textContent=postErr?'編成の投稿を読み込めませんでした':'運用の行をタップで運用の一覧、列車のマスをタップで時刻';
+  const names=groupNames(o),nc=1+Math.max(0,...o.map(x=>x.trains.length));let body='';
+  if(!names.length)body=o.map(opRow).join('');
+  else for(const nm of names){const L=o.filter(x=>(x.group||'その他')===nm);if(!L.length)continue;const c=gcol.has(nm),gc=grpColor(nm);
+    body+=`<tr class="gh"><td colspan="${nc}"><button class="gb" data-g="${esc(nm)}" aria-expanded="${!c}">${gc?`<i style="background:${gc}"></i>`:''}${esc(nm)}<small>${L.length}運用</small><span aria-hidden="true">${c?'▸':'▾'}</span></button></td></tr>`;if(!c)body+=L.map(opRow).join('')}
+  const sl=$('#rt').scrollLeft;$('#rt').innerHTML=o.length?`<table class="ro">${body}</table>`:'<div class="mute" style="padding:20px 0">このダイヤには運用の情報が入っていません。別のダイヤを選んでください</div>';
+  $('#rt').scrollLeft=sl;
+}
+function renderOp(){
+  const o=(cur.ops||[])[curOp];if(!o){showView('roster');return}
+  const f=o.trains[0],l=o.trains[o.trains.length-1],fo=fmOf(o.key);
+  $('#ov').innerHTML=`<div class="wrap" style="padding:10px 14px"><div class="row" style="margin:0"><button id="bk">運用一覧へ</button><span class="un" style="font-size:18px">${esc(o.name)}</span>${fo?fmHtml(fo,22):'<span class="fm none" style="font-size:16px">編成未投稿</span>'}</div>
+  <div class="mute" style="margin:8px 0">${o.group?esc(o.group)+'、':''}${o.custom?'自作の運用、':''}${o.trains.length?`${S(f.route[f.fs].s)} 出庫、${S(l.route[l.ls].s)} 入庫、${o.trains.length}本`:'列車がまだ入っていません。管理者画面から列車を追加できます'}${fo&&fo.remark?'。'+esc(fo.remark):''}${fo?'。投稿 '+esc(nameOf(fo.by)):''}</div>
+  ${o.warn.length?`<div class="wnote">${o.warn.map(esc).join('<br>')}</div>`:''}
+  ${o.trains.length?`<table><tr><th>発</th><th>列車</th><th>着</th><th>備考</th></tr>${o.trains.map(t=>{const a=t.route[t.fs],b=t.route[t.ls],c=ccol(t),ty=M.types[t.ty]||{ini:''};
+    return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td></tr>`}).join('')}</table>`:''}</div>`;
+}
+function showView(v,i){
+  for(const el of VIEWS)show(el,false);sh=null;selIds=new Set();show('#bnav',true);view=v;
+  applyDate();placeDbar(v);show('#svc',v!=='adm');renderSvc();setHH();
+  if(v==='map'){for(const el of ['#mctl','#mn','#info'])show(el,true);lastHtml=null;goLive()}
+  else if(v==='op'){curOp=i;show('#ov',true);renderOp();scrollTo(0,0)}
+  else if(v==='st'){show('#sv',true);renderSt()}
+  else if(v==='pt'){show('#pv',true);renderPt();scrollTo(0,0)}
+  else if(v==='fv'){show('#fv',true);show('#fadm',isAdmin);renderFv()}
+  else if(v==='adm'){show('#adm',true);renderAdm();scrollTo(0,0)}
+  else{show('#rs',true);renderRoster()}
+  $('#nr').classList.toggle('on',v==='roster'||v==='op');$('#nm').classList.toggle('on',v==='map');$('#ns').classList.toggle('on',v==='st');$('#np').classList.toggle('on',v==='pt');$('#nf').classList.toggle('on',v==='fv');
+}
+function renderPost(tr){
+  const e=$('#pst');if(!e)return;const o=tr.op,bk=tr.bikou?`<div class="mute">備考 ${esc(tr.bikou)}</div>`:'',back=sh&&sh.from?'<button data-back style="margin-bottom:8px">‹ 駅の時刻表へ戻る</button>':'',ro=selDate!==svcDate();
+  if(!o){e.innerHTML=`<div class="pp">${back}${bk}<div class="mute">この列車は運用に入っていないため、編成を投稿できません</div></div>`;return}
+  e.innerHTML=`<div class="pp">${back}${bk}<div id="pfm"></div><div class="row" style="margin:8px 0"><span class="un">${esc(o.name)}</span><button data-goop="${o.i}" style="margin-left:auto">この運用の列車一覧</button></div>
+  ${ro?`<div class="mute">${selDate} の運用です。編成の投稿・取消は今日の分だけできます</div>`:'<button id="popen" class="pri">編成を投稿</button>'}<div id="ph"></div></div>`;
+  renderPh(tr);
+}
+function renderPh(tr){
+  const e=$('#ph');if(!e||!tr||!tr.op)return;const L=postsOf(tr.op.key),fo=fmOf(tr.op.key),reg=fo&&fo.reg,tp=ccol(tr);
+  $('#pfm').innerHTML=`<div class="fc"><span class="tp" style="background:${tp};color:${ink(tp)}">${esc(tr.name||(M.types[tr.ty]||{}).ab||'')}</span><img class="fi${fo?'':' gh0'}" src="${esc(fmIconUrl(fo&&fo.f))}" width="34" height="48" alt=""><div class="fk">${fo?fmHtml(fo,22):'<b class="mute">編成未投稿</b>'}${reg&&reg.owner?`<div class="io">所 ${esc(reg.owner)}</div>`:''}<div class="io">運 ${esc(tr.op.name)}</div>${L[0]?`<div class="io">投稿 ${esc(nameOf(L[0].user_id))}</div>`:''}${reg&&reg.remark?`<div class="io">${esc(reg.remark)}</div>`:''}</div>${reg&&reg.cars.length?`<button data-fv="${esc(reg.number)}">編成表</button>`:''}</div>`;
+  e.innerHTML=L.length?L.map(p=>`<div class="po"><b>${esc(p.formation)}</b><span>${p.replaced?'<span class="rp">差替</span> ':''}${esc(p.remark)}<div class="io">${new Date(p.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})} ${esc(p.train)}  投稿: ${esc(nameOf(p.user_id))}</div></span>${(p.user_id===me||isAdmin)&&selDate===svcDate()?`<button data-del="${esc(p.id)}">取消</button>`:''}</div>`).join(''):`<div class="mute">${selDate===svcDate()?'今日':selDate}の投稿はまだありません</div>`;
+}
+$('#sheet').addEventListener('click',async e=>{
+  const g=e.target.closest('[data-goop]');if(g){const i=+g.dataset.goop;closeSheet();showView('op',i);return}
+  if(!sh||sh.type!=='tr')return;const tr=cur[sh.ids[sh.act]],x=e.target.closest('[data-del]'),po=e.target.closest('#popen');
+  if(po&&tr.op&&selDate===svcDate()){openPop(tr,po);return}
+  if(x&&selDate===svcDate()){x.disabled=true;await sb.from('formation_posts').delete().eq('id',x.dataset.del);await loadPosts();refresh()}
+});
+// 編成の投稿ポップアップ: 編成・差替・備考
+let popTr=null,popFrom=null;
+function openPop(tr,from){popTr=tr;popFrom=from;const a=tr.route[tr.fs];
+  $('#pw').textContent=`運番 ${tr.op.name}  ${M.st[a.s].name} ${fmt(a.d)}発の列車から投稿します`;
+  $('#pf').value='';$('#pc').checked=false;$('#pr').value='';$('#pm').textContent='';$('#pb').disabled=false;
+  $('#pwho').textContent='投稿者: '+nameOf(me)+'(≡メニューの設定で変えられます)';
+  $('#fmlist').innerHTML=[...FM.values()].sort((a,b)=>a.number.localeCompare(b.number,'ja',{numeric:true})).map(f=>`<option value="${esc(f.number)}" label="${esc(f.owner)}"></option>`).join('');pfCheck();
+  show('#pop',true);$('#pf').focus()}
+function pfCheck(){ // 編成表にない編成を入力したときの注意
+  const v=$('#pf').value.trim(),w=$('#pfw');if(!v){w.className='pfw';w.textContent='';return}
+  const r=fmReg(v);
+  if(r){w.className='pfw ok';w.innerHTML=`<img class="fi" src="${esc(fmIconUrl(r.number))}" width="22" height="31" alt="">登録済み: ${esc(r.number)}${r.owner?'('+esc(r.owner)+')':''}${r.cars.length?' '+r.cars.length+'両':''}`}
+  else{w.className='pfw warn';w.textContent=`注意: 「${v}」は編成表に登録されていません${FM.size?'。入力ミスがないか確認してください':'(編成表がまだ空です)'}。このまま投稿もできます`}}
+$('#pf').addEventListener('input',pfCheck);
+function closePop(){show('#pop',false);popTr=null;if(popFrom&&popFrom.isConnected)popFrom.focus()}
+$('#pcx').onclick=closePop;
+$('#pop').addEventListener('click',e=>{if(e.target.id==='pop')closePop()});
+$('#pop').addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.preventDefault();closePop();return}
+  if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.type==='text'){e.preventDefault();$('#pb').click();return}
+  if(e.key==='Tab'){const f=[$('#pf'),$('#pc'),$('#pr'),$('#pcx'),$('#pb')].filter(x=>!x.disabled),i=f.indexOf(document.activeElement);
+    if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}}});
+$('#pb').onclick=async()=>{
+  const tr=popTr;if(!tr||!tr.op||selDate!==svcDate())return;
+  const f=$('#pf').value.trim(),m=$('#pm');if(!f){m.textContent='編成を入力してください';$('#pf').focus();return}
+  $('#pb').disabled=true;const a=tr.route[tr.fs];
+  const {error}=await sb.from('formation_posts').insert({file:lineFile,dia:M.dias[M.cur].name,unit:tr.op.key,train:M.st[a.s].name+' '+fmt(a.d)+'発',formation:(fmReg(f)||{number:f}).number,replaced:$('#pc').checked,remark:$('#pr').value.trim(),service_date:selDate});
+  $('#pb').disabled=false;
+  if(error){m.textContent=/replaced/.test(error.message||'')?'データベースの更新(formation_posts_add_replaced.sql)がまだです':'投稿できませんでした。時間をおいてもう一度試してください';return}
+  closePop();await loadPosts();refresh()};
+$('#sheet').addEventListener('click',e=>{
+  const t=e.target.closest('[data-t]');
+  if(t&&sh&&sh.type==='st'){const id=+t.dataset.t;selIds=new Set([id]);lastHtml=null;openSheet({type:'tr',ids:[id],act:0,from:{type:'st',i:sh.i}});draw();return}
+  const fv=e.target.closest('[data-fv]');if(fv){const n=fv.dataset.fv;closeSheet();showView('fv');$('#fq').value=n;renderFv();return}
+  if(e.target.closest('[data-back]')&&sh&&sh.from){const f=sh.from;selIds=new Set();lastHtml=null;openSheet({...f});draw()}});
+const nav=e=>{const t=e.target.closest('[data-t]'),o=e.target.closest('[data-op]'),g=e.target.closest('[data-g]');
+  if(g){const k=g.dataset.g;gcol.has(k)?gcol.delete(k):gcol.add(k);renderRoster();return}
+  if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o)showView('op',+o.dataset.op);else if(e.target.closest('#bk'))showView('roster')};
+$('#rs').addEventListener('click',nav);$('#ov').addEventListener('click',nav);
+$('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');$('#ns').onclick=()=>showView('st');$('#np').onclick=()=>showView('pt');$('#nf').onclick=()=>showView('fv');
+setInterval(async()=>{if(authed&&M&&!document.hidden){loadNotices();await loadPosts();refresh()}},60000);
+
+// 日本の祝日(2007〜2099年)。振替休日と国民の休日を含む
+const jpHol=(()=>{
+  const dow=(y,m,d)=>new Date(Date.UTC(y,m-1,d)).getUTCDay();
+  const nthMon=(y,m,n)=>{const f=dow(y,m,1);return 1+(8-f)%7+(n-1)*7};          // m月の第n月曜日
+  const eq=(y,k)=>Math.floor(k+0.242194*(y-1980)-Math.floor((y-1980)/4));        // 春分・秋分(1980〜2099年)
+  const base=(y,m,d)=>{ // 振替休日を除く祝日か
+    if(y<2007||y>2099)return false;
+    if(m===1)return d===1||d===nthMon(y,1,2);
+    if(m===2)return d===11||(d===23&&y>=2020);
+    if(m===3)return d===eq(y,20.8431);
+    if(m===4)return d===29;
+    if(m===5)return d===3||d===4||d===5||(y===2019&&d===1);
+    if(m===7){if(y===2020)return d===23||d===24;if(y===2021)return d===22||d===23;return d===nthMon(y,7,3)}
+    if(m===8){if(y===2020)return d===10;if(y===2021)return d===8;return y>=2016&&d===11}
+    if(m===9)return d===nthMon(y,9,3)||d===eq(y,23.2488);
+    if(m===10){if(y===2019&&d===22)return true;return y!==2020&&y!==2021&&d===nthMon(y,10,2)}
+    if(m===11)return d===3||d===23;
+    if(m===12)return d===23&&y<=2018;
+    return false};
+  const add=(y,m,d,n)=>{const t=new Date(Date.UTC(y,m-1,d+n));return[t.getUTCFullYear(),t.getUTCMonth()+1,t.getUTCDate()]};
+  return(y,m,d)=>{
+    if(base(y,m,d))return true;
+    if(dow(y,m,d)!==0){ // 振替休日: 直前の連続する祝日の先頭が日曜なら、その次の平日
+      for(let k=1;k<=7;k++){const[a,b,c]=add(y,m,d,-k);if(!base(a,b,c))break;if(dow(a,b,c)===0)return true}
+      // 国民の休日: 前日と翌日がどちらも祝日の平日
+      const p=add(y,m,d,-1),n=add(y,m,d,1);if(base(...p)&&base(...n))return true}
+    return false};
+})();
+const ymd=s=>s.split('-').map(Number),dow=s=>{const [y,m,d]=ymd(s);return new Date(Date.UTC(y,m-1,d)).getUTCDay()};
+const dayType=s=>{const [y,m,d]=ymd(s);return jpHol(y,m,d)||dow(s)===0?'h':dow(s)===6?'s':'w'}; // w=平日 s=土曜 h=休日(日曜・祝日)
+const dayName=s=>{const t=dayType(s);return t==='h'?(dow(s)===0?'休日(日曜)':'休日(祝日)'):t==='s'?'土曜':'平日'};
+const DRE={w:/平日/,s:/土曜|土休|土日|土・休|^土/,h:/休日|日曜|日祝|祝日|土休|土日|土・休/};
+function diaFor(t){for(const k of {w:'whs',s:'shw',h:'hsw'}[t]){const i=M.dias.findIndex(d=>DRE[k].test(d.name));if(i>=0)return{i,exact:k===t}}return{i:0,exact:false}}
+let selDate=svcDate(),view='roster';
+function applyDate(){ // 選んだ日付の種類(平日・土曜・休日)に合うダイヤへ切り替える
+  const r=M.free?{i:+$('#ddia').value||0,exact:true}:diaFor(dayType(selDate));
+  if(r.i!==M.cur)useDia(r.i);
+  const nm=M.dias[M.cur].name;
+  $('#dinfo').textContent=M.free?selDate:dayName(selDate)+'  '+nm+(r.exact?'':'(該当するダイヤがないため代わりに表示)');
+  $('#mdia').textContent=dayName(selDate)+'  '+nm;
+}
+const shiftDate=n=>{const [y,m,d]=ymd(selDate);return new Date(Date.UTC(y,m-1,d+n)).toISOString().slice(0,10)};
+function setDate(v){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return;selDate=v;$('#dsel').value=$('#mdate').value=v;
+  if(view==='map'){live=false;applyDate();posts=[];postsSig='';lastHtml=null;draw();loadPosts().then(refresh);return} // 在線位置: 選んだ日付で静止表示
+  showView(view==='st'?'st':'roster');                    // 運用の番号が変わるので、運用の一覧などは開き直す
+  posts=[];postsSig='';loadPosts().then(refresh);
+}
+$('#dsel').onchange=e=>setDate(e.target.value);$('#mdate').onchange=e=>setDate(e.target.value);
+function nowSvc(){const j=new Date(Date.now()+9*3600e3),sec=j.getUTCHours()*3600+j.getUTCMinutes()*60+j.getUTCSeconds();return{T:sec<kitenS()?sec+86400:sec}} // 日本時間。起点時刻までは前日の続き
+function goLive(){ // 今日・現在時刻に合わせて、実時間で動かす
+  const d=svcDate(),ch=d!==selDate;selDate=d;live=true;$('#dsel').value=$('#mdate').value=d;applyDate();
+  const t=Math.floor(nowSvc().T/60)*60;liveMin=t;T=(t>=M.lo&&t<=M.hi)?t:M.lo; // 分までで表示する
+  if(ch){posts=[];postsSig=''}lastHtml=null;draw();loadPosts().then(refresh)}
+$('#dprev').onclick=()=>setDate(shiftDate(-1));$('#dnext').onclick=()=>setDate(shiftDate(1));$('#dtoday').onclick=()=>setDate(svcDate());
+$('#ddia').onchange=()=>setDate(selDate);
+
+// ---- 編成表(編成ごとのアイコン・車号・備考)と管理者 ----
+const PH_DATA='data:image/webp;base64,UklGRqYRAABXRUJQVlA4WAoAAAAQAAAAlQAAzQAAQUxQSIMDAAABoITtnyHb+f3rX9e27zIr27ZmYtvWzslJtvbKucYytq1r2zamqv6/xeFM93ScExETgBoX9R5Ndx15YOnGR16a8NGPs5as3byjElOKle2b1yye+cOH41946PozDhjeGU17r4LcFvUOjQcdcsXj475duMVY5bRp/lejH730wAFo7LxKDokqAPQ75t4xU7ayWYsxxpTMzJozM0spxpiMzW765c07j+gNAKqSK6IKoMdxj326jo0thBCTseqWYgjR2Hj1Bw8e2RWAam6IBzDgkjHLSDKFkIw1bikEI8lFr5/XB4BKHogH/Gmj1pJMIRozazEYyRWvHA9AJXMK9Lt7CskYjZlPIZL86aYegGZLFD3uW06maMxJi4lccGcnqGTIARfOJUNirqZITjkdcJlx6PEGGYy5mwL5Qie4jDiM+IUxMZdT5Bf94DLhZMBsVpjbFf7Yw0k23mWFOV7hKGgGFGczMNcDj4Zm4W3LO3sDvuYEnZYy5VviFNS+oPNfPs51rwNTvZOaEvUCLM6/XwF4lRoRVQBuz9s2m+Wb2Zqb9hQAqlI9VQA9T31uirEu2tTnTusJQLUqogB6lt9cRpKxDlggyWVvlnsCUGkr8QCOfHkpyRSSsS5aConk0pePBOClLUSB3jd9RzJFY121mEh+d1NvQKVVCgx+ZAlpwViHLRi55JHBgLZMHHo9tIaMiXU7RXLNQ73gpAUKXDqfDMa6boGcfymgzXgMnUwGY923QE4eCt+ExwnLGBMLYYpcdgI8AI/LIwMLY2C8HB6KS2iJBTIZL4Fi/0pKLJQpVfZHx58YWTAjf+p4NSMLZ+TVX1kqHsm+2spCupXt/m/3f7v/2/3/L6QxWvGwGFlQv/9+E61YGFd+/wPwNmOxCHwC8PJu8XhGOigKyNPw7f6rK28XjycbfZKKRnqp0TOsFAqr8GaoOD+KlQJhgQ1wgAhGsVIYLLABCgDiMIqVgmCBDfDSCOIwipVCYIEN8IKmxWE0K7HqJC1mt1GsfmADvKB5cRjNQtgAL2ipAKeXqlsuXbaN/L1ULmWyXCovI5eXS+VSVc8qnQAnaLmg+h02kO8huzPIWahBh1aLVtnrwI3kx9pBM+nVzybndFCv1UbNC/ptJD+CQyYFMouc4yDIW0G/DQVlc4ofZmhminPzqc8q8vMMzSVn5xHE7XH1+DclM/rtO3ftI4LaBQBWUDgg/A0AALBHAJ0BKpYAzgA+USCNRKOiIxP5x1Q4BQS0gGxmUl+bP73+OXhh/hfyd7Gf0d7Of1LPVfbn89/Y/xn94P9R4U/CL/F9QL1P/lN/Vz3/TegR6y/Sv89/cf3b/zfpuf0v46e6H2L9gD+Vf03/meUB4hPlPsAfzP+wf7z+4fld8e/+n/lvzJ9yv5n/iv+J/lPyW+wn+Uf0L/Sf33/H/+H/Hf///z/d17Jf2g9ln9V06mX2hboIhnzb4zruhpDO0U+YXZlWY4iU/db8Y7UcP1TuqvKpsDhl+t4RiRhHnv2tPMCqSI9DL6qqqyfFn4WIVBFjL4tmlLhSGsDtj2sG/MrzdGbTgtWKOG6GEGPRsJ7NJm4BV2/vwogLSUuFfpw7jmIpUb4D9+1tU1cFVgNHoz99CDJHlIecORY8aZHDL/gaoGaY0ZkvnjXUuMAgrsbUS1kSx3r1khZk3YFns1VX/+8dm+BDdNpj/QfY+4VLgCIfaEHOkQZVeK+YmnMDUC+qVsDTy+/z+NI92Y6tAiM0UcvDbYdtUnk4BQIrgj/YkWGUfTJjbHdV0dNw9GBWitTQkeXs7aDHypgWPjsYKPnpNA7IV10mGlXrWHS3dlFnc0sgh9SBadB6gRRwvwd8TyvsBkslCb8lGxRxTTSIpCDNPBfFtyV7pF7SIFA3zFNf71CPknrB7Ji0KYMaqJvURaqxldi7p/Hvaz4Kr+c98eNsTNy2nbCQprZCqLZdG3hupfGTnyuE/xr6PWHxf2dCUEMAHvmQo+f85NLqAAD+/kfbkbnqJ/5RUkeYX6peOz2bwO53+Z4okA5IPYOA0DX88QbH1b21Eujt0NtPwUuYKY4ZN/l0j3M0GSiLs9eeSfjfnLmWA25/j70quOcZPxZjjRfbO5ZmHLrPfXkXOAmLtRknP9hvHuN6Cy3p/AoPRkxP8J71AVP+y/8MGK3UVImGs9XKke37os5DDKP/EnzdFYcxh5dZzdC1olpkbFePq0+Vnw/xbwu0/1paBqvYbGNAZ4cgZLhMoPOHbvbGqeh1YvKYki8I+Px3H/fn+//ShmF9Cy+Dyh3d9RATvvjKx3rAxTz+ULlQ6fIgMjkAI5laxPorrN4kLfgFsnetTjHhq06e6D92I9+vQmc6l6BwYSd2K1J8vwF+XThvohHReAkF4AiMJhjBb/9JbtflXazrEXxFeR/gnfwTjuyvUYQJSAbPsXj73tERtclihU2Pxsy065tCKOXxcJfOuAoG2h8O1aGj9qdQwKJv98fDvo3Pzj/7C0V4HwYODeBg1ESi+l+Mlw7zt4GUdSH22vyhB6IzXSsGNcsKODQM7YjzmGBtwq38RrDT0l6B+R6iJKNcufwn2y6fzrHwrKyKt3/QG+kEEPydf//64wq+v65JsjoiOlGWaP5LYqfct1bsiN0dCngmmG8gM/TUt8ivu0VV+Oe7ya1vDiTg/NkRV9cVpas396QFkTdkHeRIwn9YC/yZsd7+MGF6CQZeY0lMjMVdfFg5V59+zzm1mVN137oq/LrMuOtlrkGzGkKRdL/0ns5SjfIN+JSTA32eR/XI7NOcfWuoLzyOZ0cpCgiQtVDkwiiGZzduLWKUKplb8CQjq2r4GHzKkH1xo6Z0Q3PU/r8Q1vJrGXFif9WhWbS372c2Oapu8d6HkJbXVn1CR0+bTt0jDUbebmUbOpVcf5ysFLb89zpQ2xRqUiTuoH4JZp8L6gtWxyll1DG5ol5zB0vhLyE/iEOEffHtxOf4fgux9dUjrkvf5T86diXQYgDtq823y/5GcMXJXoa+ntKVzBLsgDOPGM69kmouvacVfK5yrOxBjl+lp9AOk1vpYs5hn+FHhu2I8eZa4rKdJbVr+HFaqbpvTX6iL661t9KMz+jR41i2da7+x5z7G2W8VQ7bgTqTwpuwERtA0HiQ8/DXflIEvIfUBxDiThF6lr3hkYXkZZbuyuihkmzFc/bmI892i6Z7UUq+jd1HmiXuFYoZgQkibG9Dijo/FuPe7AQR0HqpnvtGg/UgG9pa4w4ZKMR/oGmHTp3zTmenvpHpV4BCGjPT7Gw/XHiLDoaOiw9djbkhoOqSnPSley1imbOMiq/rnN13Rwwwz9jjLC/hR+MI47f017jt8kLI4Eq0FRbSyX86gTz6YSqpbGqmwKIJv2AWAs3DoHJj+7oSJ9oWOTLN3iAPycnnsv5uD+SHivl/SocA1IG6siGrJy/HnXw/TwElf837+fWjBf389oE5nDDyLt9VwK8PkZf3SbalsZ7hmvE18GZkIPnEAFjg8gE/hSDNPIGIRx0HxYyY4reQIf8CaEXZsIbfJRprhDdWD7zh1FBwJ8358azAEly/9bOznVZQ9qZ8cO3cn2V9HCeJFmg1lJdpeVlCQwMsuy1yFMVAQ48J9P/UtFXTAfM94gUcDgAcX7ifagGt7PtKXm/epMROsvDsGc9yGIiBoeK5ixBqvJ1qGQ1Bf3D0borsLEamn9qYVur4tmqfFp3OkOQsG7OZg7U2ngFiEKdd2me/YyBHLh7t1KBnCN/aDvx3NLpNNfldoUL/fvzJnFXy/P0PbMUjdeUGNJoxfbNmygSPX89gy54zR6+0YUgAG2I/zk2bu15ZpvPkRQrq+JrkCl3ZzDodekd8A9dDivTKQPM+DeHhMF5ET1wOxnciZpS6xulrNAjZ+ejM14/ko2KYds8W5Yaq+kcgfVTP6nK4IuDf9TtWDgbCaF34Jhmr8uWiXcqcRw5mRJlcDkuYHR33DLzDvvQzGOhT/+vs2vnLRHy3KdMSuOwM2UqkKmcyiAXHHkG0yeQ3SNX5Vlmy5SK0mSq2Ythb3CbiH1hkFtsGUse9l2QBwk/rRrsr7IH7FPW15hvnMLziQi1tDB3VRuv5yaPbtS9GwZWS9IhbfZWeqyTlmiczaEq2M82IUdyxfn1B878DarDo0Zwi0Ae8siMT6Tq+cwCErIY8cqilbhOJ03GG82NDFFC9GepJUrNhiTmzCE65JLx05f4bYJPIDk/LW2oRp1e4/Zxyzsuu9jvu4eHXRAP2OHWIkdJUru71V2cxElU5+862uvil/v9hVN6ueFjVKrBZzBXxa6eK8DTmOR58OqbruBgTFvfyim7oZn+tzjkqwTm5EM2b1XbND6K4Avs63OVAPvzhKKVeyjATChIgz9IH93L6V7sF9Z1THgVbXT7N0cPh1by0ijjAQ8cLyslvtUHtCmBZm5JEBUCm5ccYH8r6XNLbPjNjkRQWG2J6o9hPqo9esRVKCzEfTp4HwtBd6a3THIH8OOLcgTDTaZn0x8Kk+8QpqdicnDYqZbdBx5HTEDk/GpTeBdJVKdd1ws29dMB656qqWtafuExre59GBcnkWhn8CBpXTaRSjnnD34ksx9Uw6JsT9X8zhraldPIpTMD/z/2OkMrAJkUV+aIST0m7v7/HAPQJteZJaelmR/g7W0i5/50tMxyrp1Vw56X1sPF+Izelu6NU/JW5d5PzuNgLwld/0UjhROW3vb7RaxS5D+bbp0Ij6aEbqJSiq4Ijb6oReNwgy7v7sEHueQ7BCfHJDJ0JrGRRb2qmNx+NAUvzonwc3qqizdc47rnQMCiMJ2tXYjQeHu8dQwBcqdLEdvOV7QN/ASn9CO/1es17O3gDK6iRizlR69MQtxhmKOaOYqRV/hsQhvBzALjrTiDjGCcfLPT/qhXXFxfC1Yt9ZIafVpQHeJbcl+cEYvmE0nqkZugU80pzvRBBSOEg2CU3Jo3+Qob2DyBVi8b1YfJvxNX1AAm7tn4iQm7i95Y47KklvGafW1R7NrZXo7MC0jkmfN7SRhPMclR30dBaIYkyUJyCZB58KnavjNh6UcynlvZ7bWZ434j9fLSzBmEUhGoczMkoEm7tgchKlBpFENVDeQyBf7e/idTs1eP+/3W9YwhpXpQgYsn0RnzFPM02olKMQijTF2rTX0NOKJy2let8C2ccYeDdCt/lO3YYQ2Qt073gN/YCSvONAysW+oN84eYrUmLOuxdNhjPN0hF/+vuQHV2ZzOrOvGdmejKhZgnVVAS80ROCdfjwNv0PG2e/M+3Q6o8wf4ks6235RveCxCw9o43Q5LVk5HkougIHhlKGJwBglQNo3PXRc3KGT3i8I7msYJATPuRTQPj129eUmcbVVX2hEwYnix5MSGuezmR224Pkaczrs8LEdxuGdJ5BQl3TSaVsk3paPH/whFfirBBcbiG2czXhklH0HVPYSOKUmXQut65BupM1p69liz/VP4j3VwMTew2JLstg7Pl0fJmJACJAqVzFbNM05aW5EJYwTopApA+Q8ZAo7C5VABXti2eibiLzPMY2c1QHFsCbRk2fUpgtbf/1GRHUsjratqlSAuHZDIQqRYQ+d7XpnfydmzLjCpWiMrIxwWr0Z0O+DNf+X3Ggr43ALAs0+gu2gsK5RQqx7ACmRhB0fM+MmTTfme8Au84VV9pbX6eAe6B6h8qOTO15J6o9ENNJbV3ot2m1NTr4L0gwQVvd0uwErkpwMqMy175GiWdFt9hWjo0lvtxn+Y5vBxj6qFwwkaLoFff7kuv0QyDrSSGfiDGbByrYolDCTD7+BI1O9Shp/izHlxQTv9/bSssGc11+XYx3rAhOBTq/LS9ylYBRXw0PX4VC4JqxZoPLqAyKQ7j8Xl3Q07vCVWhTYc4fkkve6Yi17pMCXsy/mf67+Jrwr/+hGOud4Cw2vtZV1x+4XuDChSZh6iloh3UCVtQ/XGZTusEu9izCyROlLSLHdGwJXps5iWRwbgqSbEm2YjFu/PBBPIj+PPAAAAA='; // 編成不明のアイコン
+const urlCache=new Map();
+function blobUrl(d){ // data URI を短い blob URL にして、同じ長い文字列を HTML に何度も入れない
+  if(!d||!/^data:/.test(d))return d;if(urlCache.has(d))return urlCache.get(d);
+  let u=d;try{const m=d.match(/^data:([^;,]+);base64,(.*)$/),bin=atob(m[2]),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);u=URL.createObjectURL(new Blob([a],{type:m[1]}))}catch(e){}
+  urlCache.set(d,u);return u}
+const PHU=()=>blobUrl(PH_DATA);
+const ICON_OK=/^data:image\/(png|webp|jpeg|gif);base64,[A-Za-z0-9+\/=]+$/;
+let FM=new Map(),isAdmin=false,fmErr='',lastFile=null,adm=null,afterSetup=null;
+const nk=x=>String(x==null?'':x).normalize('NFKC').trim().toUpperCase();
+let FMN=new Map();
+const digKey=x=>/^\d+$/.test(x)?x.replace(/^0+(?=\d)/,''):null; // 数字だけの編成は、先頭の0と全角・半角の違いを無視して照合する(1つに決まるときだけ)
+function fmReg(n){if(!n)return null;const k=nk(n),f=FM.get(k);if(f)return f;const d=digKey(k);if(d!=null){const l=FMN.get(d);if(l&&l.length===1)return l[0]}return null}
+const fmIconUrl=n=>{const f=fmReg(n);return f&&f.icon?f.icon:PHU()};
+function normFm(f){const d=ICON_OK.test(f.icon||'')?f.icon:'';
+  return{number:String(f.number),owner:String(f.owner||''),remark:String(f.remark||''),stripe:HEX.test(f.stripe||'')?f.stripe:'',iconData:d,icon:blobUrl(d),
+    cars:(Array.isArray(f.cars)?f.cars:[]).slice(0,30).map(c=>({no:String((c&&c.no)||'').slice(0,12),pan:!!(c&&c.pan),eq:!!(c&&c.eq)}))}}
+async function loadFormations(file){
+  FM=new Map();FMN=new Map();fmErr='';fmFor=null;
+  const {data,error}=await sb.from('formations').select('*').eq('file',file);
+  if(error){fmErr=error.message||'error';return}
+  for(const f of data||[]){const e=normFm(f);FM.set(nk(f.number),e);const d=digKey(nk(f.number));if(d!=null){if(!FMN.has(d))FMN.set(d,[]);FMN.get(d).push(e)}}}
+async function loadAdmin(){try{const {data}=await sb.from('admins').select('user_id').maybeSingle();isAdmin=!!data}catch(e){isAdmin=false}}
+const fmCell=(fo,sz)=>fo?`<img class="fi" src="${esc(fmIconUrl(fo.f))}" width="24" height="34" alt="">${fmHtml(fo,sz)}`:`<img class="fi gh0" src="${esc(PHU())}" width="24" height="34" alt=""><span class="fm none">―</span>`;
+function carsSvg(f){ // 編成を横から見た絵。号車ごとの車号、パンタグラフ、床下機器、帯の色
+  const cars=f.cars;if(!cars.length)return '';
+  const W=92,H=30,G=8,top=22,bot=14,st=HEX.test(f.stripe||'')?f.stripe:'#2f7fd0',w=cars.length*W+(cars.length-1)*G+8,h=top+H+bot;let o='';
+  cars.forEach((c,i)=>{const x=4+i*(W+G);
+    if(c.pan)for(const k of[.3,.7]){const cx=x+W*k;o+=`<path d="M${cx} ${top-13}l8 6l-8 6l-8-6zM${cx} ${top-1}V${top}" fill="none" stroke="#333" stroke-width="1.6" stroke-linejoin="round"/>`}
+    o+=`<rect x="${x}" y="${top}" width="${W}" height="${H}" rx="6" fill="#dcdcdc" stroke="#b5b5b5"/><rect x="${x}" y="${top+H-9}" width="${W}" height="4" fill="${st}"/><text x="${x+W/2}" y="${top+17}" text-anchor="middle" font-size="14" font-weight="700" fill="#111">${esc(c.no)}</text>`;
+    if(c.eq)o+=`<rect x="${x+14}" y="${top+H+3}" width="${W-28}" height="6" rx="3" fill="#111"/>`;
+    o+=`<circle cx="${x+16}" cy="${top+H+8}" r="3.5" fill="#444"/><circle cx="${x+W-16}" cy="${top+H+8}" r="3.5" fill="#444"/>`;
+    if(i<cars.length-1)o+=`<rect x="${x+W}" y="${top+H/2-2}" width="${G}" height="4" fill="#555"/>`});
+  return `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="${esc(f.number)}の編成(${cars.map(c=>esc(c.no)).join('、')})">${o}</svg>`}
+const clockSvg='<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4M12 8v4l3 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function renderFv(){
+  const q=nk($('#fq').value),L=[...FM.values()].filter(f=>!q||nk(f.number).includes(q)||nk(f.owner).includes(q)||f.cars.some(c=>nk(c.no).includes(q))).sort((a,b)=>a.number.localeCompare(b.number,'ja',{numeric:true}));
+  const today=new Map();for(const p of posts)if(!today.has(nk(p.formation)))today.set(nk(p.formation),p);
+  $('#fl').innerHTML=L.length?L.map(f=>{const t=today.get(nk(f.number));
+    return `<div class="fr"><div class="fh"><b class="fno">${esc(f.number)}</b><button class="ib" data-fh="${esc(f.number)}" title="運用の履歴" aria-label="${esc(f.number)}の運用の履歴">${clockSvg}</button><img class="fi" src="${esc(f.icon||PHU())}" width="38" height="53" alt=""><div class="fcs">${carsSvg(f)}</div></div>
+    <div class="fn">${f.owner?`所 ${esc(f.owner)}`:''}${f.owner&&(f.remark||t)?'  ':''}${esc(f.remark)}${t?`  ${selDate===svcDate()?'本日':esc(selDate)}: 運用 ${esc(t.unit)}`:''}</div></div>`}).join(''):`<div class="mute" style="padding:20px 0">${fmErr?'編成表を読み込めませんでした(データベースの準備(admin.sql)がまだかもしれません)':FM.size?'あてはまる編成がありません':'編成表がまだ登録されていません'+(isAdmin?'。「編成を管理」から登録できます':'')}</div>`;
+}
+$('#fq').addEventListener('input',renderFv);
+$('#fadm').onclick=()=>admOpen('fm');
+$('#fv').addEventListener('click',e=>{const h=e.target.closest('[data-fh]');if(h)openSheet({type:'fmh',n:h.dataset.fh})});
+async function renderFmh(){ // 編成の運用の履歴(最近の投稿)
+  const n=sh.n,f=fmReg(n);
+  $('#sh').innerHTML=`<div><b style="font-size:17px">${esc(n)} の運用の履歴</b><div class="mute">最近60件の投稿</div></div><button id="cls">閉じる</button>`;$('#sb').innerHTML='<div class="mute">読み込み中…</div>';
+  const {data,error}=await sb.from('formation_posts').select('service_date,unit,remark,replaced,created_at,user_id').eq('file',lineFile).eq('formation',f?f.number:n).order('service_date',{ascending:false}).order('created_at',{ascending:false}).limit(60);
+  if(!error)await refreshNames(data.map(p=>p.user_id));
+  if(!sh||sh.type!=='fmh'||sh.n!==n)return;
+  $('#sb').innerHTML=error?'<div class="mute">履歴を読み込めませんでした</div>':data.length?`<table><tr><th>日付</th><th>運用</th><th>備考</th><th>投稿者</th></tr>${data.map(p=>`<tr><td>${esc(p.service_date)}</td><td>${esc(p.unit)}</td><td>${p.replaced?'<span class="rp">差替</span> ':''}${esc(p.remark)}</td><td>${esc(nameOf(p.user_id))}</td></tr>`).join('')}</table>`:'<div class="mute">この編成の投稿は、まだありません</div>'}
+
+// ---- 駅時刻表 ----
+const numOf=x=>{const m=String(x==null?'':x).match(/\d+/);return m?+m[0]:Infinity};
+function numCmp(a,b){ // 番数の比較: 列車番号の数字、なければ運用番号の数字
+  for(const f of[t=>numOf(t.name),t=>numOf(t.op&&t.op.name)]){const x=f(a),y=f(b);if(x!==y)return x<y?-1:1}return 0}
+function trkS(s,tk){const t=tk!=null?M.st[s].tracks[+tk]:null;return t?(t.TrackRyakusyou||t.TrackName||''):''}
+let stI=-1,stDir=0,ttHr=null,ttHrs=[]; // ttHr: nullなら1日分、数字ならその時間台だけ
+const stTrack=(s,tk)=>{const t=tk!=null?M.st[s].tracks[+tk]:null;return t?(t.TrackName||t.TrackRyakusyou||''):''};
+const stIds=()=>M.st.map((_,i)=>i).filter(i=>!M.pos[i].copy);
+function renderSt(){
+  const ids=stIds();if(stI<0||M.pos[stI].copy)stI=ids[0];
+  $('#sstn').innerHTML=ids.map(i=>`<option value="${i}">${esc(M.st[i].name)}</option>`).join('');$('#sstn').value=stI;
+  document.querySelectorAll('#sdirs button').forEach(b=>b.classList.toggle('on',+b.dataset.sd===stDir));
+  const r=stTable(pk(stI),stDir,ttHr);ttHrs=r.hrs;$('#smeta').textContent=r.n+'本';$('#shb').innerHTML=hourBar();$('#sbody').innerHTML=r.html;
+}
+// 駅の時刻表(駅時刻表タブと在線位置の駅シートで共通)。時刻・行先・列車番号・運用番号・編成
+function stTable(key,dir,hour){ // hour: nullなら1日分、数字ならその時間台だけ
+  let L=[];
+  for(const tr of cur){if(hideTT.has(tr.ty)||tr.dir!==dir)continue;const R=tr.route,ks=tr.si.filter(j=>!R[j].ps&&pk(R[j].s)===key);if(!ks.length)continue;
+    const last=ks[ks.length-1]===tr.ls;if(last&&!showTerm)continue;const x=R[last?ks[0]:ks[ks.length-1]];
+    L.push({t:last?x.a:x.d,tr,last,dest:M.st[R[tr.ls].s].name,trk:stTrack(x.s,x.tk)})}
+  L.sort((p,q)=>p.t-q.t);const hrs=[...new Set(L.map(x=>Math.floor(x.t/3600)))];
+  if(hour!=null)L=L.filter(x=>Math.floor(x.t/3600)===hour);
+  if(!L.length)return{n:0,hrs,html:`<div class="mute" style="padding:16px 0">${hour!=null?'この時間台に停車する列車はありません':'この方面に停車する列車はありません'}</div>`};
+  const no=L.some(x=>x.tr.name);let ph=null;
+  return{n:L.length,hrs,html:`<table class="stt"><tr><th></th><th>時刻</th><th>行先</th>${no?'<th>列車</th>':''}<th>運用</th><th>編成</th></tr>${L.map(x=>{
+    const h=Math.floor(x.t/3600),o=x.tr.op,fo=o?fmOf(o.key):null,first=h!==ph;ph=h;
+    return `<tr data-t="${x.tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(x.tr)}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b></td><td><span class="ab" style="background:${ccol(x.tr)};color:${ink(ccol(x.tr))}">${esc((M.types[x.tr.ty]||{ab:''}).ab)}</span>${x.last?'当駅止':esc(x.dest)+'行'}${x.trk?`<small>${esc(x.trk)}</small>`:''}</td>${no?`<td>${esc(x.tr.name)}</td>`:''}<td>${o?esc(o.name):''}</td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><span><b>${esc(fo.f)}</b>${fo.prev?`<small class="pv">${esc(fo.prev)}</small>`:''}</span></span>`:''}</td></tr>`}).join('')}</table>`}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches&&e.target.matches('tr[data-t]'))e.target.click()});
+const stStep=d=>{const ids=stIds(),k=ids.indexOf(stI);stI=ids[(k+d+ids.length)%ids.length];renderSt();scrollTo(0,0)};
+$('#sprev').onclick=()=>stStep(-1);$('#snext').onclick=()=>stStep(1);
+$('#sstn').onchange=e=>{stI=+e.target.value;renderSt()};
+$('#sdirs').onclick=e=>{const b=e.target.closest('[data-sd]');if(b){stDir=+b.dataset.sd;renderSt()}};
+$('#sv').addEventListener('click',nav);
+
+// 運用表: マウスでもドラッグで横にスライドできる(タッチは標準のスクロール)
+(()=>{const r=$('#rt');let d=null,moved=false;
+  r.addEventListener('pointerdown',e=>{moved=false;if(e.pointerType==='mouse')d={x:e.clientX,l:r.scrollLeft}});
+  addEventListener('pointermove',e=>{if(!d)return;const dx=e.clientX-d.x;if(Math.abs(dx)>4){moved=true;r.classList.add('drag')}if(moved)r.scrollLeft=d.l-dx});
+  addEventListener('pointerup',()=>{d=null;r.classList.remove('drag')});
+  r.addEventListener('click',e=>{if(moved){moved=false;e.stopPropagation();e.preventDefault()}},true)})();
+
+
+// ---- 通過時刻表 ----
+// 駅と駅のあいだの好きな地点を、区間のはじめの駅からの距離(km)か割合(%)で指定して、その地点を列車が通る時刻を出す。
+// 時刻は、区間の両端の駅の発着時刻から、距離の割合で内挿する(列車は区間の中を一定の速さで走ると考える)
+let ptEdge=null,ptFrac=0.5,ptDir='all',ptFrom=null,ptTo=null,ptFm='';
+const segKmFor=edge=>M.cfg&&M.cfg.distKm?M.cfg.distKm.get(edge.key):null;
+function ptPassTime(tr,edge,frac){ // 列車がその区間を通るなら、その地点を過ぎる時刻(秒)。通らない列車は null
+  const R=tr.route;
+  for(let k=0;k<R.length-1;k++){const x=R[k],y=R[k+1],ux=M.cn(x.s),uy=M.cn(y.s);
+    if(!((ux===edge.u&&uy===edge.v)||(ux===edge.v&&uy===edge.u)))continue;
+    if(x.d==null||y.a==null)return null;
+    const f=ux===edge.u?frac:1-frac; // 区間のはじめの駅側から数える
+    return x.d+(y.a-x.d)*f}
+  return null}
+function ptRows(edge,frac){ // 方向と時刻で絞ったあとの、(通過時刻, 列車)。編成での絞り込みは、あとでする
+  const out=[];
+  for(const tr of cur){if(ptDir!=='all'&&tr.dir!==+ptDir)continue;
+    const t=ptPassTime(tr,edge,frac);if(t==null)continue;
+    const m=Math.floor((t%86400)/60); // 24時を過ぎた列車は、0時台として扱う
+    if(ptFrom!=null&&ptTo!=null&&ptFrom>ptTo){if(m<ptFrom&&m>ptTo)continue}
+    else{if(ptFrom!=null&&m<ptFrom)continue;if(ptTo!=null&&m>ptTo)continue}
+    out.push({t,tr})}
+  out.sort((a,b)=>a.t-b.t);return out}
+function nearestSeg(px,py){ // 地図上の点に一番近い区間と、その区間の中での割合。路線から離れすぎているときは null
+  let best=null;
+  for(const e of edgeList()){const A=P(e.a),B=P(e.b),dx=B.x-A.x,dy=B.y-A.y,L2=dx*dx+dy*dy;
+    if(!L2)continue;let f=((px-A.x)*dx+(py-A.y)*dy)/L2;f=Math.max(0,Math.min(1,f));
+    const d=Math.hypot(px-(A.x+dx*f),py-(A.y+dy*f));
+    if(!best||d<best.d)best={d,edge:e,frac:f}}
+  return best&&best.d<=40?best:null}
+function pickPt(e){ // 地図のタップ位置を、路線図上の座標に直して、一番近い区間を探す
+  const svg=$('#map'),r=svg.getBoundingClientRect(),vb=svg.viewBox.baseVal;
+  if(!r.width||!vb.width)return null;
+  return nearestSeg((e.clientX-r.left)*vb.width/r.width,(e.clientY-r.top)*vb.height/r.height)}
+function renderPt(){
+  if(!M)return;
+  const names=stNames(),E=edgeList();
+  const sel=$('#pedge');
+  if(!ptEdge||!E.some(e=>e.key===ptEdge))ptEdge=E.length?E[0].key:null;
+  sel.innerHTML=E.map(e=>`<option value="${e.key}"${e.key===ptEdge?' selected':''}>${esc(names[e.a])} → ${esc(names[e.b])}</option>`).join('');
+  const edge=E.find(e=>e.key===ptEdge);
+  document.querySelectorAll('#pdirs button').forEach(b=>b.classList.toggle('on',b.dataset.pd===ptDir));
+  updatePtPos(edge);
+  renderPtTable()}
+function updatePtPos(edge){
+  const names=stNames(),km=edge?segKmFor(edge):null;
+  const sl=$('#pslider'),ki=$('#pkm'),nb=$('#pnotebar');
+  if(!edge){$('#pfrom').textContent='';$('#pto').textContent='';$('#ppos').textContent='';$('#pnote').textContent='区間がありません';nb.style.display='';ki.disabled=true;return}
+  const pct=Math.round(ptFrac*100);
+  $('#pfrom').textContent=names[edge.a];$('#pto').textContent=names[edge.b];
+  if(km){const v=+(ptFrac*km).toFixed(1);ki.disabled=false;ki.value=v;ki.max=km;
+    $('#ppos').textContent=`${names[edge.a]}から ${v} km（区間 ${km} km の ${pct}%）`;$('#pnote').textContent='';nb.style.display='none'}
+  else{ki.disabled=true;ki.value='';
+    $('#ppos').textContent=`${names[edge.a]}から ${pct}%`;$('#pnote').textContent='この区間の距離が未設定のため、割合で指定しています。管理者画面の「駅間の距離」で距離を設定すると、km で指定できます';nb.style.display=''}}
+function renderPtTable(){
+  const E=edgeList(),edge=E.find(e=>e.key===ptEdge);
+  const body=$('#pbody'),fmSel=$('#pfm');
+  if(!edge){body.innerHTML='<div class="mute" style="padding:16px 0">区間がありません</div>';fmSel.innerHTML='<option value="">すべての編成</option>';$('#pmeta').textContent='';return}
+  const rows=ptRows(edge,ptFrac);
+  const fms=new Map(); // 編成の選択肢は、方向と時刻で絞った列車から作る
+  for(const {tr} of rows){const fo=tr.op?fmOf(tr.op.key):null,k=fo?fo.f:'';
+    fms.set(k,(fms.get(k)||0)+1)}
+  if(ptFm&&![...fms.keys()].some(k=>(k||'__none')===ptFm))ptFm='';
+  fmSel.innerHTML=`<option value="">すべての編成</option>`+[...fms.entries()].sort((a,b)=>a[0].localeCompare(b[0],'ja',{numeric:true})).map(([k,n])=>`<option value="${esc(k||'__none')}"${(k||'__none')===ptFm?' selected':''}>${k?esc(k):'編成未投稿'} (${n}本)</option>`).join('');
+  let L=rows;
+  if(ptFm)L=rows.filter(({tr})=>{const fo=tr.op?fmOf(tr.op.key):null;return ptFm==='__none'?!fo:fo&&fo.f===ptFm});
+  $('#pmeta').textContent=L.length+'本';
+  if(!L.length){body.innerHTML=`<div class="mute" style="padding:16px 0">${rows.length?'条件に合う列車はありません':'この地点を通過する列車はありません'}</div>`;return}
+  let ph=null;
+  body.innerHTML=`<table class="stt"><tr><th></th><th>時刻</th><th>方向</th><th>行先</th><th>列車</th><th>運用</th><th>編成</th></tr>${L.map(({t,tr})=>{
+    const h=Math.floor(t/3600),first=h!==ph;ph=h;
+    const o=tr.op,fo=o?fmOf(o.key):null;
+    return `<tr data-t="${tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(tr)}"><b>${String(Math.floor(t%3600/60)).padStart(2,'0')}</b></td><td>${tr.dir?'上り':'下り'}</td><td><span class="ab" style="background:${ccol(tr)};color:${ink(ccol(tr))}">${esc((M.types[tr.ty]||{ab:''}).ab)}</span>${esc(M.st[tr.route[tr.ls].s].name)}行</td><td>${esc(tr.name)}</td><td>${o?esc(o.name):''}</td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><b>${esc(fo.f)}</b></span>`:''}</td></tr>`}).join('')}</table>`}
+const tmVal=v=>{const m=/^(\d{1,2}):(\d{2})/.exec(v||'');return m?+m[1]*60+ +m[2]:null};
+$('#pv').addEventListener('click',e=>{
+  const d=e.target.closest('[data-pd]');if(d){ptDir=d.dataset.pd;renderPt();return}
+  const t=e.target.closest('[data-t]');if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0})});
+$('#pv').addEventListener('change',e=>{
+  const t=e.target;
+  if(t.id==='pedge'){ptEdge=t.value;renderPt();return}
+  if(t.id==='pftime'){ptFrom=tmVal(t.value);renderPtTable();return}
+  if(t.id==='pttime'){ptTo=tmVal(t.value);renderPtTable();return}
+  if(t.id==='pfm'){ptFm=t.value;renderPtTable();return}
+  if(t.id==='pkm'){const edge=edgeList().find(x=>x.key===ptEdge),km=edge?segKmFor(edge):null;
+    if(km){const v=Math.max(0,Math.min(km,parseFloat(t.value)||0));ptFrac=v/km;$('#pslider').value=Math.round(ptFrac*1000);updatePtPos(edge);renderPtTable()}return}});
+$('#pv').addEventListener('input',e=>{
+  if(e.target.id==='pslider'){ptFrac=+e.target.value/1000;const edge=edgeList().find(x=>x.key===ptEdge);updatePtPos(edge);renderPtTable()}});
+
+
+// ---- 路線ごとの詳細設定(<路線名>.config.json) ----
+// 管理者が GitHub のファイルを編集して設定する。JSON に // や /* */ のコメントと末尾のカンマを書ける
+//   segments   走行位置の線の色(from から to までの、路線図上の経路)  …路線ごと
+//   types      種別ごとの表示(map=走行位置 / timetable=駅時刻表)・色・略称  …路線ごと
+//   distances  駅間の距離(km)。通過時刻表で、駅と駅のあいだの地点の時刻を出すときに使う  …路線ごと
+//   groups     運用のグループ分け(ops=運用名、match=正規表現)  …トップレベルは全ダイヤ共通、dias の中ならそのダイヤだけ
+//   operations 自作の運用(列車番号、または「始発駅 発時刻」で列車を指定)。列車が入っていなくても作れる  …同上
+//   order      運用の並び順  …同上
+//   dias       ダイヤごとの運用設定。{ "土曜": { "operations": [...], "groups": [...], "order": [...] } }
+let pendingCfg=null;
+const HEX=/^#[0-9a-fA-F]{3,8}$/,ekey=(u,v)=>u<v?u+'_'+v:v+'_'+u;
+const edgeCol=(a,b)=>{const S=M.cfg?M.cfg.segments:[],k=ekey(M.cn(a),M.cn(b));for(let i=S.length-1;i>=0;i--)if(S[i].edges.has(k))return S[i].color;return null};
+const segCol=i=>{const S=M.cfg?M.cfg.segments:[],u=M.cn(i);for(let k=S.length-1;k>=0;k--)if(S[k].nodes.has(u))return S[k].color;return null};
+function jsonLoose(t){ // コメントと末尾のカンマを取り除いて、ふつうの JSON にする
+  let o='',i=0,q=false,pend=-1;const n=t.length;
+  if(t[0]==='\ufeff')i=1;
+  while(i<n){const c=t[i];
+    if(q){o+=c;if(c==='\\'){o+=t[i+1]||'';i+=2;continue}if(c==='"')q=false;i++;continue}
+    if(c==='/'&&t[i+1]==='/'){while(i<n&&t[i]!=='\n')i++;continue}
+    if(c==='/'&&t[i+1]==='*'){const e=t.indexOf('*/',i+2);i=e<0?n:e+2;continue}
+    if(c==='"')q=true;
+    if(c===',')pend=o.length;
+    else if(!/\s/.test(c)){if(pend>=0&&(c==='}'||c===']'))o=o.slice(0,pend)+o.slice(pend+1);pend=-1}
+    o+=c;i++}
+  return o}
+function stFinds(nm){ // 駅名(同じ名前の駅が複数あるときは「名前#2」で2番目)。分岐で重複した駅は1つと数える
+  const m=String(nm==null?'':nm).match(/^(.*?)(?:#(\d+))?$/),name=m[1].trim(),k=m[2]?+m[2]:1,seen=new Set(),list=[];
+  for(let i=0;i<M.st.length;i++){if(M.st[i].name!==name)continue;const u=M.cn(i);if(seen.has(u))continue;seen.add(u);list.push(i)}
+  return{i:list[k-1]==null?-1:list[k-1],n:list.length,name}}
+function stPath(a,b){a=M.cn(a);b=M.cn(b);const prev=new Map([[a,null]]),q=[a];
+  for(let h=0;h<q.length;h++){const u=q[h];if(u===b)break;for(const v of M.adj.get(u)||[])if(!prev.has(v)){prev.set(v,u);q.push(v)}}
+  if(!prev.has(b))return null;const p=[];for(let x=b;x!==null;x=prev.get(x))p.push(x);return p.reverse()}
+function tyFinds(k){if(/^#\d+$/.test(k)){const i=+k.slice(1);return M.types[i]?[i]:[]}
+  let r=M.types.map((t,i)=>t.name===k?i:-1).filter(i=>i>=0);if(!r.length)r=M.types.map((t,i)=>t.ab===k?i:-1).filter(i=>i>=0);return r}
+function readCfg(text){ // 検証して、使える設定だけを取り出す。JSONとして読めない場合だけ全体をエラーにする
+  const res={cfg:null,errors:[],warns:[]},E=res.errors,W=res.warns;let j;
+  try{j=JSON.parse(jsonLoose(text))}catch(e){E.push('JSONとして読めません: '+e.message);return res}
+  if(!j||typeof j!=='object'||Array.isArray(j)){E.push('最上位は { } の形にしてください');return res}
+  for(const k of Object.keys(j))if(!['segments','types','distances','groups','operations','order','dias'].includes(k))W.push(`不明な項目「${k}」は無視します`);
+  const cfg={segments:[],types:{},distances:[],distKm:new Map(),common:{operations:[],groups:[],order:[]},dias:{}},arr=(o,k)=>o[k]==null?[]:Array.isArray(o[k])?o[k]:(W.push(`${k} は [ ] の形にしてください`),[]);
+  const okName=x=>typeof x==='string'&&x.trim()&&x.length<=60;
+  const bucket=()=>({operations:[],groups:[],order:[]});
+  const parseGroups=(list,dst,lb)=>list.slice(0,100).forEach((g,n)=>{const L=`${lb}[${n+1}]`;
+    if(!g||!okName(g.name)){W.push(`${L}: name を書いてください`);return}
+    let re=null;if(g.match!=null){try{if(String(g.match).length>100)throw 0;re=new RegExp(String(g.match))}catch(e){W.push(`${L}「${g.name}」: match の正規表現が正しくありません`)}}
+    if(g.ops!=null&&!Array.isArray(g.ops))W.push(`${L}「${g.name}」: ops は [ ] の形にしてください`);
+    const ops=Array.isArray(g.ops)?g.ops.map(String):[];if(!ops.length&&!re)W.push(`グループ「${g.name}」に運用が入っていません(運用にチェックを入れるか、正規表現を書いてください。設定ファイルでは ops か match です)`);
+    let color=null;if(g.color!=null){if(HEX.test(g.color))color=g.color;else W.push(`${L}「${g.name}」: color は #RRGGBB の形にしてください`)}
+    dst.groups.push({name:g.name.trim(),ops:new Set(ops),re,color})});
+  const parseOps=(list,dst,lb)=>list.slice(0,200).forEach((o,n)=>{const L=`${lb}[${n+1}]`;
+    if(!o||!okName(o.name)){W.push(`${L}: name を書いてください`);return}
+    if(o.trains!=null&&!Array.isArray(o.trains)){W.push(`${L}「${o.name}」: trains は [ ] の形にしてください`);return}
+    dst.operations.push({name:o.name.trim(),dia:o.dia?String(o.dia):'',group:o.group?String(o.group).trim():'',trains:(o.trains||[]).slice(0,500).map(String)})}); // 列車が入っていなくても作れる(あとから追加できる)
+  const parseOrder=(list,dst)=>{dst.order=Array.isArray(list)?list.filter(x=>typeof x==='string').slice(0,500):[]};
+  arr(j,'segments').slice(0,200).forEach((g,n)=>{const lb=`segments[${n+1}]`;
+    if(!g||typeof g!=='object'){W.push(`${lb}: { } の形にしてください`);return}
+    const a=stFinds(g.from),b=stFinds(g.to);
+    if(a.i<0||b.i<0){W.push(`${lb}: 駅「${a.i<0?g.from:g.to}」が見つかりません`);return}
+    if(!HEX.test(g.color||'')){W.push(`${lb}: color は #RRGGBB の形で指定してください`);return}
+    for(const x of[a,b])if(x.n>1&&!/#/.test(String(x===a?g.from:g.to)))W.push(`${lb}: 「${x.name}」は同じ名前の駅が${x.n}つあります。最初の駅を使います(2番目は ${x.name}#2)`);
+    const path=stPath(a.i,b.i);if(!path){W.push(`${lb}: 「${g.from}」と「${g.to}」は線路でつながっていません`);return}
+    cfg.segments.push({name:String(g.name||''),color:g.color,nodes:new Set(path),edges:new Set(path.slice(1).map((v,k)=>ekey(path[k],v)))})});
+  arr(j,'distances').slice(0,200).forEach((g,n)=>{const lb=`distances[${n+1}]`;
+    if(!g||typeof g!=='object'){W.push(`${lb}: { } の形にしてください`);return}
+    const a=stFinds(g.from),b=stFinds(g.to),km=+g.km;
+    if(a.i<0||b.i<0){W.push(`${lb}: 駅「${a.i<0?g.from:g.to}」が見つかりません`);return}
+    if(!isFinite(km)||km<=0||km>200){W.push(`${lb}: km は 0 より大きい数字で書いてください`);return}
+    const u=M.cn(a.i),v=M.cn(b.i);if(u===v){W.push(`${lb}: 同じ駅どうしの距離は使えません`);return}
+    cfg.distances.push({from:String(g.from),to:String(g.to),km:Math.round(km*10)/10});
+    cfg.distKm.set(ekey(u,v),Math.round(km*10)/10)}); // あとに書いたものが優先
+  if(j.types!=null&&(typeof j.types!=='object'||Array.isArray(j.types)))W.push('types は { } の形にしてください');
+  else for(const [k,v] of Object.entries(j.types||{})){const ids=tyFinds(k);
+    if(!ids.length){W.push(`types: 種別「${k}」が見つかりません`);continue}
+    if(!v||typeof v!=='object'){W.push(`types「${k}」は { } の形にしてください`);continue}
+    const o={};if('map' in v)o.map=!!v.map;if('timetable' in v)o.timetable=!!v.timetable;
+    if(v.color!=null){if(HEX.test(v.color))o.color=v.color;else W.push(`types「${k}」: color は #RRGGBB の形で指定してください`)}
+    if(v.ab!=null){if(typeof v.ab==='string'&&v.ab.trim()&&v.ab.length<=4)o.ab=v.ab.trim();else W.push(`types「${k}」: ab は4文字までの文字にしてください`)}
+    for(const i of ids)cfg.types[i]={...(cfg.types[i]||{}),...o}}
+  parseGroups(arr(j,'groups'),cfg.common,'groups');
+  parseOps(arr(j,'operations'),cfg.common,'operations');
+  parseOrder(j.order,cfg.common);
+  if(j.dias!=null){ // ダイヤごとの運用設定。知らないダイヤ名でも、設定は残しておく(ダイヤ名が変わっただけかもしれないので)
+    if(typeof j.dias!=='object'||Array.isArray(j.dias))W.push('dias は { } の形にしてください');
+    else for(const [dn,dv] of Object.entries(j.dias)){
+      if(typeof dn!=='string'||!dn.trim()||dn.length>60){W.push(`dias: ダイヤ名「${dn}」が正しくありません`);continue}
+      if(!dv||typeof dv!=='object'||Array.isArray(dv)){W.push(`dias「${dn}」は { } の形にしてください`);continue}
+      if(!M.dias.some(d=>d.name===dn))W.push(`dias「${dn}」: この路線に「${dn}」というダイヤはありません(ダイヤ名が変わったのかもしれません。設定は残してあります)`);
+      const b=cfg.dias[dn]=bucket();
+      parseGroups(arr(dv,'groups'),b,`dias「${dn}」.groups`);
+      parseOps(arr(dv,'operations'),b,`dias「${dn}」.operations`);
+      parseOrder(dv.order,b)}}
+  res.cfg=cfg;res.raw=j;return res}
+
+function findTrain(ref,byNo,byDep,W,opName,dn){ // 列車番号、または「始発駅 発時刻」。時刻は 24 時以降(25:10 など)も書ける
+  const s=ref.trim(),m=s.match(/^(.+?)\s+(\d{1,2}):(\d{2})(?::\d{2})?$/);let c;
+  if(m){let sec=+m[2]*3600+ +m[3]*60;if(sec<M.kiten)sec+=86400;const mi=Math.floor(sec/60);
+    c=byDep.get(m[1]+'|'+mi)||(byNo.get(m[1])||[]).filter(t=>Math.floor(t.dep/60)===mi)}
+  else c=byNo.get(s)||[];
+  if(c.length>1)W.add(`operations「${opName}」: 「${ref}」に当てはまる列車が${c.length}本あります。最初の1本を使います(時刻を付けて「列車番号 5:30」のように指定できます)`);
+  return c[0]||null}
+function detach(t){const o=t.op;if(o){const k=o.trains.indexOf(t);if(k>=0)o.trains.splice(k,1)}
+  if(t.pv&&t.pv.nx===t)t.pv.nx=null;if(t.nx&&t.nx.pv===t)t.nx.pv=null;t.pv=t.nx=null;t.op=null}
+function applyCfgOps(){ // 自作の運用を作り、すべての運用をグループに分ける(ダイヤごと)
+  const cfg=M.cfg,W=new Set(M.cfgInfo.warns),made=new Set();
+  const stn=t=>M.st[t.route[t.fs].s].name,hm=s=>`${Math.floor(s/3600)%24}:${String(Math.floor(s%3600/60)).padStart(2,'0')}`;
+  for(const d of M.dias){const out=d.trains;if(!out)continue;if(!out.ops)out.ops=[];
+    const db=cfg.dias[d.name]||{operations:[],groups:[],order:[]};
+    const ops=[...cfg.common.operations.map((co,ci)=>({co,scope:'共通',ci})),...(db.operations||[]).map((co,ci)=>({co,scope:d.name,ci}))]; // 共通の運用と、このダイヤだけの運用
+    const groups=[...(db.groups||[]),...cfg.common.groups]; // このダイヤのグループを優先
+    const order=db.order&&db.order.length?db.order:cfg.common.order;
+    d.groupsEff=groups; // このダイヤで使うグループ(運用一覧の表示用)
+    const byNo=new Map(),byDep=new Map(),add=(m,k,t)=>{if(!m.has(k))m.set(k,[]);m.get(k).push(t)};
+    for(const t of out){if(t.name)add(byNo,t.name,t);add(byDep,stn(t)+'|'+Math.floor(t.dep/60),t)}
+    const mine=[];
+    ops.forEach(({co,scope,ci})=>{if(co.dia&&co.dia!==d.name)return;
+      const trs=[],miss=[];for(const ref of co.trains){const t=findTrain(ref,byNo,byDep,W,co.name);t?trs.push(t):miss.push(ref)}
+      made.add(scope+':'+ci);
+      if(!trs.length){mine.push({name:co.name,named:true,trains:[],warn:[],custom:true,group:co.group,emptyOk:true});return} // 列車が入っていない運用も作る(あとから列車を追加できる)
+      for(const ref of miss)W.add(`operations「${co.name}」(${d.name}): 列車「${ref}」が見つかりません`);
+      const u=[...new Set(trs)].sort((a,b)=>a.dep-b.dep);for(const t of u){detach(t);for(const m of mine){const k=m.trains.indexOf(t);if(k>=0)m.trains.splice(k,1)}} // 同じダイヤの、前に作った自作の運用からも外す(あとの運用が優先)
+      const warn=[];
+      for(let k=0;k<u.length-1;k++){const a=u[k],b=u[k+1];
+        if(a.route[a.ls].s===b.route[b.fs].s&&a.arr<=b.dep){a.nx=b;b.pv=a}
+        else warn.push(a.route[a.ls].s!==b.route[b.fs].s?`「${a.name||stn(a)+' '+hm(a.dep)}」の終着駅と「${b.name||stn(b)+' '+hm(b.dep)}」の始発駅が違います`:`「${a.name||stn(a)+' '+hm(a.dep)}」の到着より前に「${b.name||stn(b)+' '+hm(b.dep)}」が出発します`)}
+      mine.push({name:co.name,named:true,trains:u,warn,custom:true,group:co.group})});
+    out.ops=out.ops.filter(o=>o.trains.length);
+    const used=new Set(out.ops.map(o=>o.key));
+    for(const o of mine){let k=o.name,n=2;if(used.has(k))k=o.name+'(自作)';while(used.has(k))k=`${o.name}(自作${n++})`;used.add(k);o.key=k;out.ops.push(o)}
+    out.ops=out.ops.filter(o=>o.trains.length||o.emptyOk); // あとの自作の運用に列車を取られた運用は、空になるので外す(はじめから列車なしの運用は残す)
+    out.ops.sort((a,b)=>(a.named?0:1)-(b.named?0:1)||a.name.localeCompare(b.name,'ja',{numeric:true}));
+    if(order.length){const ix=new Map(order.map((k,i)=>[k,i]));out.ops.sort((a,b)=>(ix.has(a.key)?ix.get(a.key):1e9)-(ix.has(b.key)?ix.get(b.key):1e9))} // 管理者画面で決めた並び順(ないものは名前順のまま後ろ)
+    for(const o of out.ops){if(!(o.custom&&o.group)){const g=groups.find(g=>g.ops.has(o.key)||g.ops.has(o.name)||(g.re&&(g.re.test(o.key)||g.re.test(o.name))));o.group=g?g.name:''}}
+    out.ops.forEach((o,i)=>{o.i=i;o.trains.forEach((t,k)=>{t.op=o;t.oi=k})})}
+  const unmade=(list,scope)=>list.forEach((co,ci)=>{if(!made.has(scope+':'+ci))W.add(`operations「${co.name}」(${scope}): ${co.dia?`ダイヤ「${co.dia}」に`:'このダイヤに'}列車が見つからないため、作りませんでした`)});
+  unmade(cfg.common.operations,'共通');
+  for(const [dn,b] of Object.entries(cfg.dias))unmade(b.operations,dn);
+  M.cfgInfo.warns=[...W]}
+
+function loadCfg(){
+  const p=pendingCfg;pendingCfg=null;gcol.clear();M.cfg=null;M.cfgRaw=null;M.cfgInfo={status:'none',errors:[],warns:[],note:'',src:(p&&p.src)||''};
+  M.types.forEach(t=>{t.col0=t.col;t.ab0=t.ab});
+  if(!p)return;
+  if(p.text==null){if(p.err&&!/404/.test(p.err)){M.cfgInfo.status='unreadable';M.cfgInfo.note=p.err}return}
+  const r=readCfg(p.text);M.cfgInfo.errors=r.errors;M.cfgInfo.warns=r.warns;
+  if(!r.cfg){M.cfgInfo.status='error';return}
+  M.cfg=r.cfg;M.cfgRaw=r.raw;M.cfgInfo.status='ok';
+  for(const [i,o] of Object.entries(M.cfg.types)){if(o.color)M.types[i].col=o.color;if(o.ab){M.types[i].ab=o.ab;M.types[i].ini=[...o.ab][0]}}
+  applyCfgOps()}
+function cfgTypes(){if(!M.cfg)return;for(const [i,o] of Object.entries(M.cfg.types)){if(o.map===false)hidden.add(+i);if(o.timetable===false)hideTT.add(+i)}}
+const cfgFile=()=>lineFile.replace(/\.oud2?$/i,'')+'.config.json';
+function cfgStatus(){const I=M.cfgInfo||{status:'none'},c=M.cfg;
+  if(I.status==='ok'){const nOp=c.common.operations.length+Object.values(c.dias).reduce((a,b)=>a+b.operations.length,0),nGr=c.common.groups.length+Object.values(c.dias).reduce((a,b)=>a+b.groups.length,0);
+    return `読み込み済み(線の色 ${c.segments.length}区間、種別 ${Object.keys(c.types).length}、駅間距離 ${c.distances.length}区間、グループ ${nGr}、自作の運用 ${nOp})`+(I.warns.length?`。確認が必要な点が${I.warns.length}件あります`:'');}
+  if(I.status==='error')return 'エラーがあり、読み込めませんでした(oud の内容のまま表示しています)';
+  if(I.status==='unreadable')return '設定ファイルを取得できませんでした';
+  return '設定ファイルはありません(oud の内容のまま表示しています)'}
+const CFG_EXAMPLE=String.raw`{
+  // 走行位置の線の色(from から to までの、路線図上の経路。あとに書いたものが優先)
+  "segments": [
+    { "from": "姪浜", "to": "福岡空港", "color": "#ff8040", "name": "空港線" },
+    { "from": "貝塚", "to": "中洲川端", "color": "#0080ff", "name": "箱崎線" }
+  ],
+  // 種別ごとの表示(map=走行位置、timetable=駅時刻表)・色・略称
+  "types": {
+    "回送": { "map": false, "timetable": false },
+    "快速": { "color": "#d4a000", "ab": "快" }
+  },
+  // 駅間の距離(km)。通過時刻表で、駅と駅のあいだの地点の時刻を出すときに使う
+  "distances": [
+    { "from": "姪浜", "to": "藤崎", "km": 1.2 }
+  ],
+  // 運用のグループ分け(ops=運用名、match=正規表現。上に書いたグループが優先)
+  "groups": [
+    { "name": "市営地下鉄", "match": "^[3-5]\\d$", "color": "#ff8040" },
+    { "name": "JR筑肥線", "ops": ["01", "02(西唐津)"], "color": "#8a05d1" }
+  ],
+  // 自作の運用(列車番号、または「始発駅 発時刻」で列車を指定)
+  //   トップレベルの operations は全ダイヤ共通。ダイヤごとに分けたいときは dias の中に書く
+  "operations": [
+    { "name": "臨時1", "group": "臨時", "trains": ["姪浜 5:30", "311C"] }
+  ],
+  "dias": {
+    "土曜": {
+      "operations": [
+        { "name": "土曜臨時", "group": "臨時", "trains": ["姪浜 24:00"] }
+      ],
+      "groups": [
+        { "name": "臨時", "match": "^臨時" }
+      ]
+    }
+  }
+}`;
+function renderCfg(){
+  const I=M.cfgInfo||{status:'none',errors:[],warns:[]},li=(a,c)=>a.length?`<ul class="cl ${c}">${a.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'';
+  $('#sh').innerHTML='<div><b style="font-size:17px">路線の詳細設定</b></div><button id="cls">閉じる</button>';
+  const seen=new Map(),sts=[];M.st.forEach((s,i)=>{const u=M.cn(i);if(seen.has(u))return;seen.set(u,1);const k=sts.filter(x=>x.name===s.name).length+1;sts.push({name:s.name,k})});
+  const dup=new Map();for(const x of sts)dup.set(x.name,(dup.get(x.name)||0)+1);
+  const opsL=(cur.ops||[]).map(o=>o.trains.length?`${o.key}  ${M.st[o.trains[0].route[o.trains[0].fs].s].name}→${M.st[o.trains[o.trains.length-1].route[o.trains[o.trains.length-1].ls].s].name} ${o.trains.length}本${o.group?'  ['+o.group+']':''}`:`${o.key}  列車なし${o.group?'  ['+o.group+']':''}`);
+  $('#sb').innerHTML=`<div class="mute" style="font-size:12px">${I.src==='db'?'管理者画面で保存した設定を使っています':`設定ファイル(oud と同じフォルダ)<br><b>${esc(cfgFile())}</b>`}</div>
+  <p style="margin:8px 0">${esc(cfgStatus())}${I.note?`(${esc(I.note)}。Edge Function を最新のものに更新してください)`:''}</p>${li(I.errors,'cerr')}${li(I.warns,'cwarn')}
+  <details><summary>設定の書き方の例</summary><pre class="cx">${esc(CFG_EXAMPLE)}</pre></details>
+  <details><summary>駅の名前(${sts.length})</summary><div class="cx2">${sts.map(x=>esc(dup.get(x.name)>1&&x.k>1?x.name+'#'+x.k:x.name)).join('、')}</div></details>
+  <details><summary>種別の名前(${M.types.length})</summary><div class="cx2">${M.types.map((t,i)=>`#${i} ${esc(t.name)}(略称 ${esc(t.ab)})`).join('<br>')}</div></details>
+  <details><summary>ダイヤの名前(${M.dias.length})</summary><div class="cx2">${M.dias.map(d=>esc(d.name)).join('、')}</div></details>
+  <details><summary>運用の名前(いま表示中のダイヤ ${opsL.length})</summary><div class="cx2">${opsL.map(esc).join('<br>')}</div></details>`;
+}
+
+// ---- 管理者画面(編成表・区間の色・運用の追加と並び替え・グループ・種別) ----
+// 管理者は Supabase の admins 表に入っている人。保存内容は line_settings 表(路線ごとの設定)と formations 表(編成表)に入る
+const clone=x=>x==null?x:JSON.parse(JSON.stringify(x));
+const getP=(o,p)=>p.split('.').reduce((a,k)=>a==null?a:a[k],o);
+function setP(o,p,v){const ks=p.split('.'),last=ks.pop();let a=o;for(const k of ks)a=a[k];a[last]=v}
+const hex6=c=>{c=String(c||'');if(/^#[0-9a-fA-F]{6}$/.test(c))return c;if(/^#[0-9a-fA-F]{3}$/.test(c))return '#'+c.slice(1).split('').map(x=>x+x).join('');return '#888888'};
+const hmS=s=>`${Math.floor(s/3600)%24}:${String(Math.floor(s%3600/60)).padStart(2,'0')}`;
+const ADM_NEW={segments:()=>({from:'',to:'',color:'#1d64c8',name:''}),groups:()=>({name:'',color:'#1d64c8',ops:[],match:''}),operations:()=>({name:'',group:'',trains:[]})};
+const TABS=[['fm','編成'],['seg','区間の色'],['dist','駅間の距離'],['ops','運用'],['grp','グループ・並び順'],['type','種別'],['txt','テキスト']];
+function admFix(d){ // 画面で扱いやすい形にそろえる。運用の設定は「共通(全ダイヤ)」と「ダイヤごと(dias)」に分ける
+  const arr=a=>Array.isArray(a)?clone(a).filter(x=>x&&typeof x==='object'):[],str=x=>x==null?'':String(x);
+  const op=o=>({name:str(o.name),group:str(o.group),trains:(Array.isArray(o.trains)?o.trains:[]).map(String)});
+  const grp=g=>({name:str(g.name),color:str(g.color)||'#1d64c8',match:str(g.match),ops:(Array.isArray(g.ops)?g.ops:[]).map(String)});
+  const o={segments:arr(d.segments).map(g=>({from:str(g.from),to:str(g.to),color:str(g.color)||'#1d64c8',name:str(g.name)})),
+    types:d.types&&typeof d.types==='object'&&!Array.isArray(d.types)?clone(d.types):{},
+    distances:arr(d.distances).map(g=>({from:str(g.from),to:str(g.to),km:+g.km})).filter(g=>g.from&&g.to&&isFinite(g.km)&&g.km>0),
+    groups:arr(d.groups).map(grp),
+    operations:[],
+    order:(Array.isArray(d.order)?d.order:[]).map(String),
+    dias:{}};
+  // 旧形式: dia が付いた自作の運用は、そのダイヤのものとして移す(dia はもう要らないので落とす)
+  for(const g of arr(d.operations)){const oo=op(g),dn=str(g.dia);
+    if(dn){if(!o.dias[dn])o.dias[dn]={operations:[],groups:[],order:[]};o.dias[dn].operations.push(oo)}
+    else o.operations.push(oo)}
+  if(d.dias&&typeof d.dias==='object'&&!Array.isArray(d.dias))for(const [dn,dv] of Object.entries(d.dias)){
+    if(typeof dn!=='string'||!dn.trim()||dv==null||typeof dv!=='object'||Array.isArray(dv))continue;
+    const b=o.dias[dn]||(o.dias[dn]={operations:[],groups:[],order:[]});
+    b.operations.push(...arr(dv.operations).map(op));
+    b.groups.push(...arr(dv.groups).map(grp));
+    b.order.push(...(Array.isArray(dv.order)?dv.order:[]).map(String))}
+  return o}
+function admInit(){adm={tab:'fm',fm:null,msg:'',dirty:false,scope:M.dias[M.cur].name,draft:admFix(M.cfgRaw||{})}}
+// 運用の設定の対象スコープ。'common'=全ダイヤ共通、それ以外はダイヤ名
+function scopeData(draft,scope){ // そのスコープの運用設定 {operations, groups, order}(参照を返す)
+  if(!scope||scope==='common')return draft;
+  if(!draft.dias[scope])draft.dias[scope]={operations:[],groups:[],order:[]};
+  return draft.dias[scope]}
+const scopeName=()=>!adm.scope||adm.scope==='common'?'全ダイヤ共通':adm.scope+'ダイヤ';
+
+function admOpen(tab){if(!isAdmin||!M)return;if(!adm)admInit();if(adm.scope!=='common'&&!M.dias.some(d=>d.name===adm.scope))adm.scope=M.dias[M.cur].name;if(tab)adm.tab=tab;showView('adm')}
+function stNames(){const seen=new Set(),cnt=new Map(),out=[];M.st.forEach((s,i)=>{const u=M.cn(i);if(seen.has(u))return;seen.add(u);const k=(cnt.get(s.name)||0)+1;cnt.set(s.name,k);out.push(k>1?s.name+'#'+k:s.name)});return out}
+const curKeys=()=>(cur.ops||[]).map(o=>o.key);
+const diaKeys=dn=>{const d=M.dias.find(x=>x.name===dn);if(!d)return[];const ks=[];for(const t of d.trains||[])if(t.op&&!ks.includes(t.op.key))ks.push(t.op.key);return ks};
+const scopeKeys=()=>{const s=adm.scope;return !s||s==='common'?curKeys():diaKeys(s)};
+const allOpKeys=()=>[...new Set([...scopeKeys(),...scopeData(adm.draft,adm.scope).operations.map(o=>o.name).filter(Boolean)])];
+const grpOf=k=>{const s=adm.scope;if(!s||s==='common'){const o=(cur.ops||[]).find(x=>x.key===k);return o&&o.group||''}
+  const d=M.dias.find(x=>x.name===s);if(!d)return'';for(const t of d.trains||[])if(t.op&&t.op.key===k)return t.op.group||'';return''};
+function orderKeys(){const keys=allOpKeys(),ord=scopeData(adm.draft,adm.scope).order.filter(k=>keys.includes(k)),sk=scopeKeys();return[...ord,...sk.filter(k=>!ord.includes(k)),...keys.filter(k=>!ord.includes(k)&&!sk.includes(k))]}
+
+const mv=(l,i)=>`<span class="mvb"><button data-a="up" data-l="${l}" data-i="${i}" aria-label="上へ">↑</button><button data-a="down" data-l="${l}" data-i="${i}" aria-label="下へ">↓</button><button data-a="del" data-l="${l}" data-i="${i}" aria-label="削除">×</button></span>`;
+const admMsg=()=>`${adm.dirty?'<span class="cwarn">未保存の変更があります。</span> ':''}${esc(adm.msg)}${(M.cfgInfo.warns||[]).length?`<details><summary>設定の注意 ${M.cfgInfo.warns.length}件</summary><ul class="cl cwarn">${M.cfgInfo.warns.map(w=>`<li>${esc(w)}</li>`).join('')}</ul></details>`:''}`;
+function renderAdm(){
+  const e=$('#adm');if(!e||!adm||!M)return;
+  const scopes=[['common','共通(全ダイヤ)'],...M.dias.map(d=>[d.name,d.name])];
+  const scopeBar=(adm.tab==='ops'||adm.tab==='grp')?`<div class="row" style="margin:0 0 8px;flex-wrap:wrap"><span class="mute">対象のダイヤ:</span><div class="seg" role="group" aria-label="対象のダイヤ" style="flex:1">${scopes.map(([k,l])=>`<button data-a="scope" data-s="${esc(k)}" class="${adm.scope===k?'on':''}" aria-pressed="${adm.scope===k}">${esc(l)}</button>`).join('')}</div></div>`:'';
+  e.innerHTML=`<div class="wrap" style="padding:10px 14px 150px"><div class="row" style="margin:0 0 8px"><button data-a="back">‹ 戻る</button><b style="font-size:18px">管理者画面</b><span class="mute" style="margin-left:auto;font-size:12px">${esc(lineFile.replace(/\.oud2?$/i,''))}</span></div>${scopeBar}
+  <div class="atabs" role="tablist">${TABS.map(([k,t])=>`<button role="tab" data-tab="${k}" class="${adm.tab===k?'on':''}" aria-selected="${adm.tab===k}">${t}</button>`).join('')}</div>
+  <div id="apane">${admPane()}</div></div>${adm.tab!=='fm'?`<div class="abar"><div id="amsg" class="amsg">${admMsg()}</div><div class="row"><button class="pri" data-a="save">保存して反映</button><button data-a="reset">変更を破棄</button></div></div>`:''}`;
+}
+const renderMsg=()=>{const m=$('#amsg');if(m)m.innerHTML=admMsg()};
+function admPane(){return {fm:admFm,seg:admSeg,dist:admDist,ops:admOps,grp:admGrp,type:admType,txt:admTxt}[adm.tab]()}
+// ---- 編成 ----
+function admFm(){
+  if(adm.fm)return admFmForm();
+  const L=[...FM.values()].sort((a,b)=>a.number.localeCompare(b.number,'ja',{numeric:true})),un=[...new Set(posts.map(p=>p.formation))].filter(x=>!fmReg(x));
+  return `${fmErr?`<div class="wnote">編成表のデータベースを読み込めませんでした(${esc(fmErr)})。supabase/admin.sql を実行したか確認してください</div>`:''}
+  <div class="row" style="margin:6px 0"><button class="pri" data-a="fm-new">＋ 編成を追加</button></div>
+  ${un.length?`<div class="wnote">投稿されているが、編成表に未登録: ${un.map(x=>`<button data-a="fm-new" data-n="${esc(x)}">${esc(x)}</button>`).join(' ')}</div>`:''}
+  ${L.map(f=>`<div class="fr"><div class="fh"><b class="fno">${esc(f.number)}</b><img class="fi" src="${esc(f.icon||PHU())}" width="30" height="42" alt=""><div class="fcs">${carsSvg(f)||'<span class="mute">車両が未登録です</span>'}</div></div><div class="fn">${f.owner?'所 '+esc(f.owner)+'  ':''}${esc(f.remark)}</div><div class="row" style="justify-content:center"><button data-a="fm-edit" data-n="${esc(f.number)}">編集</button><button data-a="fm-del" data-n="${esc(f.number)}">削除</button></div></div>`).join('')||'<div class="mute" style="padding:12px 0">編成がまだ登録されていません</div>'}`}
+function carRows(f){return f.cars.map((c,i)=>`<div class="orow"><span style="min-width:3.2em">${i+1}号車</span><input data-fc="${i}.no" value="${esc(c.no)}" placeholder="車号 例 1512" maxlength="12" style="width:7.5em" aria-label="${i+1}号車の車号"><label class="chip"><input type="checkbox" data-fc="${i}.pan"${c.pan?' checked':''}>パンタ</label><label class="chip"><input type="checkbox" data-fc="${i}.eq"${c.eq?' checked':''}>床下機器</label><span class="mvb"><button data-a="car-up" data-i="${i}" aria-label="上へ">↑</button><button data-a="car-down" data-i="${i}" aria-label="下へ">↓</button><button data-a="car-del" data-i="${i}" aria-label="削除">×</button></span></div>`).join('')}
+function admFmForm(){const f=adm.fm;
+  return `<div class="ac"><h3>${f.isNew?'編成を追加':esc(f.number)+' を編集'}</h3>
+  <label class="fl">編成番号<input data-ff="number" value="${esc(f.number)}" maxlength="20" placeholder="例 06"${f.isNew?'':' readonly'}></label>
+  <label class="fl">所属<input data-ff="owner" value="${esc(f.owner)}" maxlength="40" placeholder="例 福岡市交通局"></label>
+  <label class="fl">編成に関する備考<input data-ff="remark" value="${esc(f.remark)}" maxlength="200" placeholder="例 弱冷房車"></label>
+  <div class="fl">帯の色(側面の絵)<span class="row" style="margin:0"><input type="color" data-ff="stripe" value="${hex6(f.stripe||'#2f7fd0')}" aria-label="帯の色"><button data-a="stripe-clear">既定に戻す</button></span></div>
+  <div class="fl">アイコン(正面の絵)<span class="row" style="margin:0"><img id="fmicon" class="fi" src="${esc(f.icon||PHU())}" width="48" height="66" alt=""><input id="fmfile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" aria-label="アイコンの画像"><button data-a="ic-clear">削除</button></span><span class="mute">未設定のときは「編成不明」の絵が出ます。画像は自動で小さくして保存します</span></div>
+  <h3>車両(1号車から順に)</h3><div id="fmcars">${carRows(f)}</div>
+  <div class="row"><button data-a="car-add">＋ 車両を追加</button><span class="row" style="margin:0">両数から作る<input id="cgen" type="number" min="1" max="20" value="6" style="width:4.5em" aria-label="両数"><button data-a="car-gen">作成</button></span></div>
+  <div class="fl">プレビュー</div><div id="fmprev" class="fcs">${carsSvg(f)}</div>
+  <div id="fmmsg" class="cwarn" role="status"></div><div class="row"><button class="pri" data-a="fm-save">保存</button><button data-a="fm-cancel">キャンセル</button></div></div>`}
+const fmPrev=()=>{const p=$('#fmprev');if(p)p.innerHTML=carsSvg(adm.fm)};
+function fileIcon(file){
+  const m=$('#fmmsg');if(file.size>6e6){m.textContent='画像が大きすぎます(6MBまで)';return}
+  const fr=new FileReader();fr.onload=()=>{const im=new Image();
+    im.onload=()=>{const k=Math.min(1,160/im.width,224/im.height),w=Math.max(1,Math.round(im.width*k)),h=Math.max(1,Math.round(im.height*k)),c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);
+      let d=c.toDataURL('image/webp',.9);if(!/^data:image\/webp/.test(d))d=c.toDataURL('image/png');
+      if(!ICON_OK.test(d)||d.length>250000){m.textContent='画像を小さくできませんでした。別の画像を選んでください';return}
+      adm.fm.iconData=d;adm.fm.icon=blobUrl(d);$('#fmicon').src=adm.fm.icon;m.textContent=''};
+    im.onerror=()=>{m.textContent='画像として読み込めませんでした'};im.src=fr.result};
+  fr.readAsDataURL(file)}
+async function fmSave(){
+  const f=adm.fm,m=$('#fmmsg'),num=f.number.trim();
+  if(!num){m.textContent='編成番号を入力してください';return}
+  if(f.isNew&&fmReg(num)){m.textContent='同じ編成番号が、すでにあります。一覧の「編集」から直してください';return}
+  const cars=f.cars.map(c=>({no:c.no.trim(),pan:!!c.pan,eq:!!c.eq})).filter(c=>c.no);
+  const row={file:lineFile,number:num,owner:f.owner.trim(),remark:f.remark.trim(),stripe:f.stripe||'',cars,icon:f.iconData||'',updated_at:new Date().toISOString()};
+  m.textContent='保存中…';
+  const {error}=await sb.from('formations').upsert(row);
+  if(error){m.textContent='保存できませんでした: '+(error.message||'');return}
+  await loadFormations(lineFile);adm.fm=null;renderAdm();refresh()}
+// ---- 区間の色 ----
+function admSeg(){const S=adm.draft.segments,names=stNames(),opts=v=>'<option value="">(駅を選ぶ)</option>'+names.map(n=>`<option${n===v?' selected':''}>${esc(n)}</option>`).join('')+(v&&!names.includes(v)?`<option selected>${esc(v)}</option>`:'');
+  return `<p class="mute">始点から終点までの、路線図上の経路に色を付けます(駅の並び順ではなく、路線のつながりで決まります)。下に書いたものほど優先されます</p>
+  ${S.map((g,i)=>`<div class="ac"><div class="row"><select data-f="segments.${i}.from" aria-label="始点">${opts(g.from)}</select><span aria-hidden="true">→</span><select data-f="segments.${i}.to" aria-label="終点">${opts(g.to)}</select></div><div class="row"><input type="color" data-f="segments.${i}.color" value="${hex6(g.color)}" aria-label="色"><input data-f="segments.${i}.name" value="${esc(g.name)}" placeholder="名前(例 空港線)" maxlength="30" style="flex:1;min-width:0">${mv('segments',i)}</div></div>`).join('')||'<div class="mute">区間がまだありません</div>'}
+  <button data-a="add" data-l="segments">＋ 区間を追加</button>`}
+// ---- 駅間の距離 ----
+function edgeList(){ // 路線図のつながりで、隣り合う駅の組(分岐でつながっていない組は除く)
+  const out=[],seen=new Set();
+  for(let i=0;i<M.st.length-1;i++){const u=M.cn(i),v=M.cn(i+1);if(u===v)continue;
+    if(!(M.adj.get(u)||new Set()).has(v))continue;
+    const k=ekey(u,v);if(seen.has(k))continue;seen.add(k);out.push({a:i,b:i+1,u,v,key:k})}
+  return out}
+function admDist(){const names=stNames(),E=edgeList(),D=adm.draft.distances||[];
+  const val=(a,b)=>{const e=D.find(x=>x.from===names[a]&&x.to===names[b]);return e?e.km:''};
+  const tot=D.reduce((s,x)=>s+(+x.km||0),0);
+  return `<p class="mute">駅と駅のあいだの距離です。通過時刻表で、駅と駅のあいだの好きな地点の時刻を出すときに使います。距離を入れていない区間は、割合(%)で地点を指定します</p>
+  ${E.map(({a,b})=>`<div class="orow"><span style="flex:1;min-width:0">${esc(names[a])} → ${esc(names[b])}</span><input type="number" min="0" max="200" step="0.1" data-dk="${esc(names[a])}|${esc(names[b])}" value="${esc(val(a,b))}" placeholder="km" style="width:6.5em" aria-label="${esc(names[a])}から${esc(names[b])}までの距離(km)"><span class="mute">km</span></div>`).join('')||'<div class="mute">区間がありません</div>'}
+  <p class="mute">設定済みの合計: ${tot?tot.toFixed(1)+' km':'—'}</p>`}
+// ---- 運用(自作) ----
+let admIx=new Map();
+function refIdx(dn){const d=M.dias.find(x=>x.name===dn)||M.dias[M.cur];if(admIx.has(d)&&admIx.get(d).n===d.trains.length)return admIx.get(d);
+  const byNo=new Map(),byDep=new Map(),add=(m,k,t)=>{if(!m.has(k))m.set(k,[]);m.get(k).push(t)};
+  for(const t of d.trains){if(t.name)add(byNo,t.name,t);add(byDep,M.st[t.route[t.fs].s].name+'|'+Math.floor(t.dep/60),t)}
+  const x={n:d.trains.length,d,byNo,byDep};admIx.set(d,x);return x}
+const trLine=t=>`${t.name||'—'}  ${M.st[t.route[t.fs].s].name} ${hmS(t.dep)} → ${M.st[t.route[t.ls].s].name} ${hmS(t.arr)}`;
+function admOps(){const S=scopeData(adm.draft,adm.scope),O=S.operations,sn=scopeName(),gl=[...new Set([...S.groups.map(g=>g.name),...O.map(o=>o.group)].filter(Boolean))];
+  return `<p class="mute">${esc(sn)}の自作の運用です。oud とは別に、列車を並べて運用を作れます。指定した列車は、oud の運用から外れて、この運用に移ります(時刻順に並びます)${!adm.scope||adm.scope==='common'?'。共通の運用は、すべてのダイヤに出ます':''}</p>
+  <datalist id="gdl">${gl.map(g=>`<option value="${esc(g)}">`).join('')}</datalist>
+  ${O.map((o,i)=>{const ix=refIdx(adm.scope&&adm.scope!=='common'?adm.scope:null),ok=o.trains.filter(r=>findTrain(r,ix.byNo,ix.byDep,new Set(),''));return `<div class="ac"><div class="row"><input data-f="operations.${i}.name" value="${esc(o.name)}" placeholder="運用名" maxlength="60" style="flex:1;min-width:6em" aria-label="運用名"><input data-f="operations.${i}.group" value="${esc(o.group)}" list="gdl" placeholder="グループ(任意)" maxlength="60" style="flex:1;min-width:6em" aria-label="グループ"></div>
+    <div class="row"><span class="mute" style="font-size:12px">${esc(sn)}</span>${o.trains.length?`<span class="mute" style="font-size:12px">${ok.length}/${o.trains.length}本が見つかります</span>`:''}<span style="margin-left:auto"></span>${mv('operations',i)}</div>
+    ${!o.trains.length?'<div class="cwarn">列車が入っていません。下の検索から列車を追加できます(列車がなくても保存できます)</div>':''}
+    <div class="trl">${o.trains.map((r,j)=>{const t=findTrain(r,ix.byNo,ix.byDep,new Set(),'');return `<div class="orow"><span class="${t?'':'cwarn'}" style="flex:1;min-width:0">${t?esc(trLine(t)):'⚠ 見つかりません: '+esc(r)}</span><span class="mvb"><button data-a="up" data-l="operations.${i}.trains" data-i="${j}" aria-label="上へ">↑</button><button data-a="down" data-l="operations.${i}.trains" data-i="${j}" aria-label="下へ">↓</button><button data-a="del" data-l="operations.${i}.trains" data-i="${j}" aria-label="削除">×</button></span></div>`}).join('')||'<div class="mute">列車がまだありません</div>'}</div>
+    <input data-s="${i}" type="search" placeholder="列車番号や「駅 時刻」で探して追加(例: 311C、姪浜 5:30)" aria-label="列車を探す"><div id="sr${i}" class="sr"></div></div>`}).join('')||'<div class="mute">自作の運用がまだありません</div>'}
+  <button data-a="add" data-l="operations">＋ 運用を追加</button>`}
+
+function admSearch(el){const i=+el.dataset.s,q=nk(el.value),box=$('#sr'+i);if(!box)return;if(!q){box.innerHTML='';return}
+  const o=scopeData(adm.draft,adm.scope).operations[i],ix=refIdx(adm.scope&&adm.scope!=='common'?adm.scope:null),res=[];
+  for(const t of ix.d.trains){const a=M.st[t.route[t.fs].s].name,b=M.st[t.route[t.ls].s].name;
+    if(nk(`${t.name||''} ${a} ${hmS(t.dep)}`).includes(q)||nk(`${b} ${hmS(t.arr)}`).includes(q)){res.push(t);if(res.length>=8)break}}
+  box.innerHTML=res.map(t=>{const a=M.st[t.route[t.fs].s].name,ref=t.name&&(ix.byNo.get(t.name)||[]).length===1?t.name:(t.name?t.name+' ':a+' ')+hmS(t.dep);
+    return `<button data-a="addtrain" data-i="${i}" data-ref="${esc(ref)}">${esc(trLine(t))}</button>`}).join('')||'<div class="mute">見つかりません</div>'}
+// ---- グループ・並び順 ----
+function admGrp(){const S=scopeData(adm.draft,adm.scope),G=S.groups,keys=allOpKeys(),L=orderKeys(),sn=scopeName();
+  return `<p class="mute">${esc(sn)}のグループ分けと並び順です。運用をグループに分けると、運用一覧がグループごとにまとまります。上のグループが優先です。「正規表現」は、運用名にあてはまるものをまとめて入れたいときに使います(任意)</p>
+  ${G.map((g,i)=>`<div class="ac"><div class="row"><input data-f="groups.${i}.name" value="${esc(g.name)}" placeholder="グループ名" maxlength="60" style="flex:1;min-width:6em" aria-label="グループ名"><input type="color" data-f="groups.${i}.color" value="${hex6(g.color)}" aria-label="色">${mv('groups',i)}</div>
+    <div class="row"><input data-f="groups.${i}.match" value="${esc(g.match)}" placeholder="正規表現(任意) 例 ^[3-5]\\d$" maxlength="100" style="flex:1;min-width:0" aria-label="正規表現"></div>
+    <div class="chips">${keys.map(k=>`<label class="chip"><input type="checkbox" data-gk="${i}" value="${esc(k)}"${g.ops.includes(k)?' checked':''}>${esc(k)}</label>`).join('')}</div></div>`).join('')||'<div class="mute">グループがまだありません</div>'}
+  <button data-a="add" data-l="groups">＋ グループを追加</button>
+  <h3 style="margin-top:18px">運用の並び順(${esc(sn)})</h3><p class="mute">上から順に運用一覧に並びます。グループ分けしているときは、グループの中の順番になります</p>
+  ${L.map((k,i)=>`<div class="orow"><span style="flex:1;min-width:0">${esc(k)}</span><span class="mute" style="font-size:12px">${esc(grpOf(k))}</span><span class="mvb"><button data-a="oup" data-i="${i}" aria-label="上へ">↑</button><button data-a="odown" data-i="${i}" aria-label="下へ">↓</button></span></div>`).join('')}`}
+
+// ---- 種別 ----
+const tyKey=i=>M.types.filter(x=>x.name===M.types[i].name).length>1?'#'+i:M.types[i].name;
+function admType(){return `<p class="mute">種別ごとに、走行位置と駅時刻表に出すか、略称と色を決めます</p><table class="atb"><tr><th>種別</th><th>略称</th><th>色</th><th>走行位置</th><th>駅時刻表</th></tr>
+  ${M.types.map((t,i)=>{const k=tyKey(i),c=adm.draft.types[k]||{};return `<tr><td>${esc(t.name)}</td><td><input data-ty="${esc(k)}" data-tf="ab" value="${esc(c.ab!=null?c.ab:t.ab0!=null?t.ab0:t.ab)}" maxlength="4" style="width:4.5em" aria-label="${esc(t.name)}の略称"></td><td><input type="color" data-ty="${esc(k)}" data-tf="color" value="${hex6(c.color||t.col0||t.col)}" aria-label="${esc(t.name)}の色"></td><td><input type="checkbox" data-ty="${esc(k)}" data-tf="map"${c.map===false?'':' checked'} aria-label="${esc(t.name)}を走行位置に出す"></td><td><input type="checkbox" data-ty="${esc(k)}" data-tf="timetable"${c.timetable===false?'':' checked'} aria-label="${esc(t.name)}を駅時刻表に出す"></td></tr>`}).join('')}</table>`}
+function tyChange(el){const k=el.dataset.ty,tf=el.dataset.tf,t=M.types.find((_,j)=>tyKey(j)===k),T=adm.draft.types,c=T[k]=T[k]&&typeof T[k]==='object'?T[k]:{};
+  if(tf==='map'){if(el.checked)delete c.map;else c.map=false}
+  else if(tf==='timetable'){if(el.checked)delete c.timetable;else c.timetable=false}
+  else if(tf==='color')c.color=el.value;
+  else if(tf==='ab'){const v=el.value.trim();if(v&&v!==(t.ab0!=null?t.ab0:t.ab))c.ab=v;else delete c.ab}
+  if(!Object.keys(c).length)delete T[k]}
+// ---- テキスト ----
+const admTxt=()=>`<p class="mute">設定の中身を、テキスト(JSON)で見たり、まとめて書き換えたりできます。// のコメントも書けます</p><textarea id="atx" rows="18" spellcheck="false" style="width:100%;font-family:monospace;font-size:12px">${esc(JSON.stringify(adm.draft,null,2))}</textarea><div class="row"><button data-a="txapply">この内容を反映する(確認)</button></div><div id="txm" class="cwarn" role="status"></div>`;
+// ---- 保存 ----
+function admClean(draft){ // 保存する形に整える。列車の入っていない自作の運用も残す(あとから列車を追加できる)
+  const d=clone(draft),dropped=[];
+  d.segments=d.segments.filter(g=>g.from&&g.to);
+  d.distances=(d.distances||[]).filter(g=>g.from&&g.to&&isFinite(g.km)&&g.km>0);
+  d.groups=d.groups.filter(g=>g.name);
+  d.groups.forEach(g=>{if(!g.match)delete g.match});d.segments.forEach(g=>{if(!g.name)delete g.name});
+  const cleanOps=(list,scope)=>list.filter(o=>!!o.name);
+  d.operations=cleanOps(d.operations,'共通');
+  d.operations.forEach(o=>{if(!o.group)delete o.group});
+  if(!d.order.length)delete d.order;
+  const dias={};for(const [dn,b] of Object.entries(d.dias||{})){
+    const ops=cleanOps(b.operations,dn);ops.forEach(o=>{if(!o.group)delete o.group});
+    const grps=(b.groups||[]).filter(g=>g.name);grps.forEach(g=>{if(!g.match)delete g.match});
+    const ord=(b.order||[]).filter(x=>typeof x==='string');
+    if(ops.length||grps.length||ord.length)dias[dn]={operations:ops,groups:grps,order:ord}};
+  if(Object.keys(dias).length)d.dias=dias;else delete d.dias;
+  return{data:d,dropped}}
+async function admSave(){
+  const{data:d,dropped}=admClean(adm.draft);
+  adm.msg='保存中…';renderMsg();
+  const {error}=await sb.from('line_settings').upsert({file:lineFile,config:d,updated_at:new Date().toISOString()});
+  if(error){adm.msg='保存できませんでした: '+(error.message||'');renderMsg();return}
+  adm.draft=admFix(d);adm.dirty=false;adm.msg='保存しました。反映しています…'+(dropped.length?' '+dropped.join('。'):'');renderMsg();
+  pendingCfg={text:JSON.stringify(d),err:'',src:'db'};
+  afterSetup=()=>{adm.msg=`保存しました(注意 ${M.cfgInfo.warns.length}件)`+(dropped.length?'。'+dropped.join('。'):'');showView('adm')};
+  loadFile(lastFile)}
+
+// ---- 操作 ----
+$('#adm').addEventListener('click',async e=>{
+  const t=e.target.closest('[data-tab],[data-a]');if(!t||!adm)return;
+  if(t.dataset.tab){adm.tab=t.dataset.tab;adm.fm=null;renderAdm();return}
+  const a=t.dataset.a,l=t.dataset.l,i=+t.dataset.i,D=adm.draft,rerender=()=>{adm.dirty=true;renderAdm()};
+  const swap=(L,x,y)=>{if(y<0||y>=L.length)return false;[L[x],L[y]]=[L[y],L[x]];return true};
+  const base=l&&/^(operations|groups|order)\b/.test(l)?scopeData(D,adm.scope):D; // 運用の設定は、選んだスコープ(ダイヤ)の中で扱う
+  switch(a){
+    case 'back':showView('roster');return;
+    case 'scope':adm.scope=t.dataset.s;renderAdm();return;
+    case 'add':getP(base,l).push(ADM_NEW[l]());rerender();return;
+    case 'del':getP(base,l).splice(i,1);rerender();return;
+    case 'up':if(swap(getP(base,l),i,i-1))rerender();return;
+    case 'down':if(swap(getP(base,l),i,i+1))rerender();return;
+    case 'addtrain':scopeData(D,adm.scope).operations[i].trains.push(t.dataset.ref);rerender();return;
+    case 'oup':case 'odown':{const L=orderKeys();if(swap(L,i,a==='oup'?i-1:i+1)){scopeData(D,adm.scope).order=L;rerender()}return}
+    case 'reset':{const tb=adm.tab;admInit();adm.tab=tb;adm.msg='変更を破棄しました';renderAdm();return}
+    case 'save':admSave();return;
+    case 'txapply':{const m=$('#txm');try{const j=JSON.parse(jsonLoose($('#atx').value));if(!j||typeof j!=='object'||Array.isArray(j))throw new Error('最上位は { } の形にしてください');adm.draft=admFix(j);adm.dirty=true;adm.msg='テキストの内容を取り込みました。「保存して反映」で保存されます';renderAdm()}catch(err){m.textContent='JSONとして読めません: '+err.message}return}
+    case 'fm-new':adm.fm={isNew:true,number:t.dataset.n||'',owner:'',remark:'',stripe:'',iconData:'',icon:'',cars:[]};renderAdm();return;
+    case 'fm-edit':{const f=fmReg(t.dataset.n);if(f){adm.fm={isNew:false,number:f.number,owner:f.owner,remark:f.remark,stripe:f.stripe,iconData:f.iconData,icon:f.icon,cars:clone(f.cars)};renderAdm()}return}
+    case 'fm-cancel':adm.fm=null;renderAdm();return;
+    case 'fm-save':fmSave();return;
+    case 'fm-del':{const n=t.dataset.n;if(!confirm(`編成「${n}」を削除しますか?(これまでの投稿はそのまま残ります)`))return;
+      const {error}=await sb.from('formations').delete().eq('file',lineFile).eq('number',n);
+      if(error){alert('削除できませんでした: '+(error.message||''));return}
+      await loadFormations(lineFile);renderAdm();refresh();return}
+    case 'stripe-clear':adm.fm.stripe='';renderAdm();return;
+    case 'ic-clear':adm.fm.iconData='';adm.fm.icon='';renderAdm();return;
+    case 'car-add':if(adm.fm.cars.length<30){adm.fm.cars.push({no:'',pan:false,eq:false});renderAdm()}return;
+    case 'car-gen':{const n=Math.max(1,Math.min(20,+$('#cgen').value||0));while(adm.fm.cars.length<n)adm.fm.cars.push({no:'',pan:false,eq:false});adm.fm.cars.length=Math.max(n,0);renderAdm();return}
+    case 'car-del':adm.fm.cars.splice(i,1);renderAdm();return;
+    case 'car-up':if(swap(adm.fm.cars,i,i-1))renderAdm();return;
+    case 'car-down':if(swap(adm.fm.cars,i,i+1))renderAdm();return}
+});
+const admInput=e=>{if(!adm)return;const t=e.target;
+  if(t.dataset.dk!=null){const [from,to]=t.dataset.dk.split('|'),v=parseFloat(t.value),D=adm.draft.distances||(adm.draft.distances=[]),ex=D.findIndex(x=>x.from===from&&x.to===to);
+    if(isFinite(v)&&v>0){const km=Math.round(v*10)/10;if(ex>=0)D[ex].km=km;else D.push({from,to,km})}
+    else if(ex>=0)D.splice(ex,1);
+    adm.dirty=true;renderMsg();return}
+  if(t.dataset.f){const base=/^(operations|groups|order)\./.test(t.dataset.f)?scopeData(adm.draft,adm.scope):adm.draft;setP(base,t.dataset.f,t.type==='checkbox'?t.checked:t.value);adm.dirty=true;renderMsg();return}
+  if(t.dataset.gk!=null){const g=scopeData(adm.draft,adm.scope).groups[+t.dataset.gk],k=t.value,has=g.ops.includes(k);if(t.checked&&!has)g.ops.push(k);if(!t.checked&&has)g.ops.splice(g.ops.indexOf(k),1);adm.dirty=true;renderMsg();return}
+  if(t.dataset.ty){tyChange(t);adm.dirty=true;renderMsg();return}
+  if(t.dataset.s!=null){admSearch(t);return}
+  if(t.dataset.ff){adm.fm[t.dataset.ff]=t.value;if(t.dataset.ff==='stripe')fmPrev();return}
+  if(t.dataset.fc){const [i,k]=t.dataset.fc.split('.'),c=adm.fm.cars[+i];c[k]=k==='no'?t.value:t.checked;fmPrev();return}
+  if(t.id==='fmfile'&&t.files&&t.files[0])fileIcon(t.files[0])};
+$('#adm').addEventListener('input',admInput);$('#adm').addEventListener('change',admInput);
+
+// ---- ヘッダーのメニュー(アカウント・設定・路線選択・管理者メニュー) ----
+let lineList=null,menuOpen=false;
+function setTheme(t){const r=document.documentElement;if(t==='auto')r.removeAttribute('data-theme');else r.dataset.theme=t;try{localStorage.setItem('thm',t)}catch(e){}}
+const themeNow=()=>{const t=document.documentElement.dataset.theme;return t==='dark'||t==='light'?t:'auto'};
+function whoAmI(){return{p:meUser?meUser.provider:''}}
+function renderMenu(){
+  const w=whoAmI(),t=themeNow();
+  $('#menu').innerHTML=`<div class="mrow" style="justify-content:space-between"><b style="font-size:18px">メニュー</b><button id="mclose" class="ib" aria-label="閉じる">×</button></div>
+  <h2>アカウント</h2><div class="mrow" style="flex-direction:column;align-items:flex-start;gap:2px"><div><b>${esc(nameOf(me))}</b>${isAdmin?' <span class="rp">管理者</span>':''}</div>${w.p?`<div class="mute" style="font-size:12px">${w.p==='google'?'Google':w.p==='x'||w.p==='twitter'?'X':esc(w.p)}でログイン中</div>`:''}<div class="mute" style="font-size:12px">ユーザーID: <code>${esc(meUser?meUser.id:'')}</code></div></div><button id="mlogout" class="mi">ログアウト</button>
+  <h2>設定</h2><div class="mute" style="font-size:12px;margin-bottom:4px">アカウント名(編成を投稿すると、投稿者として、ほかの利用者にも表示されます)</div>
+  <div class="row" style="margin:0"><input id="mname" type="text" maxlength="20" value="${esc(nameDraft!=null?nameDraft:NAMES.get(me)||'')}" placeholder="${esc(defName(me))}" aria-label="アカウント名" autocomplete="off" style="flex:1;min-width:0"><button id="msave" class="pri">保存</button></div>
+  <div id="mnmsg" class="mute" role="status" style="font-size:12px;min-height:1.4em;margin-bottom:10px">本名やメールアドレスなどは、入れないでください。空にして保存すると、初期の名前(${esc(defName(me))})に戻ります</div>
+  <div class="mute" style="font-size:12px;margin-bottom:4px">表示テーマ</div>
+  <div class="seg" role="radiogroup" aria-label="表示テーマ">${[['auto','自動'],['light','ライト'],['dark','ダーク']].map(([k,l])=>`<button data-th="${k}" role="radio" aria-checked="${t===k}" class="${t===k?'on':''}">${l}</button>`).join('')}</div>
+  <label class="opt" style="margin-top:6px"><input type="checkbox" data-mo="term" ${showTerm?'checked':''}>駅時刻表に、当駅止まりの列車を表示する</label>
+  <h2>路線選択</h2><div id="mlines">${lineList===null?'<div class="mute">読み込み中…</div>':lineList.length?lineList.map(n=>`<button class="mi" data-line="${esc(n)}"${n===lineFile?' aria-current="true"':''}>${esc(n.replace(/\.oud2?$/i,''))}</button>`).join(''):'<div class="mute">路線がありません</div>'}</div>
+  ${isAdmin?`<h2>管理者メニュー</h2>${M?TABS.map(([k,l])=>`<button class="mi" data-adm="${k}">管理者画面: ${l}</button>`).join('')+'<button class="mi" data-adm="cfg">この路線の設定の確認</button>':'<div class="mute">路線を選ぶと使えます</div>'}`:''}`}
+async function loadLines(){try{lineList=(await(await api('action=list')).json()).files}catch(e){if(e.message!=='auth')lineList=[]}if(menuOpen)renderMenu()}
+function openMenu(){menuOpen=true;show('#menu',true);show('#mbg',true);$('#mbtn').setAttribute('aria-expanded','true');renderMenu();if(lineList===null)loadLines();$('#mclose').focus()}
+function closeMenu(){if(!menuOpen)return;menuOpen=false;show('#menu',false);show('#mbg',false);$('#mbtn').setAttribute('aria-expanded','false');$('#mbtn').focus()}
+$('#mbtn').onclick=()=>menuOpen?closeMenu():openMenu();$('#mbg').onclick=closeMenu;
+$('#menu').addEventListener('click',async e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.id==='mclose'){closeMenu();return}
+  if(t.id==='msave'){saveName();return}
+  if(t.id==='mlogout'){closeMenu();await sb.auth.signOut();return}
+  if(t.dataset.th){setTheme(t.dataset.th);renderMenu();return}
+  if(t.dataset.line){const n=t.dataset.line;closeMenu();showList(true);openLine(n);return}
+  if(t.dataset.adm){closeMenu();if(t.dataset.adm==='cfg')openSheet({type:'cfg'});else admOpen(t.dataset.adm)}});
+$('#menu').addEventListener('input',e=>{if(e.target.id==='mname')nameDraft=e.target.value});
+$('#menu').addEventListener('change',e=>{const c=e.target.closest('[data-mo]');if(!c||c.dataset.mo!=='term')return;showTerm=c.checked;try{localStorage.setItem('sTerm',showTerm?'1':'0')}catch(err){}if(!$('#sv').classList.contains('hide'))renderSt()});
+document.addEventListener('keydown',e=>{if(!menuOpen)return;if(e.key==='Escape'){closeMenu();return}
+  if(e.key==='Enter'&&e.target.id==='mname'){e.preventDefault();saveName();return}
+  if(e.key==='Tab'){const f=[...$('#menu').querySelectorAll('button,input')];if(!f.length)return;const i=f.indexOf(document.activeElement);
+    if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}}});
+// ---- 在線位置の操作(右下): 列番/行先、リアルタイム、日付と時刻 ----
+function syncMctl(){const r=$('#rtb'),l=$('#lmb');if(!r||!l)return;r.setAttribute('aria-pressed',String(live));const m=labelMode==='dest'?'行先':'列番';l.textContent='表示: '+m;l.setAttribute('aria-label','列車のラベルを切り替え(いま: '+m+')')}
+$('#rtb').onclick=()=>{if(live){live=false;syncMctl()}else goLive()};
+$('#lmb').onclick=()=>{labelMode=labelMode==='no'?'dest':'no';showNo=labelMode==='no';showDest=!showNo;try{localStorage.setItem('sMode',labelMode)}catch(e){}lastHtml=null;draw();refresh()};
+// ---- 運用一覧・駅時刻表の日付バーは、ページの一番上に埋め込む ----
+function placeDbar(v){const h=v==='roster'?$('#rs'):v==='st'?$('#sv'):v==='pt'?$('#pv'):null;if(h){h.prepend($('#dbar'));show('#dbar',true)}else show('#dbar',false)}
+
+// ---- アカウント名(編成を投稿したとき、投稿者として表示される名前) ----
+const NAMES=new Map();let nameDraft=null;
+const defName=id=>'ユーザー'+String(id||'').replace(/-/g,'').slice(0,4).toUpperCase(); // 名前を決めていない人の、初期の名前(XやGoogleの名前は使わない)
+const nameOf=id=>NAMES.get(id)||defName(id);
+const cleanName=x=>String(x==null?'':x).replace(/[\u0000-\u001f\u007f]/g,'').trim();
+async function refreshNames(ids){ // 投稿者の名前を、まとめて取得する
+  const L=[...new Set(ids)].filter(Boolean).slice(0,200);if(!L.length)return;
+  const {data,error}=await sb.from('profiles').select('user_id,name').in('user_id',L);if(error)return;
+  const got=new Set((data||[]).map(r=>r.user_id));for(const r of data||[])NAMES.set(r.user_id,r.name);for(const i of L)if(!got.has(i))NAMES.delete(i)}
+const loadProfile=async()=>{if(me)await refreshNames([me])};
+async function saveName(){
+  const msg=$('#mnmsg'),v=cleanName($('#mname').value);
+  if([...v].length>20){msg.textContent='20文字までです';return}
+  msg.textContent='保存中…';$('#msave').disabled=true;
+  const r=v?await sb.from('profiles').upsert({user_id:me,name:v,updated_at:new Date().toISOString()}):await sb.from('profiles').delete().eq('user_id',me);
+  if(!$('#msave'))return;$('#msave').disabled=false;
+  if(r.error){msg.textContent='保存できませんでした(データベースの準備(profiles.sql)が、まだかもしれません)';return}
+  if(v)NAMES.set(me,v);else NAMES.delete(me);nameDraft=null;renderMenu();$('#mnmsg').textContent=v?'保存しました':'初期の名前に戻しました';refresh()}
+
+// ---- 時刻表を1時間単位でも表示する(駅時刻表と、在線位置の駅の時刻表) ----
+const hrRange=()=>[Math.floor(M.lo/3600),Math.floor(M.hi/3600)];
+function hourBar(){
+  const [lo,hi]=hrRange();if(ttHr!=null)ttHr=Math.max(lo,Math.min(hi,ttHr));const hs=[];for(let h=lo;h<=hi;h++)hs.push(h);
+  return `<div class="hbar"><div class="seg" role="group" aria-label="時刻表の表示の単位"><button data-hm="day" class="${ttHr==null?'on':''}" aria-pressed="${ttHr==null}">1日</button><button data-hm="hour" class="${ttHr!=null?'on':''}" aria-pressed="${ttHr!=null}">1時間</button></div>${ttHr!=null?`<button data-hs="-1" aria-label="前の時間"${ttHr<=lo?' disabled':''}>‹</button><select data-hsel aria-label="時間">${hs.map(h=>`<option value="${h}"${h===ttHr?' selected':''}>${h%24}時台${h>=24?'(翌日)':''}</option>`).join('')}</select><button data-hs="1" aria-label="次の時間"${ttHr>=hi?' disabled':''}>›</button>`:''}</div>`}
+function ttHourAct(e,rerender){ // 1日/1時間の切り替え、前後の時間、時間の選択
+  const [lo,hi]=hrRange(),b=e.target.closest('[data-hm],[data-hs]'),sl=e.target.closest('[data-hsel]');
+  if(b&&b.dataset.hm==='day')ttHr=null;
+  else if(b&&b.dataset.hm==='hour')ttHr=selDate===svcDate()?Math.max(lo,Math.min(hi,Math.floor(nowSvc().T/3600))):(ttHrs.length?ttHrs[0]:lo); // 今日は、いまの時間台。ほかの日は、最初の列車がある時間台
+  else if(b&&b.dataset.hs&&ttHr!=null)ttHr=Math.max(lo,Math.min(hi,ttHr+(+b.dataset.hs)));
+  else if(sl&&e.type==='change')ttHr=+sl.value;
+  else return;
+  rerender()}
+$('#sv').addEventListener('click',e=>ttHourAct(e,renderSt));$('#sv').addEventListener('change',e=>ttHourAct(e,renderSt));
+$('#sheet').addEventListener('click',e=>{if(sh&&sh.type==='st')ttHourAct(e,renderSheet)});$('#sheet').addEventListener('change',e=>{if(sh&&sh.type==='st')ttHourAct(e,renderSheet)});
+
+// ---- 運行情報(平常運転・ダイヤ乱れ・運転見合わせ + 備考)。画面の上に出して、投稿できる ----
+const SVC={normal:{t:'平常運転',c:'#1f9d55',fg:'#ffffff'},delay:{t:'ダイヤ乱れ',c:'#e8a317',fg:'#1a1a1a'},suspended:{t:'運転見合わせ',c:'#d64545',fg:'#ffffff'}};
+const NOTICE_FRESH=12*3600e3; // 12時間たった運行情報は、「投稿なし」として扱う
+let notices=[],infDraft={s:'normal',note:''};
+const agoText=t=>{const m=Math.floor((Date.now()-new Date(t))/60000);return m<1?'たった今':m<60?m+'分前':m<1440?Math.floor(m/60)+'時間前':new Date(t).toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})};
+const setHH=()=>{const h=$('#hd');if(h&&h.offsetHeight)document.documentElement.style.setProperty('--hh',h.offsetHeight+'px')};
+addEventListener('resize',setHH);
+async function loadNotices(){
+  if(!M||!lineFile)return;
+  const {data,error}=await sb.from('service_notices').select('*').eq('file',lineFile).order('created_at',{ascending:false}).limit(20);
+  notices=error?[]:data;await refreshNames(notices.map(n=>n.user_id));renderSvc();
+  if(sh&&sh.type==='inf'&&!(document.activeElement&&document.activeElement.id==='inote'))renderInf()}
+function renderSvc(){const e=$('#svc');if(!e)return;const n=notices[0],k=n&&Date.now()-new Date(n.created_at)<NOTICE_FRESH?SVC[n.status]:null;
+  e.innerHTML=`<button id="svcb" class="svb" style="background:${k?k.c:'var(--band)'};color:${k?k.fg:'var(--ink)'}" aria-label="運行情報を開く"><b>運行情報</b><span class="svt">${k?esc(k.t):'投稿なし'}</span><span class="svn">${k?esc(n.note):'タップして投稿できます'}</span><span class="sva">${k?esc(agoText(n.created_at)):''}</span></button>`}
+function renderInf(){
+  $('#sh').innerHTML=`<div><b style="font-size:17px">運行情報</b><div class="mute">${esc(lineFile.replace(/\.oud2?$/i,''))}</div></div><button id="cls">閉じる</button>`;
+  const rows=notices.map(n=>{const k=SVC[n.status]||SVC.normal;return `<div class="po"><span class="sbd" style="background:${k.c};color:${k.fg}">${esc(k.t)}</span><span style="flex:1;min-width:0">${esc(n.note)}<div class="io">${esc(agoText(n.created_at))}  投稿: ${esc(nameOf(n.user_id))}</div></span>${n.user_id===me||isAdmin?`<button data-idel="${esc(n.id)}">取消</button>`:''}</div>`}).join('');
+  $('#sb').innerHTML=`<div class="svo" role="radiogroup" aria-label="運行情報の種類">${Object.entries(SVC).map(([k,v])=>`<label class="svr${infDraft.s===k?' on':''}"><input type="radio" name="infs" value="${k}"${infDraft.s===k?' checked':''}><span class="sbd" style="background:${v.c};color:${v.fg}">${v.t}</span></label>`).join('')}</div>
+  <label class="fl" style="margin-top:8px">備考(任意)<input id="inote" type="text" maxlength="200" value="${esc(infDraft.note)}" placeholder="例 ○○駅で信号のトラブルのため、遅れが出ています" autocomplete="off"></label>
+  <div class="row" style="margin:8px 0"><button id="ipost" class="pri">運行情報を投稿</button></div><div id="imsg" class="cwarn" role="status"></div>
+  <h3 style="margin-top:14px">最近の運行情報</h3>${rows||'<div class="mute">まだ投稿がありません</div>'}`}
+async function postNotice(){
+  const m=$('#imsg'),note=cleanName($('#inote').value);
+  if([...note].length>200){m.textContent='備考は200文字までです';return}
+  $('#ipost').disabled=true;
+  const {error}=await sb.from('service_notices').insert({file:lineFile,status:infDraft.s,note});
+  if(!$('#ipost'))return;$('#ipost').disabled=false;
+  if(error){m.textContent='投稿できませんでした(データベースの準備(service_notices.sql)が、まだかもしれません)';return}
+  infDraft.note='';await loadNotices();if(sh&&sh.type==='inf'){renderInf();$('#imsg').textContent='投稿しました'}}
+$('#svc').addEventListener('click',()=>openSheet({type:'inf'}));
+$('#sheet').addEventListener('click',async e=>{if(!sh||sh.type!=='inf')return;
+  if(e.target.closest('#ipost')){postNotice();return}
+  const d=e.target.closest('[data-idel]');if(d){d.disabled=true;await sb.from('service_notices').delete().eq('id',d.dataset.idel);await loadNotices()}});
+$('#sheet').addEventListener('change',e=>{if(sh&&sh.type==='inf'&&e.target.name==='infs'){infDraft.s=e.target.value;renderInf()}});
+$('#sheet').addEventListener('input',e=>{if(e.target.id==='inote')infDraft.note=e.target.value});
+
+// ---- 認証と時刻表の取得 ----
+// ここに書く2つの値は公開されても問題ない値です(Project URL と Publishable key = sb_publishable_...)。Secret key(sb_secret_...)や service_role は絶対に入れないこと
+const SB_URL='https://mukmgauweucsppjmpxha.supabase.co',SB_KEY='sb_publishable_qmr5joxyFkAe2ILfEdLlpg_NqVrPlgr';
+// Xでログインして戻ってきたときのエラー(登録されていないなど)を、URLから読み取る
+let urlErr='';(()=>{const q=new URLSearchParams(location.search),h=new URLSearchParams(location.hash.slice(1)),d=q.get('error_description')||h.get('error_description'),c=q.get('error_code')||h.get('error_code');
+  if(d){urlErr=authMsg(c,d.replace(/\+/g,' '));try{history.replaceState(null,'',location.pathname)}catch(e){}}})();
+function authMsg(code,desc){desc=desc||'';
+  if(code==='signup_disabled'||/signups? not allowed/i.test(desc))return 'このアカウントでは、まだ新規登録が許可されていません。管理者に、新規登録を許可してもらってください';
+  if(/manual linking/i.test(desc))return 'アカウントの連携が許可されていません。管理者が、Supabase の「Allow manual linking」をオンにしてください';
+  if(code==='identity_already_exists'||/already (linked|exists)|identity.*exists/i.test(desc))return 'このアカウントは、すでに別のユーザーに連携されています';
+  return desc||'ログインできませんでした'}
+const sb=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,flowType:'pkce'}});
+let meUser=null;
+function slimUser(u){ // アプリで使うのは、ユーザーIDとログインの種類だけ。名前・メールアドレス・電話番号・画像などは、ここで落として、アプリの中には持たない
+  if(!u)return null;const ids=(u.identities||[]).filter(i=>i.provider!=='email').slice().sort((a,b)=>String(b.last_sign_in_at||'').localeCompare(String(a.last_sign_in_at||'')));
+  return{id:u.id,provider:String((ids[0]||{}).provider||'')}}
+async function oauthLogin(provider){ // XまたはGoogleでログイン。追加の権限(scopes)は求めない(Supabaseの標準のままで、アプリからは何も足さない)
+  const m=$('#aerr');if(m)m.textContent='';
+  try{const {error}=await sb.auth.signInWithOAuth({provider,options:{redirectTo:location.origin+location.pathname}});
+    if(error&&m)m.textContent=authMsg(error.code,error.message)}
+  catch(e){if(m)m.textContent=authMsg('',e.message)}}
+$('#xlogin').onclick=()=>oauthLogin('x');$('#glogin').onclick=()=>oauthLogin('google');
+if(urlErr)$('#aerr').textContent=urlErr;
+const show=(el,on)=>$(el).classList.toggle('hide',!on);
+let authed=false;
+function gate(s){
+  me=s&&s.user?s.user.id:null;meUser=s&&s.user?slimUser(s.user):null;const ok=!!s;if(ok===authed)return;authed=ok;
+  show('#auth',!ok);show('#hd',ok);
+  if(ok){if(urlErr){alert(urlErr);urlErr=''}setTimeout(()=>{showList();loadAdmin();loadProfile()},0)}
+  else{for(const el of ['#drop',...VIEWS])show(el,false);
+    M=null;cur=[];posts=[];lineFile='';FM=new Map();isAdmin=false;adm=null;lineList=null;NAMES.clear();nameDraft=null;notices=[];closeMenu();sh=null;selIds=new Set();lastHtml='';for(const el of ['#base','#stp','#trains','#lines'])$(el).textContent='';}
+}
+async function api(q){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session)throw new Error('auth');
+  const r=await fetch(SB_URL+'/functions/v1/timetable?'+q,{headers:{Authorization:'Bearer '+session.access_token,apikey:SB_KEY}});
+  if(r.status===401||r.status===403){await sb.auth.signOut();throw new Error('auth')}
+  if(!r.ok){let d='';try{d=(await r.json()).error||''}catch(e){}throw new Error('HTTP '+r.status+(d?' '+d:''))}
+  return r;
+}
+async function showList(cache){
+  for(const el of VIEWS)show(el,false);show('#drop',true);
+  const box=$('#lines'),msg=$('#lmsg');box.textContent='';
+  try{if(!(cache&&lineList)){msg.textContent='読み込み中…';lineList=(await(await api('action=list')).json()).files}
+    msg.textContent=lineList.length?'':'路線がまだ登録されていません';
+    for(const n of lineList){const b=document.createElement('button');b.className='tile';b.textContent=n.replace(/\.oud2?$/i,'');b.onclick=()=>openLine(n);box.append(b)}
+  }catch(e){if(e.message!=='auth')msg.textContent='一覧を取得できませんでした('+e.message+')'}
+}
+async function openLine(n){
+  $('#lmsg').textContent='読み込み中…';
+  try{const b=await(await api('action=file&name='+encodeURIComponent(n))).blob();
+    pendingCfg={text:null,err:'',src:''}; // 路線の詳細設定: 管理者画面の保存内容があればそれを、なければ設定ファイル(あれば)
+    const [ls]=await Promise.all([sb.from('line_settings').select('config').eq('file',n).maybeSingle(),loadFormations(n)]);
+    if(ls&&ls.data&&ls.data.config){pendingCfg.text=JSON.stringify(ls.data.config);pendingCfg.src='db'}
+    else{pendingCfg.src='file';try{pendingCfg.text=await(await api('action=config&name='+encodeURIComponent(n))).text()}catch(e){if(e.message==='auth')throw e;pendingCfg.err=e.message}}
+    $('#lmsg').textContent='';lineFile=n;lastFile=new File([b],n);loadFile(lastFile)}
+  catch(e){if(e.message!=='auth')$('#lmsg').textContent='読み込めませんでした('+e.message+')'}
+}
+sb.auth.onAuthStateChange((_e,s)=>gate(s));
+</script>
+</body>
+</html>
