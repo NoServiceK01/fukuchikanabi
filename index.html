@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; font-src https://fonts.gstatic.com; img-src data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://server.arcgisonline.com https://*.tile.opentopomap.org; connect-src https://*.supabase.co https://overpass-api.de; base-uri 'none'; form-action 'none'">
-<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://unpkg.com; font-src https://fonts.gstatic.com; img-src data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://tile.openstreetmap.de https://*.tile.openstreetmap.fr; connect-src https://*.supabase.co https://overpass-api.de; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="theme-color" content="#16427f">
 <title>フクチカナビ</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
@@ -298,7 +298,7 @@ function setup(root,name){
   // UI
   hidden.clear();hideTT.clear();selIds=new Set();cfgTypes();
   ptEdge=null;ptFrac=0.5;ptDir='all';ptFrom=null;ptTo=null;ptFm=''; // 通過時刻表の指定は、路線が変わったら最初から
-  GEO.lines=null;GEO.mode='chord';if(gmMap){gmMap.remove();gmMap=null;gmLayer=null;gmPin=null;gmPick=null}show('#gm',false); // 地図の状態も最初から
+  GEO.lines=null;GEO.mode='chord';if(gmMap){gmMap.remove();gmMap=null;gmLayer=null;gmPin=null;gmPick=null;gmTile=null}show('#gm',false); // 地図の状態も最初から
   show('#drop',false);
   selDate=svcDate();$('#dsel').value=$('#mdate').value=selDate;
   M.free=!M.dias.some(d=>/平日|土|休|日曜|祝/.test(d.name)); // ダイヤ名から曜日が分からない路線は、手動で選ぶ
@@ -1025,7 +1025,7 @@ function ptKmFor(edge){ // 通過時刻表で使う区間の距離(km)と、そ�
   const gk=geoKmFor(edge);if(gk)return gk;
   return{km:null,src:null}}
 // ---- 地図の表示 ----
-let gmMap=null,gmLayer=null,gmPin=null,gmPick=null;
+let gmMap=null,gmLayer=null,gmPin=null,gmPick=null,gmTile=null;
 let gmLeafletP=null;
 function gmLoadTag(tag,url,ms){ // script か stylesheet を、時間切れ付きで読み込む。読み込めた要素を返す。だめなら要素を消して失敗する
   return new Promise((res,rej)=>{
@@ -1050,25 +1050,31 @@ async function gmLoadLeaflet(){ // Leafletを読み込む(初回だけ)。jsdeli
     }
     return false})();
   return gmLeafletP}
-// 地図のタイルは、どれもAPIキー不要のものだけを使う。CARTOは使わない(いまはAPIキーがないと
-// 「API KEY REQUIRED」の透かしだけのタイルが返るため)。
-// 1つ目が5回以上読み込めなかったら次の地図に切り替え、全部だめなら onFb(null) を呼ぶ。
-// なお最初のURLは {s}.tile.openstreetmap.org にする。サブドメインなしの tile.openstreetmap.org
-// だと、CSP の https://*.tile.openstreetmap.org に合わずブラウザにブロックされ、
-// 毎回フォールバックへ逃げてしまっていた(今回のスクショの原因)。
+// 地図のタイルは OpenStreetMap のものだけを使う。Esri や OpenTopoMap のような
+// 見た目の違う地図には自動では切り替えない。
+// 本当の原因は Referer だった: OSM のタイルサーバーは 2026年から Referer ヘッダー必須で、
+// このファイルが <meta name="referrer" content="no-referrer"> を指定していたため、
+// タイル要求に Referer が付かず 403 / ブロックタイルになっていた。いまは
+// <meta name="referrer" content="strict-origin-when-cross-origin"> にして、
+// タイルにも referrerPolicy を明示している(送るのはオリジンだけで、URL全体は送らない)。
+// 1つ目が5回以上読み込めなかったら、次の OSM 系の配信元に切り替える。全部だめなら
+// onFb(null) を呼び、変な地図には行かず「再試行する」で OSM から読み込み直す。
+// 配信元はどれも OSM のデータで、APIキー不要。ドイツ版はこの環境から 200 を確認済み。
+// HOT(フランス版)はこの環境からは届かず未確認なので、最後の砦としてだけ入れてある。
 const GM_TILES=[
-  {name:'OpenStreetMap',url:'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',attr:'© OpenStreetMap contributors',maxZoom:19,subdomains:'abc'},
-  {name:'Esri',url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',attr:'Esri, HERE, Garmin, © OpenStreetMap contributors',maxZoom:19},
-  {name:'OpenTopoMap',url:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',attr:'© OpenStreetMap contributors, SRTM | style: © OpenTopoMap (CC-BY-SA)',maxZoom:17,subdomains:'abc'}];
+  {name:'OpenStreetMap',url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',attr:'© OpenStreetMap contributors',maxZoom:19},
+  {name:'OpenStreetMap（ドイツ版）',url:'https://tile.openstreetmap.de/{z}/{x}/{y}.png',attr:'© OpenStreetMap contributors',maxZoom:19},
+  {name:'OpenStreetMap（HOT版）',url:'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',attr:'© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team',maxZoom:19,subdomains:'abc'}];
 function gmTileLayer(onFb){
   let idx=0,err=0;
   const p=GM_TILES[0];
-  const tl=L.tileLayer(p.url,{maxZoom:p.maxZoom,attribution:p.attr,subdomains:p.subdomains});
+  const tl=L.tileLayer(p.url,{maxZoom:p.maxZoom,attribution:p.attr,subdomains:p.subdomains||'abc',referrerPolicy:'strict-origin-when-cross-origin'});
+  const setProv=n=>{if(tl.options)tl.options.attribution=n.attr;tl.setUrl(n.url)};
+  tl.gmReset=()=>{idx=0;err=0;setProv(GM_TILES[0])};
   tl.on('tileerror',()=>{err++;if(err<5)return;err=0;idx++;
     if(idx>=GM_TILES.length){if(onFb)onFb(null);return}
     const n=GM_TILES[idx];
-    if(tl.options)tl.options.attribution=n.attr;
-    tl.setUrl(n.url);
+    setProv(n);
     if(onFb)onFb(n.name)});
   return tl}
 function gmDraw(){ // 路線と駅を地図に描く
@@ -1091,7 +1097,9 @@ async function gmOpen(){
   if(!gmMap){
     let all=[];for(const Ln of GEO.lines)for(const p of Ln.pts)all.push([p.lat,p.lon]);
     gmMap=L.map('gmap',{zoomControl:true});
-    gmTileLayer(n=>{const d=$('#gmdist');if(d)d.textContent=n?`地図の読み込みが遅いため、${n}の地図に切り替えました`:'地図のタイルを読み込めませんでした。通信環境をご確認ください'}).addTo(gmMap);
+    gmTile=gmTileLayer(n=>{const d=$('#gmdist');if(!d)return;
+      if(n){d.textContent=`地図の読み込みが遅いため、${n}に切り替えました`}
+      else{d.textContent='OpenStreetMapを読み込めませんでした。「再試行する」でOpenStreetMapから読み込み直します';const r=$('#gmretry');if(r)r.classList.remove('hide')}}).addTo(gmMap);
     gmMap.fitBounds(L.latLngBounds(all).pad(0.1));
     gmDraw();
     gmMap.on('click',e=>gmTap(e.latlng));
@@ -1214,7 +1222,7 @@ function gmApplyTrack(j){ // Overpassの結果から、線路に沿った折れ�
     return true;
   }catch(e){return false}}
 $('#gmopen').onclick=()=>gmOpen();
-$('#gmretry').onclick=()=>gmOpen();
+$('#gmretry').onclick=()=>{if(gmTile&&gmTile.gmReset){gmTile.gmReset();const d=$('#gmdist');if(d)d.textContent=''}gmOpen()};
 $('#gmback').onclick=()=>{show('#gm',false);showView('pt')};
 $('#gmgo').onclick=gmGo;
 
@@ -1616,7 +1624,9 @@ async function edOpen(){
   ed={map:null,layer:null,lineIdx:0,drawing:false,lines:edLines(),baseTrack:clone(adm.draft.track||[]),modified:new Set()};
   const el=$('#edmap');if(!el)return;
   ed.map=L.map('edmap',{zoomControl:true});
-  gmTileLayer(n=>{const m=$('#edmsg');if(m)m.textContent=n?`地図の読み込みが遅いため、${n}の地図に切り替えました`:'地図のタイルを読み込めませんでした。通信環境をご確認ください'}).addTo(ed.map);
+  gmTileLayer(n=>{const m=$('#edmsg');if(!m)return;
+    if(n)m.textContent=`地図の読み込みが遅いため、${n}に切り替えました`;
+    else m.textContent='OpenStreetMapを読み込めませんでした。タブを開き直すとOpenStreetMapから読み込み直します'}).addTo(ed.map);
   let all=[];for(const Ln of ed.lines)for(const p of Ln)all.push([p.lat,p.lon]);
   if(all.length)ed.map.fitBounds(L.latLngBounds(all).pad(0.1));
   ed.map.on('click',e=>edTap(e.latlng));
