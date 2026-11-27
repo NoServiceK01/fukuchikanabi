@@ -629,11 +629,11 @@ $('#rq').addEventListener('input',e=>{rosterQ=e.target.value;renderRoster()});
 function renderOp(){
   const o=(cur.ops||[])[curOp];if(!o){showView('roster');return}
   const f=o.trains[0],l=o.trains[o.trains.length-1],fo=fmOf(o.key),ro=selDate!==svcDate(); // 編成の投稿は今日の分だけ
-  $('#ov').innerHTML=`<div class="wrap" style="padding:10px 14px"><div class="row" style="margin:0"><button id="bk">運用一覧へ</button><span class="un" style="font-size:18px">${esc(o.name)}</span>${fo?fmHtml(fo,22):'<span class="fm none" style="font-size:16px">編成未投稿</span>'}</div>
+  $('#ov').innerHTML=`<div class="wrap" style="padding:10px 14px"><div class="row" style="margin:0"><button id="bk">運用一覧へ</button><span class="un" style="font-size:18px">${esc(o.name)}</span>${fo?fmHtml(fo,22):'<span class="fm none" style="font-size:16px">編成未投稿</span>'}${ro?'':'<button data-oppost="1" class="pri" style="margin-left:auto">編成を投稿</button>'}</div>
   <div class="mute" style="margin:8px 0">${o.group?esc(o.group)+'、':''}${o.trains.length?`${S(f.route[f.fs].s)} 出庫、${S(l.route[l.ls].s)} 入庫、${o.trains.length}本`:'列車がまだ入っていません。管理者画面から列車を追加できます'}${fo&&fo.remark?'。'+esc(fo.remark):''}${fo?'。投稿 '+esc(nameOf(fo.by)):''}</div>
   ${o.warn.length?`<div class="wnote">${o.warn.map(esc).join('<br>')}</div>`:''}
-  ${o.trains.length?`<table><tr><th>発</th><th>列車</th><th>着</th><th>備考</th>${ro?'':'<th></th>'}</tr>${o.trains.map(t=>{const a=t.route[t.fs],b=t.route[t.ls],c=ccol(t),ty=M.types[t.ty]||{ini:''};
-    return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td>${ro?'':`<td><button data-post="${t.id}" class="pri" style="min-height:36px;padding:0 10px;font-size:14px">投稿</button></td>`}</tr>`}).join('')}</table>`:''}</div>`;
+  ${o.trains.length?`<table><tr><th>発</th><th>列車</th><th>着</th><th>備考</th></tr>${o.trains.map(t=>{const a=t.route[t.fs],b=t.route[t.ls],c=ccol(t),ty=M.types[t.ty]||{ini:''};
+    return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td></tr>`}).join('')}</table>`:''}</div>`;
 }
 function showView(v,i){
   for(const el of VIEWS)show(el,false);show('#gm',false);sh=null;selIds=new Set();show('#bnav',true);view=v;
@@ -665,10 +665,15 @@ $('#sheet').addEventListener('click',async e=>{
   if(po&&tr.op&&selDate===svcDate()){openPop(tr,po);return}
   if(x&&selDate===svcDate()){x.disabled=true;await sb.from('formation_posts').delete().eq('id',x.dataset.del);await loadPosts();refresh()}
 });
-// 編成の投稿ポップアップ: 編成・差替・備考
-let popTr=null,popFrom=null;
-function openPop(tr,from){popTr=tr;popFrom=from;const a=tr.route[tr.fs];
+// 編成の投稿ポップアップ: 編成・差替・備考。投稿先は列車(popTr)か運用(popOp)のどちらか
+let popTr=null,popOp=null,popFrom=null;
+function openPop(tr,from){popTr=tr;popOp=null;popFrom=from;const a=tr.route[tr.fs];
   $('#pw').textContent=`運番 ${tr.op.name}  ${M.st[a.s].name} ${fmt(a.d)}発の列車から投稿します`;
+  popShow()}
+function openPopOp(o,from){popTr=null;popOp=o;popFrom=from;
+  $('#pw').textContent=`運用 ${o.name} の編成を投稿します`;
+  popShow()}
+function popShow(){
   $('#pf').value='';$('#pc').checked=false;$('#pr').value='';$('#pm').textContent='';$('#pb').disabled=false;
   $('#pwho').textContent='投稿者: '+nameOf(me)+'(≡メニューの設定で変えられます)';
   $('#fmlist').innerHTML=[...FM.values()].sort((a,b)=>a.number.localeCompare(b.number,'ja',{numeric:true})).map(f=>`<option value="${esc(f.number)}" label="${esc(f.owner)}"></option>`).join('');pfCheck();
@@ -679,7 +684,7 @@ function pfCheck(){ // 編成表にない編成を入力したときの注意
   if(r){w.className='pfw ok';w.innerHTML=`<img class="fi" src="${esc(fmIconUrl(r.number))}" width="22" height="31" alt="">登録済み: ${esc(r.number)}${r.owner?'('+esc(r.owner)+')':''}${r.cars.length?' '+r.cars.length+'両':''}`}
   else{w.className='pfw warn';w.textContent=`注意: 「${v}」は編成表に登録されていません${FM.size?'。入力ミスがないか確認してください':'(編成表がまだ空です)'}。このまま投稿もできます`}}
 $('#pf').addEventListener('input',pfCheck);
-function closePop(){show('#pop',false);popTr=null;if(popFrom&&popFrom.isConnected)popFrom.focus()}
+function closePop(){show('#pop',false);popTr=null;popOp=null;if(popFrom&&popFrom.isConnected)popFrom.focus()}
 $('#pcx').onclick=closePop;
 $('#pop').addEventListener('click',e=>{if(e.target.id==='pop')closePop()});
 $('#pop').addEventListener('keydown',e=>{
@@ -688,10 +693,11 @@ $('#pop').addEventListener('keydown',e=>{
   if(e.key==='Tab'){const f=[$('#pf'),$('#pc'),$('#pr'),$('#pcx'),$('#pb')].filter(x=>!x.disabled),i=f.indexOf(document.activeElement);
     if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}}});
 $('#pb').onclick=async()=>{
-  const tr=popTr;if(!tr||!tr.op||selDate!==svcDate())return;
+  const tr=popTr,o=popOp||(tr&&tr.op);if(!o||selDate!==svcDate())return;
   const f=$('#pf').value.trim(),m=$('#pm');if(!f){m.textContent='編成を入力してください';$('#pf').focus();return}
-  $('#pb').disabled=true;const a=tr.route[tr.fs];
-  const {error}=await sb.from('formation_posts').insert({file:lineFile,dia:M.dias[M.cur].name,unit:tr.op.key,train:M.st[a.s].name+' '+fmt(a.d)+'発',formation:(fmReg(f)||{number:f}).number,replaced:$('#pc').checked,remark:$('#pr').value.trim(),service_date:selDate});
+  $('#pb').disabled=true;
+  const trainLabel=tr?(()=>{const a=tr.route[tr.fs];return M.st[a.s].name+' '+fmt(a.d)+'発'})():'運用 '+o.name; // 運用への投稿は、履歴に運用名が残る
+  const {error}=await sb.from('formation_posts').insert({file:lineFile,dia:M.dias[M.cur].name,unit:o.key,train:trainLabel,formation:(fmReg(f)||{number:f}).number,replaced:$('#pc').checked,remark:$('#pr').value.trim(),service_date:selDate});
   $('#pb').disabled=false;
   if(error){m.textContent=/replaced/.test(error.message||'')?'データベースの更新(formation_posts_add_replaced.sql)がまだです':'投稿できませんでした。時間をおいてもう一度試してください';return}
   closePop();await loadPosts();refresh()};
@@ -700,8 +706,8 @@ $('#sheet').addEventListener('click',e=>{
   if(t&&sh&&sh.type==='st'){const id=+t.dataset.t;selIds=new Set([id]);lastHtml=null;openSheet({type:'tr',ids:[id],act:0,from:{type:'st',i:sh.i}});draw();return}
   const fv=e.target.closest('[data-fv]');if(fv){const n=fv.dataset.fv;closeSheet();showView('fv');$('#fq').value=n;renderFv();return}
   if(e.target.closest('[data-back]')&&sh&&sh.from){const f=sh.from;selIds=new Set();lastHtml=null;openSheet({...f});draw()}});
-const nav=e=>{const p=e.target.closest('[data-post]');
-  if(p){const tr=cur[+p.dataset.post];if(tr&&tr.op&&selDate===svcDate())openPop(tr,p);return} // 運用のながれから直接、編成を投稿する
+const nav=e=>{const pp=e.target.closest('[data-oppost]');
+  if(pp){const o=(cur.ops||[])[curOp];if(o&&selDate===svcDate())openPopOp(o,pp);return} // 運用自体に編成を投稿する(列車からではなく)
   const t=e.target.closest('[data-t]'),o=e.target.closest('[data-op]'),g=e.target.closest('[data-g]');
   if(g){const k=g.dataset.g;gcol.has(k)?gcol.delete(k):gcol.add(k);renderRoster();return}
   if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o)showView('op',+o.dataset.op);else if(e.target.closest('#bk'))showView('roster')};
