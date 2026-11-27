@@ -840,7 +840,7 @@ function renderSt(){
   document.querySelectorAll('#sdirs button').forEach(b=>b.classList.toggle('on',+b.dataset.sd===stDir));
   const r=stTable(pk(stI),stDir,ttHr);ttHrs=r.hrs;$('#smeta').textContent=r.n+'本';$('#shb').innerHTML=hourBar();$('#sbody').innerHTML=r.html;
 }
-// 駅の時刻表(駅時刻表タブと在線位置の駅シートで共通)。時刻・行先・列車番号・運用番号・編成
+// 駅の時刻表(駅時刻表タブと在線位置の駅シートで共通)。時刻・編成・行先・列車番号・運用番号
 function stTable(key,dir,hour){ // hour: nullなら1日分、数字ならその時間台だけ
   let L=[];
   for(const tr of cur){if(hideTT.has(tr.ty)||tr.dir!==dir)continue;const R=tr.route,ks=tr.si.filter(j=>!R[j].ps&&pk(R[j].s)===key);if(!ks.length)continue;
@@ -850,9 +850,9 @@ function stTable(key,dir,hour){ // hour: nullなら1日分、数字ならその�
   if(hour!=null)L=L.filter(x=>Math.floor(x.t/3600)===hour);
   if(!L.length)return{n:0,hrs,html:`<div class="mute" style="padding:16px 0">${hour!=null?'この時間台に停車する列車はありません':'この方面に停車する列車はありません'}</div>`};
   const no=L.some(x=>x.tr.name);let ph=null;
-  return{n:L.length,hrs,html:`<table class="stt"><tr><th></th><th>時刻</th><th>行先</th>${no?'<th>列車</th>':''}<th>運用</th><th>編成</th></tr>${L.map(x=>{
+  return{n:L.length,hrs,html:`<table class="stt"><tr><th></th><th>時刻</th><th>編成</th><th>行先</th>${no?'<th>列車</th>':''}<th>運用</th></tr>${L.map(x=>{
     const h=Math.floor(x.t/3600),o=x.tr.op,fo=o?fmOf(o.key):null,first=h!==ph;ph=h;
-    return `<tr data-t="${x.tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(x.tr)}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b></td><td><span class="ab" style="background:${ccol(x.tr)};color:${ink(ccol(x.tr))}">${esc((M.types[x.tr.ty]||{ab:''}).ab)}</span>${x.last?'当駅止':esc(x.dest)+'行'}${x.trk?`<small>${esc(x.trk)}</small>`:''}</td>${no?`<td>${esc(x.tr.name)}</td>`:''}<td>${o?esc(o.name):''}</td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><span><b>${esc(fo.f)}</b>${fo.prev?`<small class="pv">${esc(fo.prev)}</small>`:''}</span></span>`:''}</td></tr>`}).join('')}</table>`}
+    return `<tr data-t="${x.tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(x.tr)}"><b>${String(Math.floor(x.t%3600/60)).padStart(2,'0')}</b></td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><span><b>${esc(fo.f)}</b>${fo.prev?`<small class="pv">${esc(fo.prev)}</small>`:''}</span></span>`:''}</td><td><span class="ab" style="background:${ccol(x.tr)};color:${ink(ccol(x.tr))}">${esc((M.types[x.tr.ty]||{ab:''}).ab)}</span>${x.last?'当駅止':esc(x.dest)+'行'}${x.trk?`<small>${esc(x.trk)}</small>`:''}</td>${no?`<td>${esc(x.tr.name)}</td>`:''}<td>${o?esc(o.name):''}</td></tr>`}).join('')}</table>`}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches&&e.target.matches('tr[data-t]'))e.target.click()});
 const stStep=d=>{const ids=stIds(),k=ids.indexOf(stI);stI=ids[(k+d+ids.length)%ids.length];renderSt();scrollTo(0,0)};
@@ -978,10 +978,10 @@ function renderPtTable(){
   $('#pmeta').textContent=L.length+'本';
   if(!L.length){body.innerHTML=`<div class="mute" style="padding:16px 0">${rows.length?'条件に合う列車はありません':'この地点を通過する列車はありません'}</div>`;return}
   let ph=null;
-  body.innerHTML=`<table class="stt"><tr><th></th><th>時刻</th><th>方向</th><th>行先</th><th>列車</th><th>運用</th><th>編成</th></tr>${L.map(({t,tr})=>{
+  body.innerHTML=`<table class="stt"><tr><th></th><th>時刻</th><th>編成</th><th>方向</th><th>行先</th><th>列車</th><th>運用</th></tr>${L.map(({t,tr})=>{
     const h=Math.floor(t/3600),first=h!==ph;ph=h;
     const o=tr.op,fo=o?fmOf(o.key):null;
-    return `<tr data-t="${tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(tr)}"><b>${String(Math.floor(t%3600/60)).padStart(2,'0')}:${String(Math.floor(t%60)).padStart(2,'0')}</b></td><td>${tr.dir?'上り':'下り'}</td><td><span class="ab" style="background:${ccol(tr)};color:${ink(ccol(tr))}">${esc((M.types[tr.ty]||{ab:''}).ab)}</span>${esc(M.st[tr.route[tr.ls].s].name)}行</td><td>${esc(tr.name)}${ptEdgePass(tr,edge)?'<small class="mute">通過</small>':''}</td><td>${o?esc(o.name):''}</td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><b>${esc(fo.f)}</b></span>`:''}</td></tr>`}).join('')}</table>`}
+    return `<tr data-t="${tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(tr)}"><b>${String(Math.floor(t%3600/60)).padStart(2,'0')}:${String(Math.floor(t%60)).padStart(2,'0')}</b></td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><b>${esc(fo.f)}</b></span>`:''}</td><td>${tr.dir?'上り':'下り'}</td><td><span class="ab" style="background:${ccol(tr)};color:${ink(ccol(tr))}">${esc((M.types[tr.ty]||{ab:''}).ab)}</span>${esc(M.st[tr.route[tr.ls].s].name)}行</td><td>${esc(tr.name)}${ptEdgePass(tr,edge)?'<small class="mute">通過</small>':''}</td><td>${o?esc(o.name):''}</td></tr>`}).join('')}</table>`}
 const tmVal=v=>{const m=/^(\d{1,2}):(\d{2})/.exec(v||'');return m?+m[1]*60+ +m[2]:null};
 $('#pv').addEventListener('click',e=>{
   const d=e.target.closest('[data-pd]');if(d){ptDir=d.dataset.pd;renderPt();return}
