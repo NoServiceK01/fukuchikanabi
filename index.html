@@ -96,8 +96,8 @@ table.ro{border-collapse:separate;border-spacing:0;width:max-content}
 .fm.none{color:var(--line);font-weight:400}
 .un{display:inline-block;background:var(--hd);color:#fff;border-radius:99px;padding:0 8px;font-size:13px;font-weight:700}
 .io{font-size:10px;color:var(--mute);line-height:1.3}
-.c{flex-direction:column;justify-content:center;gap:0;width:72px;min-height:40px;border:0;border-radius:5px;padding:2px 3px;line-height:1.2;font-variant-numeric:tabular-nums}
-.c b{font-size:15px}.c small{font-size:10px;max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c{flex-direction:column;justify-content:center;gap:0;width:84px;min-height:40px;border:0;border-radius:5px;padding:2px 3px;line-height:1.2;font-variant-numeric:tabular-nums}
+.c b{font-size:15px}.c small{font-size:10px;max-width:78px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pp{padding:8px 0 10px;border-bottom:1px solid var(--rule);margin-bottom:6px}
 .po{display:flex;gap:8px;align-items:center;padding:4px 0;border-top:1px solid var(--rule)}
 .po b{font-size:18px;min-width:2.2em}.po span{flex:1;min-width:0}
@@ -160,6 +160,10 @@ details{margin:8px 0}summary{cursor:pointer;font-weight:700;font-size:14px}
 .pfilters summary:before{content:"＋";margin-right:6px;color:var(--acc);font-size:16px}
 .pfilters[open] summary:before{content:"－"}
 .pfilters .bar{padding:0 0 8px}
+.fmcks{display:flex;flex-wrap:wrap;gap:6px}
+.fck{display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 12px;border:1px solid var(--line);border-radius:99px;cursor:pointer;font-size:14px;background:var(--bg);white-space:nowrap}
+.fck input{accent-color:var(--acc);width:18px;height:18px;margin:0}
+.fck:has(input:checked){border-color:var(--acc);background:var(--band);font-weight:700}
 #shb{background:var(--band);border-radius:10px;margin:0 14px}
 .steps b{color:var(--acc)}
 .abar .pri{flex:1;min-height:48px;font-size:16px}
@@ -197,7 +201,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 .sbd{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;font-weight:700;flex:none}
 .svo{display:flex;flex-direction:column;gap:6px}
 .svr{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--rule);border-radius:8px;cursor:pointer;background:var(--panel)}.svr input{margin:0}.svr.on{border-color:var(--acc);background:var(--band)}
-.hbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 8px}.hbar select{min-width:7em}
+.hbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0}.hbar select{min-width:7em}.hbar .seg{flex:none;min-width:132px;background:transparent}.hbar .seg button{white-space:nowrap;background:transparent}.hbar .seg button.on{background:var(--acc);color:var(--accf)}
 </style>
 </head>
 <body>
@@ -208,7 +212,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <div id="auth" class="wrap" style="padding:84px 20px;text-align:center"><h1 style="font-size:28px;color:var(--hd);margin:0">フクチカナビ</h1><p class="mute" style="margin:12px 0 26px">XまたはGoogleのアカウントでログインすると、運用や列車の位置を見られます</p><button id="xlogin" type="button" class="xb" style="margin:0 auto;min-width:250px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg>Xでログイン</button><button id="glogin" type="button" class="gb2" style="margin:10px auto 0;min-width:250px"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Googleでログイン</button><div id="aerr" class="mute" role="alert" style="margin-top:14px"></div></div>
 <div id="dbar" class="hide"><button id="dprev" aria-label="前の日">‹</button><input id="dsel" type="date" aria-label="日付"><button id="dnext" aria-label="次の日">›</button><button id="dtoday">今日</button><select id="ddia" class="hide" aria-label="ダイヤ"></select><span id="dinfo"></span></div>
 <div id="drop" class="hide"><h2>路線を選んでください</h2><div id="lines" class="tiles"></div><div id="lmsg" class="mute" style="margin-top:12px"></div></div>
-<section id="rs" class="hide"><div class="bar"><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span></div><div id="rt"></div></section>
+<section id="rs" class="hide"><div class="bar"><span id="rmsg" class="mute">運用の行をタップで運用の一覧、列車のマスをタップで時刻</span><button id="lmb2" type="button" style="margin-left:auto">表示: 列番</button></div><div id="rt"></div></section>
 <section id="sv" class="hide"><div class="bar"><button id="sprev" aria-label="前の駅" style="font-size:20px;min-width:44px">‹</button><select id="sstn" aria-label="駅" style="flex:1;min-width:0"></select><button id="snext" aria-label="次の駅" style="font-size:20px;min-width:44px">›</button></div>
 <div class="bar" style="padding-top:0"><div class="seg" id="sdirs" style="width:150px"><button data-sd="0" class="on">下り</button><button data-sd="1">上り</button></div><span id="smeta" class="mute"></span></div><div id="shb" class="bar" style="padding-top:0"></div><div id="sbody"></div></section>
 <section id="fv" class="hide"><div class="bar"><input id="fq" type="search" placeholder="編成番号・所属・車号で検索" aria-label="編成を検索" style="flex:1;min-width:0"><button id="fadm" class="hide">編成を管理</button></div><div id="fl" style="padding:0 14px 100px"></div></section>
@@ -216,7 +220,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
 <div class="bar" style="padding-top:2px;padding-bottom:0"><span id="pfrom" class="mute" style="white-space:nowrap"></span><input id="pslider" type="range" min="0" max="1000" value="500" step="10" aria-label="地点の位置"><span id="pto" class="mute" style="white-space:nowrap"></span></div>
 <div class="bar" style="padding-top:2px;padding-bottom:0"><input id="pkm" type="number" min="0" step="0.1" style="width:6em" aria-label="始発駅からの距離(km)"><span class="mute">km</span><span id="ppos" style="font-weight:700"></span><button id="gmopen" class="pri" style="margin-left:auto">地図で選ぶ</button></div>
 <div class="bar" id="pnotebar" style="padding-top:2px"><span id="pnote" class="mute"></span></div>
-<details class="pfilters"><summary>絞り込み（時刻・編成）</summary><div class="bar" style="padding:0 0 8px"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="pftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="pttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><select id="pfm" aria-label="編成で絞り込む" style="flex:1;min-width:0"></select><span id="pmeta" class="mute"></span></div></details>
+<details class="pfilters"><summary>絞り込み（時刻・編成）</summary><div class="bar" style="padding:0 0 8px"><label class="mute" style="display:flex;align-items:center;gap:4px">時刻<input id="pftime" type="time" style="width:6.5em" aria-label="時刻(から)">〜<input id="pttime" type="time" style="width:6.5em" aria-label="時刻(まで)"></label><div id="pfmc" class="fmcks" aria-label="編成で絞り込む" style="flex:1;min-width:0"></div><span id="pmeta" class="mute"></span></div></details>
 <div id="pbody" style="padding:0 14px 100px"></div></section>
 <div id="gm" class="hide"><div class="bar" style="padding-bottom:0"><button id="gmback">‹ 通過時刻表に戻る</button><b style="font-size:16px">地図から地点を選ぶ</b></div>
 <div id="gmap" style="height:62vh;min-height:340px;margin:8px 14px 0;border:1px solid var(--bd);border-radius:12px;overflow:hidden"></div>
@@ -234,7 +238,7 @@ header h1{margin:0;font-size:19px;letter-spacing:.03em}.mb{min-width:44px;paddin
   <div id="pm" class="mute" role="status"></div>
   <div class="row" style="justify-content:flex-end"><button id="pcx">キャンセル</button><button id="pb" class="pri">投稿</button></div>
 </div></div>
-<nav id="bnav" class="hide" aria-label="表示の切り替え"><button id="nr" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>運用一覧</button><button id="nm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>在線位置</button><button id="ns"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>駅時刻表</button><button id="np"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a5 5 0 0 1 5 5c0 3.6-5 8.2-5 8.2S7 11.6 7 8a5 5 0 0 1 5-5z"/><circle cx="12" cy="8" r="1.8"/><path d="M3 20.5h18"/></svg>通過時刻表</button><button id="nf"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="14" rx="3"/><path d="M9 21l1.5-4M15 21l-1.5-4M9 10h6M9.5 14h.01M14.5 14h.01"/></svg>編成表</button></nav>
+<nav id="bnav" class="hide" aria-label="表示の切り替え"><button id="nr" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>運用一覧</button><button id="nm"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.6-6-10a6 6 0 1 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></svg>在線位置</button><button id="ns"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>駅時刻表</button><button id="np"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>通過時刻表</button><button id="nf"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="14" rx="3"/><path d="M9 21l1.5-4M15 21l-1.5-4M9 10h6M9.5 14h.01M14.5 14h.01"/></svg>編成表</button></nav>
 <div id="mctl" class="hide"><button id="lmb" type="button"></button><button id="rtb" type="button" aria-pressed="true">リアルタイム</button><div class="mdt"><div id="mdia"></div><input id="mdate" type="date" aria-label="日付"><input id="tin" type="time" step="60" aria-label="時刻"></div></div>
 <div id="info" class="hide"><div class="wrap"><div id="inf"></div><div id="note">時刻表に基づく計算上の位置です。実際の運行とは異なる場合があります。路線をタップすると、その地点の通過時刻表が見られます</div></div></div>
 <script>
@@ -316,7 +320,7 @@ function setup(root,name){
   const H=Y(rows)+10;$('#map').setAttribute('viewBox',`0 0 ${W} ${H}`);$('#map').style.maxWidth=W+'px';$('#map').style.minWidth=(maxLane>1||W>520)?W+'px':'';$('#base').innerHTML=h;
   // UI
   hidden.clear();hideTT.clear();selIds=new Set();cfgTypes();
-  ptEdge=null;ptFrac=0.5;ptDir='all';ptFrom=null;ptTo=null;ptFm=''; // 通過時刻表の指定は、路線が変わったら最初から
+  ptEdge=null;ptFrac=0.5;ptDir='all';ptFrom=null;ptTo=null;ptFms=null;ptFmsInit=false; // 通過時刻表の指定は、路線が変わったら最初から
   GEO.lines=null;GEO.mode='chord';if(gmMap){gmMap.remove();gmMap=null;gmLayer=null;gmPin=null;gmPick=null;gmTile=null}show('#gm',false); // 地図の状態も最初から
   show('#drop',false);
   selDate=svcDate();$('#dsel').value=$('#mdate').value=selDate;
@@ -466,7 +470,7 @@ function icon(g){ // 在線位置の列車: 上に運用番号、画像(上り�
   const fo=tr.op?fmOf(tr.op.key):null,img=esc(fmIconUrl(fo&&fo.f));
   const top=showOp&&tr.op?tr.op.name:'',fm=showFm&&fo?fo.f:'';
   const pill=showDest?[...M.st[tr.route[tr.ls].s].name].slice(0,5).join(''):showNo?(tr.name||(M.types[tr.ty]||{}).ab||''):'';
-  const pw=t=>Math.max(24,[...t].length*6.6+10);
+  const pw=t=>Math.max(26,[...t].reduce((s,ch)=>s+(ch.charCodeAt(0)>0xff?1:0.55),0)*10.5+12); // 全角は1文字分、半角は0.55文字分の幅で札の幅を決める(行先が札からはみ出さないように)
   let o=`<rect x="-24" y="-46" width="48" height="110" fill="transparent"/>`;
   if(sel)o+=`<rect x="-17" y="-22" width="34" height="44" rx="7" fill="none" stroke="${cc}" stroke-width="2.5"/>`;
   o+=`<image href="${img}" x="-13" y="-18" width="26" height="36" preserveAspectRatio="xMidYMid meet"${fo?'':' opacity=".6"'}/>`;
@@ -549,7 +553,7 @@ $('#map').addEventListener('pointerup',e=>{if(!pd)return;const mv=Math.hypot(e.c
   const t=document.elementFromPoint(e.clientX,e.clientY),g=t&&t.closest('[data-ids]');
   if(g){const ids=g.dataset.ids.split(',').map(Number);selIds=new Set([ids[0]]);lastHtml=null;openSheet({type:'tr',ids,act:0});draw();return}
   const q=t&&t.closest('[data-st]');if(q){selIds=new Set();lastHtml=null;openSheet({type:'st',i:+q.dataset.st});draw();return}
-  const pick=pickPt(e);if(pick){ptEdge=pick.edge.key;ptFrac=pick.frac;showView('pt')}});
+  const pick=pickPt(e);if(pick){ptEdge=pick.edge.key;ptFrac=pick.frac;ptSkipMap=true;showView('pt')}});
 let liveMin=-1; // リアルタイムで、最後に表示した「分」
 setInterval(()=>{if(M&&live&&!$('#mn').classList.contains('hide')){const m=Math.floor(nowSvc().T/60)*60;if(m!==liveMin){liveMin=m;T=(m>=M.lo&&m<=M.hi)?m:M.lo;draw()}}},1000); // 在線位置は1分ごとに更新する(分が変わったときだけ描き直す)
 
@@ -620,7 +624,7 @@ function showView(v,i){
   if(v==='map'){for(const el of ['#mctl','#mn','#info'])show(el,true);lastHtml=null;goLive()}
   else if(v==='op'){curOp=i;show('#ov',true);renderOp();scrollTo(0,0)}
   else if(v==='st'){show('#sv',true);renderSt()}
-  else if(v==='pt'){show('#pv',true);renderPt();scrollTo(0,0)}
+  else if(v==='pt'){show('#pv',true);renderPt();scrollTo(0,0);if(!ptSkipMap&&geoInit())gmOpen();ptSkipMap=false}
   else if(v==='fv'){show('#fv',true);show('#fadm',isAdmin);renderFv()}
   else if(v==='adm'){show('#adm',true);renderAdm();scrollTo(0,0)}
   else{show('#rs',true);renderRoster()}
@@ -843,16 +847,38 @@ $('#sv').addEventListener('click',nav);
 // ---- 通過時刻表 ----
 // 駅と駅のあいだの好きな地点を、区間のはじめの駅からの距離(km)か割合(%)で指定して、その地点を列車が通る時刻を出す。
 // 時刻は、区間の両端の駅の発着時刻から、距離の割合で内挿する(列車は区間の中を一定の速さで走ると考える)
-let ptEdge=null,ptFrac=0.5,ptDir='all',ptFrom=null,ptTo=null,ptFm='';
+let ptEdge=null,ptFrac=0.5,ptDir='all',ptFrom=null,ptTo=null,ptFms=null,ptFmsInit=false; // 編成の絞り込み(チェックボックスで複数選択)。ptFmsInit=ユーザーが1度でもチェックを触ったか(触る前は、選べる編成が変わるたびに全部にチェックし直す)
+let ptSkipMap=false; // 地図から戻るときだけ、地図の自動表示をしない
 const segKmFor=edge=>M.cfg&&M.cfg.distKm?M.cfg.distKm.get(edge.key):null;
+function edgeKmBetween(s1,s2){ // 隣り合う2駅のあいだの距離(km)。管理者の距離があればそれ、なければ直線距離、座標がなければ1
+  const u=M.cn(s1),v=M.cn(s2);
+  if(u!==v){const e=edgeList().find(x=>(x.u===u&&x.v===v)||(x.u===v&&x.v===u));
+    if(e){const k=ptKmFor(e);if(k&&k.km)return k.km}}
+  const a=geoCoord(s1),b=geoCoord(s2);
+  if(a&&b)return havM(a,b)/1000;
+  return 1}
 function ptPassTime(tr,edge,frac){ // 列車がその区間を通るなら、その地点を過ぎる時刻(秒)。通らない列車は null
   const R=tr.route;
   for(let k=0;k<R.length-1;k++){const x=R[k],y=R[k+1],ux=M.cn(x.s),uy=M.cn(y.s);
     if(!((ux===edge.u&&uy===edge.v)||(ux===edge.v&&uy===edge.u)))continue;
-    if(x.d==null||y.a==null)return null;
-    const f=ux===edge.u?frac:1-frac; // 区間のはじめの駅側から数える
-    return x.d+(y.a-x.d)*f}
+    if(x.d!=null&&y.a!=null){const f=ux===edge.u?frac:1-frac;return x.d+(y.a-x.d)*f} // 区間のはじめの駅側から数える
+    // 快速などが通過する駅は時刻がないので、前後の時刻がある駅で挟んで、距離の割合で内挿する
+    let iA=k;while(iA>=0&&R[iA].d==null)iA--;
+    let iB=k+1;while(iB<R.length&&R[iB].a==null)iB++;
+    if(iA<0||iB>=R.length)return null;
+    const tA=R[iA].d,tB=R[iB].a;if(tA==null||tB==null||tB<=tA)return null;
+    let total=0;for(let j=iA;j<iB;j++)total+=edgeKmBetween(R[j].s,R[j+1].s);
+    if(!total)return null;
+    let fromA=0;for(let j=iA;j<k;j++)fromA+=edgeKmBetween(R[j].s,R[j+1].s);
+    fromA+=(ux===edge.u?frac:1-frac)*edgeKmBetween(x.s,y.s);
+    return tA+(tB-tA)*fromA/total}
   return null}
+function ptEdgePass(tr,edge){ // 列車が区間の両端の駅に止まらずに通過するか(通過時刻表で「通過」と出すため)
+  const R=tr.route;
+  for(let k=0;k<R.length-1;k++){const x=R[k],y=R[k+1],ux=M.cn(x.s),uy=M.cn(y.s);
+    if(!((ux===edge.u&&uy===edge.v)||(ux===edge.v&&uy===edge.u)))continue;
+    return x.ps&&y.ps}
+  return false}
 function ptRows(edge,frac){ // 方向と時刻で絞ったあとの、(通過時刻, 列車)。編成での絞り込みは、あとでする
   const out=[];
   for(const tr of cur){if(ptDir!=='all'&&tr.dir!==+ptDir)continue;
@@ -912,23 +938,25 @@ function updatePtPos(edge){
     $('#ppos').textContent=`${stName(edge.a)}から ${pct}%`;$('#pnote').textContent='この区間の距離が未設定のため、割合で指定しています。管理者画面の「駅間の距離」で距離を設定すると、km で指定できます';nb.style.display=''}}
 function renderPtTable(){
   const E=edgeList(),edge=E.find(e=>e.key===ptEdge);
-  const body=$('#pbody'),fmSel=$('#pfm');
-  if(!edge){body.innerHTML='<div class="mute" style="padding:16px 0">区間がありません</div>';fmSel.innerHTML='<option value="">すべての編成</option>';$('#pmeta').textContent='';return}
+  const body=$('#pbody'),fmSel=$('#pfmc');
+  if(!edge){body.innerHTML='<div class="mute" style="padding:16px 0">区間がありません</div>';fmSel.innerHTML='';$('#pmeta').textContent='';return}
   const rows=ptRows(edge,ptFrac);
   const fms=new Map(); // 編成の選択肢は、方向と時刻で絞った列車から作る
   for(const {tr} of rows){const fo=tr.op?fmOf(tr.op.key):null,k=fo?fo.f:'';
     fms.set(k,(fms.get(k)||0)+1)}
-  if(ptFm&&![...fms.keys()].some(k=>(k||'__none')===ptFm))ptFm='';
-  fmSel.innerHTML=`<option value="">すべての編成</option>`+[...fms.entries()].sort((a,b)=>a[0].localeCompare(b[0],'ja',{numeric:true})).map(([k,n])=>`<option value="${esc(k||'__none')}"${(k||'__none')===ptFm?' selected':''}>${k?esc(k):'編成未投稿'} (${n}本)</option>`).join('');
+  const allKeys=[...fms.keys()].map(k=>k||'__none');
+  if(!ptFmsInit)ptFms=new Set(allKeys); // ユーザーがまだ触っていないうちは、選べる編成が変わるたびに全部にチェックし直す(はじめの区間に列車がなくて空のまま固まるのを防ぐ)
+  else for(const k of [...ptFms])if(!allKeys.includes(k))ptFms.delete(k); // 方向・時刻で絞って出なくなった編成は外す
+  fmSel.innerHTML=[...fms.entries()].sort((a,b)=>a[0].localeCompare(b[0],'ja',{numeric:true})).map(([k,n])=>{const key=k||'__none';return `<label class="fck"><input type="checkbox" data-fm="${esc(key)}"${ptFms.has(key)?' checked':''}>${k?esc(k):'編成未投稿'} (${n}本)</label>`}).join('');
   let L=rows;
-  if(ptFm)L=rows.filter(({tr})=>{const fo=tr.op?fmOf(tr.op.key):null;return ptFm==='__none'?!fo:fo&&fo.f===ptFm});
+  L=rows.filter(({tr})=>{const fo=tr.op?fmOf(tr.op.key):null;return ptFms.has(fo?fo.f:'__none')}); // チェックが1つもなければ列は出ない(チェックした編成だけ出す)
   $('#pmeta').textContent=L.length+'本';
   if(!L.length){body.innerHTML=`<div class="mute" style="padding:16px 0">${rows.length?'条件に合う列車はありません':'この地点を通過する列車はありません'}</div>`;return}
   let ph=null;
   body.innerHTML=`<table class="stt"><tr><th></th><th>時刻</th><th>方向</th><th>行先</th><th>列車</th><th>運用</th><th>編成</th></tr>${L.map(({t,tr})=>{
     const h=Math.floor(t/3600),first=h!==ph;ph=h;
     const o=tr.op,fo=o?fmOf(o.key):null;
-    return `<tr data-t="${tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(tr)}"><b>${String(Math.floor(t%3600/60)).padStart(2,'0')}:${String(Math.floor(t%60)).padStart(2,'0')}</b></td><td>${tr.dir?'上り':'下り'}</td><td><span class="ab" style="background:${ccol(tr)};color:${ink(ccol(tr))}">${esc((M.types[tr.ty]||{ab:''}).ab)}</span>${esc(M.st[tr.route[tr.ls].s].name)}行</td><td>${esc(tr.name)}</td><td>${o?esc(o.name):''}</td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><b>${esc(fo.f)}</b></span>`:''}</td></tr>`}).join('')}</table>`}
+    return `<tr data-t="${tr.id}" tabindex="0"${first?' class="hh"':''}><td class="hr">${first?h%24:''}</td><td style="color:${tcol(tr)}"><b>${String(Math.floor(t%3600/60)).padStart(2,'0')}:${String(Math.floor(t%60)).padStart(2,'0')}</b></td><td>${tr.dir?'上り':'下り'}</td><td><span class="ab" style="background:${ccol(tr)};color:${ink(ccol(tr))}">${esc((M.types[tr.ty]||{ab:''}).ab)}</span>${esc(M.st[tr.route[tr.ls].s].name)}行</td><td>${esc(tr.name)}${ptEdgePass(tr,edge)?'<small class="mute">通過</small>':''}</td><td>${o?esc(o.name):''}</td><td>${fo?`<span class="fct"><img class="fi" src="${esc(fmIconUrl(fo.f))}" width="20" height="28" alt=""><b>${esc(fo.f)}</b></span>`:''}</td></tr>`}).join('')}</table>`}
 const tmVal=v=>{const m=/^(\d{1,2}):(\d{2})/.exec(v||'');return m?+m[1]*60+ +m[2]:null};
 $('#pv').addEventListener('click',e=>{
   const d=e.target.closest('[data-pd]');if(d){ptDir=d.dataset.pd;renderPt();return}
@@ -938,7 +966,7 @@ $('#pv').addEventListener('change',e=>{
   if(t.id==='pedge'){ptEdge=t.value;renderPt();return}
   if(t.id==='pftime'){ptFrom=tmVal(t.value);renderPtTable();return}
   if(t.id==='pttime'){ptTo=tmVal(t.value);renderPtTable();return}
-  if(t.id==='pfm'){ptFm=t.value;renderPtTable();return}
+  if(t.closest&&t.closest('#pfmc')){const cb=t.closest('input[type=checkbox][data-fm]');if(cb){ptFmsInit=true;if(ptFms==null)ptFms=new Set();if(cb.checked)ptFms.add(cb.dataset.fm);else ptFms.delete(cb.dataset.fm);renderPtTable()}return}
   if(t.id==='pkm'){const edge=edgeList().find(x=>x.key===ptEdge),kmo=edge?ptKmFor(edge):null,km=kmo?kmo.km:null;
     if(km){const v=Math.max(0,Math.min(km,parseFloat(t.value)||0));ptFrac=v/km;$('#pslider').value=Math.round(ptFrac*1000);updatePtPos(edge);renderPtTable()}return}});
 $('#pv').addEventListener('input',e=>{
@@ -1157,7 +1185,7 @@ function gmTap(ll){
 function gmGo(){
   if(!gmPick)return;
   ptEdge=gmPick.edge;ptFrac=gmPick.frac;
-  show('#gm',false);showView('pt')}
+  show('#gm',false);ptSkipMap=true;showView('pt')}
 function gmTrackEligible(){ // この路線の駅が、埋め込みの座標表と一致するときだけ、線路の形を取りに行く
   return M&&M.st.every(s=>GEO_STATIONS[s.name])}
 async function gmTryTrack(){ // OpenStreetMap(Overpass)から線路の形を取りに行く。管理者が線を引いているときは、その線を使うので取りに行かない。取れなければ直線のまま
@@ -1242,7 +1270,7 @@ function gmApplyTrack(j){ // Overpassの結果から、線路に沿った折れ�
   }catch(e){return false}}
 $('#gmopen').onclick=()=>gmOpen();
 $('#gmretry').onclick=()=>{if(gmTile&&gmTile.gmReset){gmTile.gmReset();const d=$('#gmdist');if(d)d.textContent=''}gmOpen()};
-$('#gmback').onclick=()=>{show('#gm',false);showView('pt')};
+$('#gmback').onclick=()=>{show('#gm',false);ptSkipMap=true;showView('pt')};
 $('#gmgo').onclick=gmGo;
 
 
@@ -1920,9 +1948,10 @@ document.addEventListener('keydown',e=>{if(!menuOpen)return;if(e.key==='Escape')
   if(e.key==='Tab'){const f=[...$('#menu').querySelectorAll('button,input')];if(!f.length)return;const i=f.indexOf(document.activeElement);
     if(e.shiftKey&&i<=0){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&i===f.length-1){e.preventDefault();f[0].focus()}}});
 // ---- 在線位置の操作(右下): 列番/行先、リアルタイム、日付と時刻 ----
-function syncMctl(){const r=$('#rtb'),l=$('#lmb');if(!r||!l)return;r.setAttribute('aria-pressed',String(live));const m=labelMode==='dest'?'行先':'列番';l.textContent='表示: '+m;l.setAttribute('aria-label','列車のラベルを切り替え(いま: '+m+')')}
+function syncMctl(){const r=$('#rtb'),l=$('#lmb');if(!r||!l)return;r.setAttribute('aria-pressed',String(live));const m=labelMode==='dest'?'行先':'列番';l.textContent='表示: '+m;l.setAttribute('aria-label','列車のラベルを切り替え(いま: '+m+')');const l2=$('#lmb2');if(l2){l2.textContent='表示: '+m;l2.setAttribute('aria-label','列車の表示を切り替え(いま: '+m+')')}}
 $('#rtb').onclick=()=>{if(live){live=false;syncMctl()}else goLive()};
-$('#lmb').onclick=()=>{labelMode=labelMode==='no'?'dest':'no';showNo=labelMode==='no';showDest=!showNo;try{localStorage.setItem('sMode',labelMode)}catch(e){}lastHtml=null;draw();refresh()};
+function toggleLabel(){labelMode=labelMode==='no'?'dest':'no';showNo=labelMode==='no';showDest=!showNo;try{localStorage.setItem('sMode',labelMode)}catch(e){}lastHtml=null;syncMctl();if(view==='map')draw();refresh()}
+$('#lmb').onclick=toggleLabel;$('#lmb2').onclick=toggleLabel;
 // ---- 運用一覧・駅時刻表の日付バーは、ページの一番上に埋め込む ----
 function placeDbar(v){const h=v==='roster'?$('#rs'):v==='st'?$('#sv'):v==='pt'?$('#pv'):null;if(h){h.prepend($('#dbar'));show('#dbar',true)}else show('#dbar',false)}
 
