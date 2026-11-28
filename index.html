@@ -280,6 +280,7 @@ const fmt=(t,s)=>{t=Math.floor(t)%86400;return String(t/3600|0).padStart(2,'0')+
 const col=c=>{c=(c||'00000000').slice(-6);if(!/^[0-9a-fA-F]{6}$/.test(c))c='000000';const h='#'+c.slice(4,6)+c.slice(2,4)+c.slice(0,2);return h==='#000000'?'var(--ink)':h};
 
 function setup(root,name){
+  if(!lineFile&&name)lineFile=name+'.oud2'; // 直接ファイルを読み込んだときも、投稿や前回の項目の保存が動くように
   const R=root.Rosen[0];
   const st=R.Eki.map((e,i)=>({name:e.Ekimei,major:e.Ekikibo==='Ekikibo_Syuyou',core:e.BrunchCoreEkiIndex!=null?+e.BrunchCoreEkiIndex:null,tracks:e.EkiTrack2Cont?.[0]?.EkiTrack2||[]}));
   // --- 駅の接続関係を作る ---
@@ -357,6 +358,7 @@ function setup(root,name){
   M.free=!M.dias.some(d=>/平日|土|休|日曜|祝/.test(d.name)); // ダイヤ名から曜日が分からない路線は、手動で選ぶ
   $('#ddia').innerHTML=M.dias.map((d,i)=>`<option value="${i}">${esc(d.name)}</option>`).join('');show('#ddia',M.free);
   useDia(M.free?0:diaFor(dayType(selDate)).i,true);showView('roster');loadPosts().then(refresh);loadNotices();if(afterSetup){const f=afterSetup;afterSetup=null;f()}
+  if(restorePending){const st=restorePending;restorePending=null;applyLast(st)}
 }
 
 function build(d){
@@ -600,6 +602,7 @@ setInterval(()=>{if(M&&live&&!$('#mn').classList.contains('hide')){const m=Math.
 // ---- 運用一覧・運用の一覧・編成の投稿 ----
 const VIEWS=['#mctl','#mn','#info','#rs','#tv','#sv','#pv','#dg','#fv','#adm','#ov','#bnav','#sheet','#dbar','#pop','#svc'];
 let posts=[],postErr=false,me=null,lineFile='',curOp=0,postsSig='',postsDirty=false,rosterQ=''; // 運用一覧の検索(列車番号・運用名・編成)
+let opHi=null; // 運用の流れで光らせる列車の id(列車時刻表のシートから来たときだけ)
 const kitenS=()=>M&&M.kiten?M.kiten:14400;
 const svcDate=()=>new Date(Date.now()+9*3600e3-kitenS()*1000).toISOString().slice(0,10); // 日本時間でダイヤの起点時刻(4時)に日付が変わる
 const postsOf=u=>posts.filter(p=>p.unit===u);
@@ -660,8 +663,9 @@ function renderOp(){
   <div class="mute" style="margin:8px 0">${o.group?esc(o.group)+'、':''}${o.trains.length?`${S(f.route[f.fs].s)} 出庫、${S(l.route[l.ls].s)} 入庫、${o.trains.length}本`:'列車がまだ入っていません。管理者画面から列車を追加できます'}${fo&&fo.remark?'。'+esc(fo.remark):''}${fo?'。投稿 '+esc(nameOf(fo.by)):''}</div>
   ${o.warn.length?`<div class="wnote">${o.warn.map(esc).join('<br>')}</div>`:''}
   ${o.trains.length?`<table><tr><th>発</th><th>列車</th><th>着</th><th>備考</th></tr>${o.trains.map(t=>{const a=t.route[t.fs],b=t.route[t.ls],c=ccol(t),ty=M.types[t.ty]||{ini:''};
-    return `<tr data-t="${t.id}" style="cursor:pointer"><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td></tr>`}).join('')}</table>`:''}</div>`;
+    return `<tr data-t="${t.id}" style="cursor:pointer"${t.id===opHi?' class="now"':''}><td><b>${fmt(a.d)}</b></td><td><span class="ic" style="background:${c};color:${ink(c)}">${esc(ty.ini)}</span> ${esc(t.name)} ${S(a.s)} → ${S(b.s)}</td><td>${fmt(b.a)}</td><td class="mute">${esc(t.bikou)}</td></tr>`}).join('')}</table>`:''}</div>`;
 }
+function scrollOpHi(){const r=opHi!=null&&document.querySelector('#ov tr.now');if(r&&r.scrollIntoView)r.scrollIntoView({block:'center'})} // 光っている列車の行までスクロールする
 function showView(v,i){
   if(v==='tt'&&(i==='st'||i==='pt'))ttMode=i; // 時刻表は、駅時刻表/通過時刻表のどちらで開くかを指定できる
   for(const el of VIEWS)show(el,false);show('#gm',false);sh=null;selIds=new Set();show('#bnav',true);view=v;
@@ -674,6 +678,7 @@ function showView(v,i){
   else if(v==='adm'){show('#adm',true);renderAdm();scrollTo(0,0)}
   else{show('#rs',true);renderRoster()}
   $('#nr').classList.toggle('on',v==='roster'||v==='op');$('#nm').classList.toggle('on',v==='map');$('#nt').classList.toggle('on',v==='tt');$('#nd').classList.toggle('on',v==='dg');$('#nf').classList.toggle('on',v==='fv');
+  saveLast();
 }
 let ttMode='st'; // 時刻表の表示(駅時刻表/通過時刻表)。下のナビでは駅時刻表から開く
 function showTt(m){ // 時刻表の、駅時刻表と通過時刻表のタブ切り替え。地図は日付のよこのアイコンで自分で開く(自動では開かない)
@@ -682,7 +687,7 @@ function showTt(m){ // 時刻表の、駅時刻表と通過時刻表のタブ切
   show('#gm',false);show('#sv',m==='st');show('#pv',m==='pt');
   placeDbar('tt');scrollTo(0,0);
   if(m==='st')renderSt();
-  else renderPt()}
+  else renderPt();saveLast()}
 $('#ttmode').onclick=e=>{const b=e.target.closest('[data-tt]');if(b)showTt(b.dataset.tt)}; // タブで駅時刻表と通過時刻表を切り替える
 // ---- ダイヤグラム(時刻×駅・番線の折れ線図)。OuDia のダイヤグラムと同じ見た目 ----
 // 横=時刻、縦=駅の番線。列車は種別の色の折れ線で、停車は番線の行での水平線、通過は前後の時刻で内挿する
@@ -926,7 +931,7 @@ function renderPh(tr){
   e.innerHTML=L.length?L.map(p=>`<div class="po"><b>${esc(p.formation)}</b><span>${p.replaced?'<span class="rp">差替</span> ':''}${esc(p.remark)}<div class="io">${new Date(p.created_at).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Tokyo'})} ${esc(p.train)}  投稿: ${esc(nameOf(p.user_id))}</div></span>${(p.user_id===me||isAdmin)&&selDate===svcDate()?`<button data-del="${esc(p.id)}">取消</button>`:''}</div>`).join(''):`<div class="mute">${selDate===svcDate()?'今日':selDate}の投稿はまだありません</div>`;
 }
 $('#sheet').addEventListener('click',async e=>{
-  const g=e.target.closest('[data-goop]');if(g){const i=+g.dataset.goop;closeSheet();showView('op',i);return}
+  const g=e.target.closest('[data-goop]');if(g){const i=+g.dataset.goop;opHi=(sh&&sh.type==='tr')?cur[sh.ids[sh.act]].id:null;closeSheet();showView('op',i);scrollOpHi();return}
   if(!sh||sh.type!=='tr')return;const tr=cur[sh.ids[sh.act]],x=e.target.closest('[data-del]'),po=e.target.closest('#popen');
   if(po&&tr.op&&selDate===svcDate()){openPop(tr,po);return}
   if(x&&selDate===svcDate()){x.disabled=true;await sb.from('formation_posts').delete().eq('id',x.dataset.del);await loadPosts();refresh()}
@@ -976,7 +981,7 @@ const nav=e=>{const pp=e.target.closest('[data-oppost]');
   if(pp){const o=(cur.ops||[])[curOp];if(o&&selDate===svcDate())openPopOp(o,pp);return} // 運用自体に編成を投稿する(列車からではなく)
   const t=e.target.closest('[data-t]'),o=e.target.closest('[data-op]'),g=e.target.closest('[data-g]');
   if(g){const k=g.dataset.g;gcol.has(k)?gcol.delete(k):gcol.add(k);renderRoster();return}
-  if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o)showView('op',+o.dataset.op);else if(e.target.closest('#bk'))showView('roster')};
+  if(t)openSheet({type:'tr',ids:[+t.dataset.t],act:0});else if(o){opHi=null;showView('op',+o.dataset.op)}else if(e.target.closest('#bk'))showView('roster')};
 $('#rs').addEventListener('click',nav);$('#ov').addEventListener('click',nav);
 $('#nr').onclick=()=>showView('roster');$('#nm').onclick=()=>showView('map');$('#nt').onclick=()=>showView('tt','st');$('#nd').onclick=()=>showView('dg');$('#nf').onclick=()=>showView('fv'); // 時刻表は、駅時刻表から開く
 setInterval(async()=>{if(authed&&M&&!document.hidden){loadNotices();await loadPosts();refresh()}},60000);
@@ -1025,7 +1030,7 @@ function applyDate(){ // 選んだ日付の種類(平日・土曜・休日)に�
 const shiftDate=n=>{const [y,m,d]=ymd(selDate);return new Date(Date.UTC(y,m-1,d+n)).toISOString().slice(0,10)};
 function setDate(v){
   if(!/^\d{4}-\d{2}-\d{2}$/.test(v))return;selDate=v;$('#dsel').value=$('#mdate').value=v;
-  if(view==='map'){live=false;applyDate();posts=[];postsSig='';lastHtml=null;draw();loadPosts().then(refresh);return} // 在線位置: 選んだ日付で静止表示
+  if(view==='map'){live=false;applyDate();posts=[];postsSig='';lastHtml=null;draw();loadPosts().then(refresh);saveLast();return} // 在線位置: 選んだ日付で静止表示
   showView(view==='tt'?'tt':view==='dg'?'dg':'roster');                    // 運用の番号が変わるので、運用の一覧などは開き直す
   posts=[];postsSig='';loadPosts().then(refresh);
 }
@@ -1034,9 +1039,27 @@ function nowSvc(){const j=new Date(Date.now()+9*3600e3),sec=j.getUTCHours()*3600
 function goLive(){ // 今日・現在時刻に合わせて、実時間で動かす
   const d=svcDate(),ch=d!==selDate;selDate=d;live=true;$('#dsel').value=$('#mdate').value=d;applyDate();
   const t=Math.floor(nowSvc().T/60)*60;liveMin=t;T=(t>=M.lo&&t<=M.hi)?t:M.lo; // 分までで表示する
-  if(ch){posts=[];postsSig=''}lastHtml=null;draw();loadPosts().then(refresh)}
+  if(ch){posts=[];postsSig=''}lastHtml=null;draw();loadPosts().then(refresh);saveLast()}
 $('#dprev').onclick=()=>setDate(shiftDate(-1));$('#dnext').onclick=()=>setDate(shiftDate(1));$('#dtoday').onclick=()=>setDate(svcDate());
 $('#ddia').onchange=()=>setDate(selDate);
+function saveLast(){ // いま開いている項目を覚える(再読み込みで同じところを開くため。管理者画面は覚えない)
+  if(!M||!lineFile||view==='adm')return;
+  try{localStorage.setItem('fkLast',JSON.stringify({file:lineFile,view,date:selDate,tt:ttMode,st:stI,stDir,ptEdge,ptFrac,ptDir,op:curOp,opHi}))}catch(e){}}
+function readLast(){try{const s=JSON.parse(localStorage.getItem('fkLast')||'null');return s&&s.file?s:null}catch(e){return null}}
+function applyLast(st){ // 前回開いていた項目を開く(路線の読み込みが終わったあとに呼ぶ)
+  if(!st||!M)return;
+  const v=st.view||'roster';
+  if(v!=='map'&&st.date&&/^\d{4}-\d{2}-\d{2}$/.test(st.date)&&st.date!==selDate){selDate=st.date;$('#dsel').value=$('#mdate').value=st.date;applyDate()}
+  if(v==='tt'&&st.tt==='pt'){
+    if(['all','0','1'].includes(st.ptDir))ptDir=st.ptDir;
+    if(st.ptEdge&&edgeList().some(e=>e.key===st.ptEdge)){ptEdge=st.ptEdge;ptFrac=typeof st.ptFrac==='number'?st.ptFrac:0.5}
+    showView('tt','pt');
+  }else if(v==='tt'){if(typeof st.st==='number'&&st.st>=0&&st.st<M.st.length)stI=st.st;if(typeof st.stDir==='number')stDir=st.stDir;showView('tt','st')}
+  else if(v==='op'&&(cur.ops||[])[st.op]){opHi=typeof st.opHi==='number'?st.opHi:null;showView('op',st.op);scrollOpHi()}
+  else if(v==='map')showView('map');
+  else if(v==='dg')showView('dg');
+  else if(v==='fv')showView('fv');
+  else showView('roster')}
 
 // ---- 編成表(編成ごとのアイコン・車号・備考)と管理者 ----
 const PH_DATA='data:image/webp;base64,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'; // 編成不明のアイコン
@@ -1047,7 +1070,7 @@ function blobUrl(d){ // data URI を短い blob URL にして、同じ長い文�
   urlCache.set(d,u);return u}
 const PHU=()=>blobUrl(PH_DATA);
 const ICON_OK=/^data:image\/(png|webp|jpeg|gif);base64,[A-Za-z0-9+\/=]+$/;
-let FM=new Map(),isAdmin=false,fmErr='',lastFile=null,adm=null,afterSetup=null;
+let FM=new Map(),isAdmin=false,fmErr='',lastFile=null,adm=null,afterSetup=null,restorePending=null;
 const nk=x=>String(x==null?'':x).normalize('NFKC').trim().toUpperCase();
 let FMN=new Map();
 const digKey=x=>/^\d+$/.test(x)?x.replace(/^0+(?=\d)/,''):null; // 数字だけの編成は、先頭の0と全角・半角の違いを無視して照合する(1つに決まるときだけ)
@@ -1122,7 +1145,7 @@ function renderSt(){
   if(!stFmsInit)stFms=new Set(allKeys); // ユーザーがまだ触っていないうちは、選べる編成が変わるたびに全部にチェックし直す
   else for(const k of [...stFms])if(!allKeys.includes(k))stFms.delete(k); // 絞って出なくなった編成は外す
   $('#sfmc').innerHTML=[...fms.entries()].sort((a,b)=>a[0].localeCompare(b[0],'ja',{numeric:true})).map(([k,n])=>{const key=k||'__none';return `<label class="fck"><input type="checkbox" data-fm="${esc(key)}"${stFms.has(key)?' checked':''}>${k?esc(k):'編成未投稿'} (${n}本)</label>`}).join('');
-  const r=stTable(pk(stI),stDir,ttHr,{from:stFrom,to:stTo,fms:stFms});ttHrs=r.hrs;$('#smeta').textContent=r.n+'本';$('#shb').innerHTML=hourBar();$('#sbody').innerHTML=r.html;
+  const r=stTable(pk(stI),stDir,ttHr,{from:stFrom,to:stTo,fms:stFms});ttHrs=r.hrs;$('#smeta').textContent=r.n+'本';$('#shb').innerHTML=hourBar();$('#sbody').innerHTML=r.html;saveLast();
 }
 function stRows(key,dir){ // 駅時刻表の行の素(方向で絞ったもの)
   let L=[];
@@ -1238,7 +1261,7 @@ function renderPt(){
   document.querySelectorAll('#pdirs button').forEach(b=>b.classList.toggle('on',b.dataset.pd===ptDir));
   $('#pslider').value=Math.round(ptFrac*1000); // 地図で選んだ地点をスライダーにも反映する
   updatePtPos(edge);
-  renderPtTable()}
+  renderPtTable();saveLast()}
 function updatePtPos(edge){
   const kmo=edge?ptKmFor(edge):{km:null,src:null},km=kmo.km;
   const nb=$('#pnotebar');
@@ -2400,6 +2423,7 @@ async function showList(cache){
   try{if(!(cache&&lineList)){msg.textContent='読み込み中…';lineList=(await(await api('action=list')).json()).files}
     msg.textContent=lineList.length?'':'路線がまだ登録されていません';
     for(const n of lineList){const b=document.createElement('button');b.className='tile';b.textContent=n.replace(/\.oud2?$/i,'');b.onclick=()=>openLine(n);box.append(b)}
+    if(!M){const st=readLast();if(st&&lineList.includes(st.file)){restorePending=st;openLine(st.file)}} // 前回開いていた路線があれば、路線選択を出さずにそのまま開く
   }catch(e){if(e.message!=='auth')msg.textContent='一覧を取得できませんでした('+e.message+')'}
 }
 async function openLine(n){
